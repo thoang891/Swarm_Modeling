@@ -21,10 +21,10 @@ cost, pos = optimizer.optimize(fx.sphere, iters=100)
 
 pos_history_3d = m.compute_history_3d(optimizer.pos_history)
 animation3d = plot_surface(pos_history=pos_history_3d, mesher=m, designer=d, mark=(0,0,0))
-
+plt.show()
 # animation3d.save('plot3d.gif', writer='imagemagick', fps=8)
 # Image(url='plot3d.gif')
-animation3d.save('pso_animation.gif', writer='imagemagick', fps=10)
+#animation3d.save('pso_animation.gif', writer='imagemagick', fps=10)
 # Display the animation directly
 
 # Having issues getting a 3D animation to display
