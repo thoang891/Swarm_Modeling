@@ -20,9 +20,9 @@ surface_plot = None
 for i in range(1000):
     u += random.uniform(-0.1,0.1)
     v += random.uniform(-0.1,0.1)
-    w = np.sinc(u * np.cos(float(i)/100)) + np.sinc(v * np.sin(float(i)/100)) + (np.cos(u * v * np.sin(float(i)/100)) / 10)
+    w = np.sinc((u + np.cos(float(i)/10))/2) + np.sinc((v - np.sin(float(i)/10))/2) + (np.cos(u * v * np.sin(float(i)/100)))
 
-    z = np.sinc(x * np.cos(float(i)/100)) + np.sinc(y * np.sin(float(i)/100)) + (np.cos(x * y * np.sin(float(i)/100)) / 10)
+    z = np.sinc((x + np.cos(float(i)/10))/2) + np.sinc((y - np.sin(float(i)/10))/2) + (np.cos(x * y * np.sin(float(i)/100)))
     print(z)
     surface_plot = ax.plot_surface(x, y, z, cmap='viridis', alpha=0.5)
     scatter_plot = ax.scatter(u, v, w, c='r', s=50, marker='o', depthshade=False)
