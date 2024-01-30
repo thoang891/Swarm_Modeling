@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pyswarms.backend as P
-from pyswarms.backend.topology import Star
+from pyswarms.backend import topology as top
 
 # Create surface array
 x_space = np.outer(np.linspace(-10, 10, 2000), np.ones(2000))
@@ -15,7 +15,7 @@ def f(x, y, i):
     return z
 
 # Optimization variables where c1 and c2 are the cognitive and social parameters, w is the inertia parameter, and n_particles is the number of particles
-options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+options = {'c1': 0.3, 'c2': 0.3, 'w': 0.5}
 n_particles = 25
 dimensions = 2
 iters = 1000
@@ -23,7 +23,7 @@ max_bounds = 10 * np.ones(dimensions)
 min_bounds = -max_bounds
 iterations = 1000
 bounds = (min_bounds, max_bounds)
-my_topology = Star()
+my_topology = top.Ring()
 
 # Create a swarm instance
 my_swarm = P.create_swarm(n_particles=n_particles, dimensions=dimensions, options=options, bounds=bounds)
@@ -50,7 +50,7 @@ for j in range(iterations):
     
     # Part 3: Update global best (defined as minimum of personal best)
     if np.min(my_swarm.pbest_cost) < my_swarm.best_cost:
-        my_swarm.best_pos, my_swarm.best_cost = my_topology.compute_gbest(my_swarm)
+        my_swarm.best_pos, my_swarm.best_cost = my_topology.compute_gbest(my_swarm, p=2, k=3)
 
     print("Iteration: {} | my_swarm.best_pos: {}".format(j+1, my_swarm.best_pos))
     print("Iteration: {} | my_swarm.best_cost: {:.4f}".format(j+1, my_swarm.best_cost))
@@ -63,7 +63,7 @@ print("The best position found by our swarm is: {}".format(my_swarm.best_pos))
 print("The best cost found by our swarm is: {:.4f}".format(my_swarm.best_cost))
 
 # Create a 3D plot and animation
-delay = 0.05
+delay = 0.01
 fig = plt.figure(figsize=(7, 7))
 ax = plt.axes(projection='3d')
 ax.set_xlim(-10, 10)

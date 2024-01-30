@@ -8450,3 +8450,7 @@ dyld[29216]: Library not loaded: /opt/homebrew/opt/mbedtls/lib/libmbedcrypto.14.
 2023-10-12 14:29:21,473 - pyswarms.single.global_best - INFO - Optimization finished | best cost: -2.1, best pos: [-1.16858843e-09 -9.12862356e-09]
 2023-10-12 14:29:33,845 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
 2023-10-12 14:29:33,936 - pyswarms.single.global_best - INFO - Optimization finished | best cost: -2.1, best pos: [ 9.39451299e-09 -9.28038253e-11]
+2023-10-13 10:10:14,358 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2023-10-13 10:10:14,458 - pyswarms.single.global_best - INFO - Optimization finished | best cost: -2.1, best pos: [-1.94399043e-09 -4.17990026e-09]
+2023-10-20 09:09:04,089 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2023-10-20 09:09:04,188 - pyswarms.single.global_best - INFO - Optimization finished | best cost: -2.1, best pos: [-9.40600158e-09  2.88134149e-09]
