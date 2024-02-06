@@ -5,15 +5,16 @@ from Buoy import Buoy
 from Environment import Env
 import time
 
-env = Env()
+timewarp = 0.5
+env = Env(bounds=10, fidelity=2000, dt=timewarp)
 
-def construct_swarm(population=5):
+def construct_swarm(population=5, behv="seeker"):
     swarm = []
     for i in range(population):
-        swarm.append(Buoy(i+1))
+        swarm.append(Buoy(i+1, timewarp=timewarp))
     return swarm
 
-def plot(duration=100): 
+def plot(iters=100): 
     # Plotting the surface
     fig = plt.figure(figsize=(7, 7))
     ax = plt.axes(projection='3d')
@@ -25,12 +26,12 @@ def plot(duration=100):
     delay = 0.15
 
     # Animation Loop
-    for i in range(duration):
+    for i in range(iters):
         # Clear the previous scatter plots
         for plot in scatter_plots:
             plot.remove()
         scatter_plots = []  # Clear the list for the new iteration
-        print("Iteration: ", i+1)
+        print("Iteration: {0} Time Elapsed: {1:>10.2f} seconds".format(i, i*env.dt))
         print("***_ID_**************_Position_************_Measurement")
 
         for buoy in swarm:

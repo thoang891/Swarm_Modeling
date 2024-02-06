@@ -2,10 +2,11 @@ import numpy as np
 
 class Env():
 
-    def __init__(self, bounds=10, fidelity=2000):
+    def __init__(self, bounds=10, fidelity=2000, dt=0.1):
         self.bounds = bounds
         self.x_space = np.outer(np.linspace(-bounds, bounds, fidelity), np.ones(fidelity))
         self.y_space = self.x_space.copy().T
+        self.dt = dt
 
     @staticmethod
     def scalar(x, y): # Define the scalar field to be measured
