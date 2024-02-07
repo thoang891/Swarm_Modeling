@@ -17,7 +17,3 @@ class Env():
     def z_space(self):
         z_space = Env.scalar(self.x_space, self.y_space)
         return z_space
-
-
-
-

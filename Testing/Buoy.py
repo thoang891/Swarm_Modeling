@@ -17,8 +17,6 @@ class Buoy():
         self.C = None
         self.goal_vector = None
         self.repulsion_vector = None
-        self.neighbor_repulsion_vector = None
-        self.bound_repulsion_vector = None
         self.random_vector = None
         self.speed = speed
         self.broadcast_data_processed = None
@@ -61,10 +59,11 @@ class Buoy():
         return self.goal_vector # NOTE: Define goal vector based on neighrbor proximity. Need to normalize.
 
     def repulse(self):
-        data_frame = self.broadcast_data_processed
-        bounding_vector = [0, 0]
-        self.neighbor_repulsion_vector = [0, 0] # Reset neighbor repulsion vector
-        self.bound_repulsion_vector = [0, 0] # Reset neighbor repulsion vector
+        data_frame = self.broadcast_data_processed # Copy the broadcast data to a local variable
+        bounding_vector = [0, 0] # Reset bounding vector
+        bound_repulsion_vector = [0, 0] # Reset neighbor repulsion vector
+        neighbor_repulsion_vector = [0, 0] # Reset neighbor repulsion vector
+        neighborhood_repulsion_vector_unnormalized = [0, 0] # Reset neighborhood repulsion vector
         self.repulsion_vector = [0, 0] # Reset repulsion vector
 
         # Calculate the repulsion vector due to the bounds
@@ -82,14 +81,18 @@ class Buoy():
         else:
             bounding_vector[1] = 0
 
-        # Normalize the bounding repulsion vector
-        bounding_vector_magnitude = np.linalg.norm(bounding_vector)
-        self.bound_repulsion_vector = [bounding_vector[0]/bounding_vector_magnitude, bounding_vector[1]/bounding_vector_magnitude]
+        # Normalize the bounding repulsion vector if it exists
+        if bounding_vector[0] != 0 or bounding_vector[1] != 0:
+            print("Buoy {0} is out of bounds".format(self.id))
+            bounding_vector_magnitude = np.linalg.norm(bounding_vector)
+            bound_repulsion_vector = [bounding_vector[0]/bounding_vector_magnitude, bounding_vector[1]/bounding_vector_magnitude]
+        else:
+            bound_repulsion_vector = [0, 0]
     
+        # Calculate the repulsion vector due to the nearby neighbors
         for data in data_frame:
             x2 = data['x']
             y2 = data['y']
-            # print("x2: {0}, y2: {1}".format(x2, y2))
 
             # Calculate the distance between the two buoys
             distance = np.sqrt((x2 - self.position[0])**2 + (y2 - self.position[1])**2)
@@ -99,15 +102,34 @@ class Buoy():
             if distance < self.repulsion_radius:
                 neighbor_repulsion_vector_unnormalized = [self.position[0] - x2, self.position[1] - y2]
                 print("Repulsion between buoy {0} and buoy {1}".format(self.id, data['ID']))
+                # Normalize the neighbor repulsion vector if it exists
+                magnitude = np.linalg.norm(neighbor_repulsion_vector_unnormalized)
+                neighbor_repulsion_vector = [neighbor_repulsion_vector_unnormalized[0]/magnitude, neighbor_repulsion_vector_unnormalized[1]/magnitude]
             else:
-                neighbor_repulsion_vector_unnormalized = [0, 0]
+                neighbor_repulsion_vector = [0, 0]
+            
+            neighborhood_repulsion_vector_unnormalized[0] += neighbor_repulsion_vector[0]
+            neighborhood_repulsion_vector_unnormalized[1] += neighbor_repulsion_vector[1]
 
-            # Normalize the neighbor repulsion vector
-            magnitude = np.linalg.norm(neighbor_repulsion_vector_unnormalized)
-            self.neighbor_repulsion_vector = [neighbor_repulsion_vector_unnormalized[0]/magnitude, neighbor_repulsion_vector_unnormalized[1]/magnitude]
+        # Normalize the neighborhood repulsion vector if it exists
+        if neighborhood_repulsion_vector_unnormalized[0] != 0 or neighborhood_repulsion_vector_unnormalized[1] != 0:
+            neighborhood_repulsion_vector_magnitude = np.linalg.norm(neighborhood_repulsion_vector_unnormalized)
+            neighborhood_repulsion_vector = [neighborhood_repulsion_vector_unnormalized[0]/neighborhood_repulsion_vector_magnitude, neighborhood_repulsion_vector_unnormalized[1]/neighborhood_repulsion_vector_magnitude]
+        else:
+            neighborhood_repulsion_vector = [0, 0]
 
-        self.repulsion_vector = [self.neighbor_repulsion_vector[0] + self.bound_repulsion_vector[0], self.neighbor_repulsion_vector[1] + self.bound_repulsion_vector[1]]
-        return self.repulsion_vector 
+        # Sum the bounding and neighborhood repulsion vectors
+        repulsion_vector = [neighborhood_repulsion_vector[0] + bound_repulsion_vector[0], neighborhood_repulsion_vector[1] + bound_repulsion_vector[1]]
+        
+        # Normalize the repulsion vector if it exists
+        if repulsion_vector[0] != 0 or repulsion_vector[1] != 0:
+            repulsion_vector_magnitude = np.linalg.norm(repulsion_vector)
+            self.repulsion_vector = [repulsion_vector[0]/repulsion_vector_magnitude, repulsion_vector[1]/repulsion_vector_magnitude]
+        else: 
+            self.repulsion_vector = [0, 0]
+        
+        print("Repulsion vector: {0}".format(self.repulsion_vector))
+        return self.repulsion_vector
 
     def random_walk(self):
         random_vector_unnormalized = [random.uniform(-1, 1), random.uniform(-1, 1)]
@@ -118,23 +140,21 @@ class Buoy():
     def read_mail(self, broadcast_data):
         print("")
         print("Buoy {0} is reading mail".format(self.id))
-        self.broadcast_data_processed= broadcast_data.copy()
-        for data in self.broadcast_data_processed:
-            if data['ID'] == self.id:
-                # remove the own buoy's data from the broadcast data
-                self.broadcast_data_processed.remove(data)
-                print("Removed buoy {}'s data from own mail".format(self.id))
-        
-        for data in self.broadcast_data_processed:
-            x2 = data['x']
-            y2 = data['y']
+        self.broadcast_data_processed = []
 
-            # Calculate the distance between the two buoys
-            distance = np.sqrt((x2 - self.position[0])**2 + (y2 - self.position[1])**2)
+        for data in broadcast_data:
+            if data['ID'] != self.id:
+                x2 = data['x']
+                y2 = data['y']
 
-            if distance > self.com_radius:
-                self.broadcast_data_processed.remove(data)
-                print("Removed buoy {0}'s data from buoy {1}'s mail because the distance {2} is greater than the communication radius {3}".format(data['ID'], self.id, distance, self.com_radius))
+                # Calculate the distance between the two buoys
+                distance = np.sqrt((x2 - self.position[0])**2 + (y2 - self.position[1])**2)
+
+                if distance <= self.com_radius:
+                    self.broadcast_data_processed.append(data)
+                else:
+                    print("Removed buoy {0}'s data from buoy {1}'s mail because the distance {2} is greater than the communication radius {3}".format(data['ID'], self.id, distance, self.com_radius))
+
         print("\n".join(str(data) for data in self.broadcast_data_processed)) # Print broadcast data to be read by buoy
         return self.broadcast_data_processed
 

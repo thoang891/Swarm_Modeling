@@ -5,7 +5,7 @@ from Buoy import Buoy
 from Environment import Env
 
 # Settings
-timestep = 0.25
+timestep = 0.5
 iterations = 100
 
 # Initialize Environment and Plot
@@ -24,7 +24,7 @@ def surf_plot():
     ax.plot_surface(env.x_space, env.y_space, env.z_space(), cmap='viridis', alpha=0.5) # Plot the surface
 
 def main(iters=iterations):
-    swarm = construct_swarm(10)
+    swarm = construct_swarm()
     surf_plot()
 
     scatter_plots = []
