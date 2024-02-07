@@ -9,7 +9,8 @@ class Env():
         self.dt = dt
 
     @staticmethod
-    def scalar(x, y): # Define the scalar field to be measured
+    def scalar(x, y): 
+        # Define the scalar field to be measured
         z = x**2 + y**2
         return z
 
