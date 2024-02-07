@@ -71,4 +71,15 @@ class Buoy():
         self.motor()
         self.move()
 
+# Sample broadcast dataframe (id, x, y, measurement)
+        
+# NOTE: Consider constructing a dictionary nested in a list for easier data processing
+        
+broadcast_data = [{'ID': 1, 'x': -3.340294598489172, 'y': -2.334770997628689, 'measurement': 16.608723616064}, 
+                  {'ID': 2, 'x': -11.181222109966305, 'y': -0.22259356066402272, 'measurement': 125.06927576564843}, 
+                  {'ID': 3, 'x': -3.610261399636451, 'y': -12.704327801809459, 'measurement': 174.4339322695337}, 
+                  {'ID': 4, 'x': -3.2831840115921334, 'y': 0.8354576568072147, 'measurement': 11.477286750292016}, 
+                  {'ID': 5, 'x': -5.119375115023086, 'y': -9.41714009157267, 'measurement': 114.89052907262294}]
+
+print(broadcast_data[1]['ID'])
 
