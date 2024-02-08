@@ -5,14 +5,15 @@ from Buoy import Buoy
 from Environment import Env
 
 # Settings
-timestep = 0.5
+timestep = 0.1
 iterations = 100
+scalar_map = 2
 
 # Initialize Environment and Plot
-env = Env(bounds=10, fidelity=2000, dt=timestep)
+env = Env(bounds=10, fidelity=2000, dt=timestep, setting=scalar_map)
 ax = plt.axes(projection='3d')
 
-def construct_swarm(population=5, behv="seeker"):
+def construct_swarm(population=5, behv="seeker", scalar_map=scalar_map):
     swarm = []
     for i in range(population):
         swarm.append(Buoy(i+1, timestep=timestep))
@@ -24,12 +25,12 @@ def surf_plot():
     ax.plot_surface(env.x_space, env.y_space, env.z_space(), cmap='viridis', alpha=0.5) # Plot the surface
 
 def main(iters=iterations):
-    swarm = construct_swarm()
+    swarm = construct_swarm(10)
     surf_plot()
 
     scatter_plots = []
     broadcast_data = []
-    delay = 1
+    delay = 0.2
     total_time = iters*env.dt
 
     # Animation Loop
@@ -73,4 +74,4 @@ def main(iters=iterations):
     plt.show()
 
 if __name__ == "__main__":
-    main(100)
+    main(10000)

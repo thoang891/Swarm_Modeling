@@ -5,9 +5,9 @@ from Environment import Env
 
 class Buoy():
 
-    def __init__(self, id, behv="seeker", speed=1, com_radius=10, timestep=0.1, repulsion_radius=0.5):
+    def __init__(self, id, behv="seeker", speed=1, com_radius=10, repulsion_radius=0.5, timestep=0.1, scalar_map=1):
         self.id = id
-        self.env = Env(dt=timestep)
+        self.env = Env(dt=timestep, setting=scalar_map)
         self.position = [random.uniform(-self.env.bounds, self.env.bounds), random.uniform(-self.env.bounds, self.env.bounds)]
         self.velocity = None
         self.com_radius = com_radius
@@ -55,11 +55,53 @@ class Buoy():
         return self.velocity
 
     def goal(self):
-        self.goal_vector = [0, 0]
-        return self.goal_vector # NOTE: Define goal vector based on neighrbor proximity. Need to normalize.
+        data_frame = self.broadcast_data_processed.copy() # Copy the broadcast data to a local variable
+        goal_vector_unnormalized = [0, 0] # Reset goal vector
+        sum_neighbor_vector = [0, 0] # Reset neighbor vector
+        self.goal_vector = [0, 0] # Reset goal vector
+        
+        # If data frame is not empty, find the buoy with the maximum measurement
+        if data_frame:
+            max_measurement = max(data_frame, key=lambda x: x['Measurement'])
+
+            # Move towards the buoy with the maximum measurement if the current buoy's measurement is less than the maximum measurement
+            if self.measure() < max_measurement['Measurement']:
+                goal_vector_unnormalized = [max_measurement['x'] - self.position[0], max_measurement['y'] - self.position[1]]
+                goal_vector_magnitude = np.linalg.norm(goal_vector_unnormalized)
+                self.goal_vector = [goal_vector_unnormalized[0]/goal_vector_magnitude, goal_vector_unnormalized[1]/goal_vector_magnitude]
+
+                print()
+                print("max_measurement: {0}".format(max_measurement))
+                print("Moving towards buoy {0} at position ({1}, {2})".format(max_measurement['ID'], max_measurement['x'], max_measurement['y']))
+                print()
+            
+            else:
+                for data in data_frame:
+                    x2 = data['x']
+                    y2 = data['y']
+
+                    # Construct vector from neighbor to self
+                    neighbor_vector_unnormalized = [self.position[0] - x2, self.position[1] - y2] # Testing unnormalized version to give furthest neighbor most weight
+                    sum_neighbor_vector[0] += neighbor_vector_unnormalized[0]
+                    sum_neighbor_vector[1] += neighbor_vector_unnormalized[1]
+
+                # Normalize the sum of the neighbor vectors
+                sum_neighbor_vector_magnitude = np.linalg.norm(sum_neighbor_vector)
+                self.goal_vector = [sum_neighbor_vector[0]/sum_neighbor_vector_magnitude, sum_neighbor_vector[1]/sum_neighbor_vector_magnitude]
+
+                print()
+                print("Buoy {0} is moving towards the average direction of its neighbors".format(self.id))
+                print()
+
+        else:
+            self.goal_vector = [0, 0]
+            print()
+            print("No nearby neighbors to move with")
+
+        return self.goal_vector
 
     def repulse(self):
-        data_frame = self.broadcast_data_processed # Copy the broadcast data to a local variable
+        data_frame = self.broadcast_data_processed.copy() # Copy the broadcast data to a local variable
         bounding_vector = [0, 0] # Reset bounding vector
         bound_repulsion_vector = [0, 0] # Reset neighbor repulsion vector
         neighbor_repulsion_vector = [0, 0] # Reset neighbor repulsion vector
