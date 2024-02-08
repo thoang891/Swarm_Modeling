@@ -7,13 +7,12 @@ from Environment import Env
 # Settings
 timestep = 0.1
 iterations = 100
-scalar_map = 2
 
 # Initialize Environment and Plot
-env = Env(bounds=10, fidelity=2000, dt=timestep, setting=scalar_map)
+env = Env(bounds=10, fidelity=2000, dt=timestep)
 ax = plt.axes(projection='3d')
 
-def construct_swarm(population=5, behv="seeker", scalar_map=scalar_map):
+def construct_swarm(population=5, behv="seeker"):
     swarm = []
     for i in range(population):
         swarm.append(Buoy(i+1, timestep=timestep))
@@ -74,4 +73,4 @@ def main(iters=iterations):
     plt.show()
 
 if __name__ == "__main__":
-    main(10000)
+    main(iterations)

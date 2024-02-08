@@ -5,9 +5,9 @@ from Environment import Env
 
 class Buoy():
 
-    def __init__(self, id, behv="seeker", speed=1, com_radius=10, repulsion_radius=0.5, timestep=0.1, scalar_map=1):
+    def __init__(self, id, behv="seeker", speed=1, com_radius=10, repulsion_radius=0.5, timestep=0.1):
         self.id = id
-        self.env = Env(dt=timestep, setting=scalar_map)
+        self.env = Env(dt=timestep)
         self.position = [random.uniform(-self.env.bounds, self.env.bounds), random.uniform(-self.env.bounds, self.env.bounds)]
         self.velocity = None
         self.com_radius = com_radius
