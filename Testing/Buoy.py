@@ -35,11 +35,12 @@ class Buoy():
             self.C = 0.5
             
         elif self.behv == "explorer":
-            self.A = 0.1
-            self.B = 5
+            self.A = 0.05
+            self.B = 2
             self.C = 1
+            self.repulsion_radius = 2
 
-        return self.A, self.B, self.C
+        return self.A, self.B, self.C, self.repulsion_radius
 
     def move(self):
         # Update position by adding velocity * time step
