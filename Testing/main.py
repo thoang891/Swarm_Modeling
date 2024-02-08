@@ -7,7 +7,7 @@ from Environment import Env
 # Settings
 timestep = 0.1
 iterations = 1000
-map_size = 15
+map_size = 10
 seeker_population = 5
 explorer_population = 20
 
