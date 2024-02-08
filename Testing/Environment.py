@@ -12,9 +12,14 @@ class Env():
     def scalar(x, y): 
         # z = -(np.cos(x) + np.sin(y))*x*y
         # z = -(x**2 + y**2) + x + y**3
-        z = np.sinc((x/5)**2 + (y/5)**2)
+        z = np.sinc((x/5)**2 + (y/5)**2) + np.sinc((x + 2)/5 + (y + 2)/5)/3
         return z
 
     def z_space(self):
         z_space = Env.scalar(self.x_space, self.y_space)
+        return z_space
+    
+    ### TESTING DYNAMIC ENVIRONMENT ###
+    def z_space_time(self, iter):
+        z_space = Env.scalar(self.x_space + np.cos(self.dt * iter), self.y_space + np.cos(self.dt * iter))
         return z_space

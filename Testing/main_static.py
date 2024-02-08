@@ -24,7 +24,7 @@ def surf_plot():
     ax.plot_surface(env.x_space, env.y_space, env.z_space(), cmap='viridis', alpha=0.5) # Plot the surface
 
 def main(iters=iterations):
-    swarm = construct_swarm(population=5, behv="seeker")
+    swarm = construct_swarm(population=10, behv="seeker")
     surf_plot()
 
     scatter_plots = []
