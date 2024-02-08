@@ -10,7 +10,9 @@ class Env():
 
     @staticmethod
     def scalar(x, y): 
-        z = -(x**2 + y**2)
+        # z = -(np.cos(x) + np.sin(y))*x*y
+        # z = -(x**2 + y**2) + x + y**3
+        z = np.sinc((x/5)**2 + (y/5)**2)
         return z
 
     def z_space(self):

@@ -3,9 +3,11 @@ import random
 
 from Environment import Env
 
+# Buoys are currently spawned in a uniform distribution within the environment
+
 class Buoy():
 
-    def __init__(self, id, behv="seeker", speed=1, com_radius=10, repulsion_radius=0.5, timestep=0.1):
+    def __init__(self, id, behv="seeker", speed=3, com_radius=10, repulsion_radius=0.5, timestep=0.1):
         self.id = id
         self.env = Env(dt=timestep)
         self.position = [random.uniform(-self.env.bounds, self.env.bounds), random.uniform(-self.env.bounds, self.env.bounds)]
@@ -29,7 +31,7 @@ class Buoy():
     def behavior(self):
         if self.behv == "seeker":
             self.A = 1
-            self.B = 3
+            self.B = 5
             self.C = 0.5
         return self.A, self.B, self.C
 
