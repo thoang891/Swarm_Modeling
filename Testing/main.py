@@ -7,27 +7,28 @@ from Environment import Env
 # Settings
 timestep = 0.1
 iterations = 1000
+map_size = 15
 seeker_population = 5
-explorer_population = 10
+explorer_population = 20
 
 # Initialize Environment and Plot
-env = Env(bounds=10, fidelity=2000, dt=timestep)
+env = Env(bounds=map_size, fidelity=2000, dt=timestep)
 ax = plt.axes(projection='3d')
+ax.set_xlim(-env.bounds, env.bounds)
+ax.set_ylim(-env.bounds, env.bounds)
 
 def construct_swarm(seeker_population = seeker_population, explorer_population = explorer_population):
     swarm = []
 
     for i in range(seeker_population):
-        swarm.append(Buoy(i+1, timestep=timestep, behv="seeker"))
+        swarm.append(Buoy(i+1, timestep=timestep, behv="seeker", bounds=map_size))
     
     for i in range(explorer_population):
-        swarm.append(Buoy(i+1+seeker_population, timestep=timestep, behv="explorer"))
+        swarm.append(Buoy(i+1+seeker_population, timestep=timestep, behv="explorer", bounds=map_size))
 
     return swarm
 
 def surf_plot():
-    ax.set_xlim(-env.bounds, env.bounds)
-    ax.set_ylim(-env.bounds, env.bounds)
     ax.plot_surface(env.x_space, env.y_space, env.z_space(), cmap='viridis', alpha=0.5) # Plot the surface
 
 def main(iters=iterations):
