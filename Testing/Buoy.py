@@ -33,10 +33,12 @@ class Buoy():
             self.A = 1
             self.B = 5
             self.C = 0.5
+            
         elif self.behv == "explorer":
             self.A = 0.1
             self.B = 5
             self.C = 1
+
         return self.A, self.B, self.C
 
     def move(self):
@@ -186,7 +188,8 @@ class Buoy():
         return self.random_vector
 
     def read_mail(self, broadcast_data):
-        print("")
+        print()
+        print("*"*80)
         print("Buoy {0} is reading mail".format(self.id))
         self.broadcast_data_processed = []
 
@@ -203,6 +206,7 @@ class Buoy():
                 else:
                     print("Removed buoy {0}'s data from buoy {1}'s mail because the distance {2} is greater than the communication radius {3}".format(data['ID'], self.id, distance, self.com_radius))
 
+        print("The remaining neighbor data for buoy {} is:".format(self.id))
         print("\n".join(str(data) for data in self.broadcast_data_processed)) # Print broadcast data to be read by buoy
         return self.broadcast_data_processed
 

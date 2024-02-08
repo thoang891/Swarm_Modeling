@@ -25,10 +25,6 @@ def surf_plot():
 
 def main(iters=iterations):
     swarm = construct_swarm(population=5, behv="seeker")
-
-    #adding 5 explorers to the swarm
-    for i in range(5):
-        swarm.append(Buoy(i+6, behv="explorer", timestep=timestep))
     surf_plot()
 
     scatter_plots = []
