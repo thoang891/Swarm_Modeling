@@ -33,6 +33,10 @@ class Buoy():
             self.A = 1
             self.B = 5
             self.C = 0.5
+        elif self.behv == "explorer":
+            self.A = 0.1
+            self.B = 5
+            self.C = 1
         return self.A, self.B, self.C
 
     def move(self):
@@ -145,7 +149,7 @@ class Buoy():
             # Compare the distance to the repulsion radius and set the repulsion vector
             if distance < self.repulsion_radius:
                 neighbor_repulsion_vector_unnormalized = [self.position[0] - x2, self.position[1] - y2]
-                print("Repulsion between buoy {0} and buoy {1}".format(self.id, data['ID']))
+                print("Repelling away from buoy {}".format(data['ID']))
                 # Normalize the neighbor repulsion vector if it exists
                 magnitude = np.linalg.norm(neighbor_repulsion_vector_unnormalized)
                 neighbor_repulsion_vector = [neighbor_repulsion_vector_unnormalized[0]/magnitude, neighbor_repulsion_vector_unnormalized[1]/magnitude]
