@@ -1,8 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from Buoy import Buoy
-from Environment import Env
+from Environment_test import Env
 
 # Settings
 timestep = 0.1

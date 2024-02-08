@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from Target import Target
-from Environment import Env
+from Environment_test import Env
 
 
 # Settings
