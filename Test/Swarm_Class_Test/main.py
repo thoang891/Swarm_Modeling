@@ -6,10 +6,10 @@ from Swarm import Swarm
 
 # Settings
 timestep = 0.1
-iterations = 100
+iterations = 1000
 map_size = 10
 seeker_population = 5
-explorer_population = 5
+explorer_population = 20
 
 # Initialize Environment and Plot
 env = Env(bounds=map_size, fidelity=2000, dt=timestep)
@@ -29,7 +29,7 @@ def main(iters=iterations):
     delay = 0.2
     total_time = iters*env.dt
 
-    # Animation Loop
+    # Swarm operating loop 
     for i in range(iters):
         # Clear the previous scatter plots
         for plot in scatter_plots:
@@ -44,6 +44,7 @@ def main(iters=iterations):
         swarm.update()
         broadcast_data = swarm.broadcast_data
 
+        # Animation Loop
         for mail in broadcast_data:
             id = mail['ID']
             behavior = mail['behv']
@@ -56,7 +57,7 @@ def main(iters=iterations):
             else:
                 scatter_plot = ax.scatter(x, y, z, c='b', marker='o')
             scatter_plots.append(scatter_plot)
-
+         
         plt.pause(delay)
         print(" ")
 
