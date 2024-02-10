@@ -7,12 +7,16 @@ from Environment import Env
 
 class Buoy():
 
-    def __init__(self, id, behv="seeker", speed=2, com_radius=10, repulsion_radius=0.5, timestep=0.1, bounds=10):
+    def __init__(self, id, behv="seeker", speed=2, com_radius=7, 
+                 repulsion_radius=0.5, timestep=0.1, bounds=10):
         self.id = id
         self.env = Env(dt=timestep, bounds = bounds)
-        self.position = [random.uniform(-self.env.bounds, self.env.bounds), random.uniform(-self.env.bounds, self.env.bounds)]
+        self.position = [random.uniform(-self.env.bounds, self.env.bounds), 
+                         random.uniform(-self.env.bounds, self.env.bounds)]
         self.velocity = None
+        self.measurement = None
         self.com_radius = com_radius
+        self.repulsion_radius = repulsion_radius
         self.behv = behv
         self.A = None
         self.B = None
@@ -22,11 +26,14 @@ class Buoy():
         self.random_vector = None
         self.speed = speed
         self.broadcast_data_processed = None
-        self.repulsion_radius = repulsion_radius
+        self.best_known_position = self.position
+        self.best_known_measure = self.measure()
+        self.best_known_id = self.id
 
     def measure(self):
         z_pos = self.env.scalar(self.position[0], self.position[1])
-        return z_pos
+        self.measurement = z_pos
+        return self.measurement
     
     def behavior(self):
         if self.behv == "seeker":
@@ -60,7 +67,8 @@ class Buoy():
         v = (self.A*self.goal_vector[1] + self.B*self.repulsion_vector[1] + self.C*self.random_vector[1])
         velocity_unnormalized = [u, v]
         velocity_magnitude = np.linalg.norm(velocity_unnormalized)
-        self.velocity = [velocity_unnormalized[0]*self.speed/velocity_magnitude, velocity_unnormalized[1]*self.speed/velocity_magnitude]
+        self.velocity = [velocity_unnormalized[0]*self.speed/velocity_magnitude, 
+                         velocity_unnormalized[1]*self.speed/velocity_magnitude]
         return self.velocity
 
     def goal(self):
@@ -75,13 +83,16 @@ class Buoy():
 
             # Move towards the buoy with the maximum measurement if the current buoy's measurement is less than the maximum measurement
             if self.measure() < max_measurement['Measurement']:
-                goal_vector_unnormalized = [max_measurement['x'] - self.position[0], max_measurement['y'] - self.position[1]]
+                goal_vector_unnormalized = [max_measurement['x'] - self.position[0], 
+                                            max_measurement['y'] - self.position[1]]
                 goal_vector_magnitude = np.linalg.norm(goal_vector_unnormalized)
-                self.goal_vector = [goal_vector_unnormalized[0]/goal_vector_magnitude, goal_vector_unnormalized[1]/goal_vector_magnitude]
+                self.goal_vector = [goal_vector_unnormalized[0]/goal_vector_magnitude, 
+                                    goal_vector_unnormalized[1]/goal_vector_magnitude]
 
                 print()
                 print("max_measurement: {0}".format(max_measurement))
-                print("Moving towards buoy {0} at position ({1}, {2})".format(max_measurement['ID'], max_measurement['x'], max_measurement['y']))
+                print("Moving towards buoy {0} at position ({1}, {2})"\
+                      .format(max_measurement['ID'], max_measurement['x'], max_measurement['y']))
                 print()
             
             else:
@@ -90,13 +101,14 @@ class Buoy():
                     y2 = data['y']
 
                     # Construct vector from neighbor to self
-                    neighbor_vector_unnormalized = [self.position[0] - x2, self.position[1] - y2] # Testing unnormalized version to give furthest neighbor most weight
+                    neighbor_vector_unnormalized = [self.position[0] - x2, self.position[1] - y2] # NOTE: Testing unnormalized version to give furthest neighbor most weight
                     sum_neighbor_vector[0] += neighbor_vector_unnormalized[0]
                     sum_neighbor_vector[1] += neighbor_vector_unnormalized[1]
 
                 # Normalize the sum of the neighbor vectors
                 sum_neighbor_vector_magnitude = np.linalg.norm(sum_neighbor_vector)
-                self.goal_vector = [sum_neighbor_vector[0]/sum_neighbor_vector_magnitude, sum_neighbor_vector[1]/sum_neighbor_vector_magnitude]
+                self.goal_vector = [sum_neighbor_vector[0]/sum_neighbor_vector_magnitude, 
+                                    sum_neighbor_vector[1]/sum_neighbor_vector_magnitude]
 
                 print()
                 print("Buoy {0} is moving towards the average direction of its neighbors".format(self.id))
@@ -136,7 +148,8 @@ class Buoy():
         if bounding_vector[0] != 0 or bounding_vector[1] != 0:
             print("Buoy {0} is out of bounds".format(self.id))
             bounding_vector_magnitude = np.linalg.norm(bounding_vector)
-            bound_repulsion_vector = [bounding_vector[0]/bounding_vector_magnitude, bounding_vector[1]/bounding_vector_magnitude]
+            bound_repulsion_vector = [bounding_vector[0]/bounding_vector_magnitude, 
+                                      bounding_vector[1]/bounding_vector_magnitude]
         else:
             bound_repulsion_vector = [0, 0]
     
@@ -155,7 +168,8 @@ class Buoy():
                 print("Repelling away from buoy {}".format(data['ID']))
                 # Normalize the neighbor repulsion vector if it exists
                 magnitude = np.linalg.norm(neighbor_repulsion_vector_unnormalized)
-                neighbor_repulsion_vector = [neighbor_repulsion_vector_unnormalized[0]/magnitude, neighbor_repulsion_vector_unnormalized[1]/magnitude]
+                neighbor_repulsion_vector = [neighbor_repulsion_vector_unnormalized[0]/magnitude, 
+                                             neighbor_repulsion_vector_unnormalized[1]/magnitude]
             else:
                 neighbor_repulsion_vector = [0, 0]
             
@@ -165,17 +179,20 @@ class Buoy():
         # Normalize the neighborhood repulsion vector if it exists
         if neighborhood_repulsion_vector_unnormalized[0] != 0 or neighborhood_repulsion_vector_unnormalized[1] != 0:
             neighborhood_repulsion_vector_magnitude = np.linalg.norm(neighborhood_repulsion_vector_unnormalized)
-            neighborhood_repulsion_vector = [neighborhood_repulsion_vector_unnormalized[0]/neighborhood_repulsion_vector_magnitude, neighborhood_repulsion_vector_unnormalized[1]/neighborhood_repulsion_vector_magnitude]
+            neighborhood_repulsion_vector = [neighborhood_repulsion_vector_unnormalized[0]/neighborhood_repulsion_vector_magnitude, 
+                                             neighborhood_repulsion_vector_unnormalized[1]/neighborhood_repulsion_vector_magnitude]
         else:
             neighborhood_repulsion_vector = [0, 0]
 
         # Sum the bounding and neighborhood repulsion vectors
-        repulsion_vector = [neighborhood_repulsion_vector[0] + bound_repulsion_vector[0], neighborhood_repulsion_vector[1] + bound_repulsion_vector[1]]
+        repulsion_vector = [neighborhood_repulsion_vector[0] + bound_repulsion_vector[0], 
+                            neighborhood_repulsion_vector[1] + bound_repulsion_vector[1]]
         
         # Normalize the repulsion vector if it exists
         if repulsion_vector[0] != 0 or repulsion_vector[1] != 0:
             repulsion_vector_magnitude = np.linalg.norm(repulsion_vector)
-            self.repulsion_vector = [repulsion_vector[0]/repulsion_vector_magnitude, repulsion_vector[1]/repulsion_vector_magnitude]
+            self.repulsion_vector = [repulsion_vector[0]/repulsion_vector_magnitude, 
+                                     repulsion_vector[1]/repulsion_vector_magnitude]
         else: 
             self.repulsion_vector = [0, 0]
         
@@ -185,13 +202,15 @@ class Buoy():
     def random_walk(self):
         random_vector_unnormalized = [random.uniform(-1, 1), random.uniform(-1, 1)]
         random_vector_magnitude = np.linalg.norm(random_vector_unnormalized)
-        self.random_vector = [random_vector_unnormalized[0]/random_vector_magnitude, random_vector_unnormalized[1]/random_vector_magnitude]
+        self.random_vector = [random_vector_unnormalized[0]/random_vector_magnitude, 
+                              random_vector_unnormalized[1]/random_vector_magnitude]
         return self.random_vector
 
     def read_mail(self, broadcast_data):
         print()
         print("*"*80)
-        print("Buoy {0} is reading mail".format(self.id))
+        print("Buoy {0} ({1}) is reading mail and measuring {2:>6.2f} at [{3:>6.2f}, {4:>6.2f}]"
+              .format(self.id, self.behv, self.measurement, self.position[0], self.position[1]))
         self.broadcast_data_processed = []
 
         for data in broadcast_data:
@@ -202,16 +221,58 @@ class Buoy():
                 # Calculate the distance between the two buoys
                 distance = np.sqrt((x2 - self.position[0])**2 + (y2 - self.position[1])**2)
 
+                # Remove data from buoys that are outside the communication radius
                 if distance <= self.com_radius:
                     self.broadcast_data_processed.append(data)
                 else:
-                    print("Removed buoy {0}'s data from buoy {1}'s mail because the distance {2} is greater than the communication radius {3}".format(data['ID'], self.id, distance, self.com_radius))
+                    print("Removed buoy {0}'s data from buoy {1}'s mail because the distance {2} is greater than the communication radius {3}"
+                          .format(data['ID'], self.id, distance, self.com_radius))
 
         print("The remaining neighbor data for buoy {} is:".format(self.id))
         print("\n".join(str(data) for data in self.broadcast_data_processed)) # Print broadcast data to be read by buoy
         return self.broadcast_data_processed
+    
+    def memory(self):
+        data_frame = self.broadcast_data_processed.copy()
 
+        # If data frame is not empty, find the buoy with the maximum measurement
+        if data_frame:
+            max_measurement = max(data_frame, key=lambda x: x['Measurement'])
+            max_best_known_measurement = max(data_frame, key=lambda x: x['best_measure'])
+            print()
+            print("max neighbor measurement: {0}".format(max_measurement))
+            print()
+            print("max neighbor best known measurement: {0}".format(max_best_known_measurement))
+
+           # If neighbor has a better measurement, update best known position and measurement
+            if self.best_known_measure < max_measurement['Measurement']:
+                self.best_known_position = [max_measurement['x'], max_measurement['y']]
+                self.best_known_measure = max_measurement['Measurement']
+                self.best_known_id = max_measurement['ID']
+            
+            # If neighbor has a better best known measurement, update best known position and measurement
+            if self.best_known_measure < max_best_known_measurement['best_measure']:
+                self.best_known_position = [max_best_known_measurement['best_x'], max_best_known_measurement['best_y']]
+                self.best_known_measure = max_best_known_measurement['best_measure']
+                self.best_known_id = max_best_known_measurement['best_id']
+                
+        # If own measurement is better than best known measurement, update best known position and measurement
+        if self.measurement > self.best_known_measure:
+            self.best_known_position = self.position
+            self.best_known_measure = self.measurement
+            self.best_known_id = self.id
+
+        print()
+        print("Buoy {0} thinks the best known position is {1} and the best known measurement is {2}"
+              .format(self.id, self.best_known_position, self.best_known_measure))
+        print("Best measurement found by buoy {0}".format(self.best_known_id))
+        print()
+
+        return self.best_known_position, self.best_known_measure, self.best_known_id
+    
     def update(self):
         self.behavior()
+        self.measure()
+        self.memory()
         self.motor()
         self.move()

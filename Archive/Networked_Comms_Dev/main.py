@@ -1,4 +1,3 @@
-import numpy as np
 import matplotlib.pyplot as plt
 
 from Environment import Env
@@ -10,6 +9,8 @@ iterations = 100
 map_size = 10
 seeker_population = 5
 explorer_population = 5
+communication_radius = 7
+speed = 2
 
 # Initialize Environment and Plot
 env = Env(bounds=map_size, fidelity=2000, dt=timestep)
@@ -18,10 +19,12 @@ ax.set_xlim(-env.bounds, env.bounds)
 ax.set_ylim(-env.bounds, env.bounds)
 
 def surf_plot():
-    ax.plot_surface(env.x_space, env.y_space, env.z_space(), cmap='viridis', alpha=0.5) # Plot the surface
+    ax.plot_surface(env.x_space, env.y_space, 
+                    env.z_space(), cmap='viridis', alpha=0.5) # Plot the surface
 
 def main(iters=iterations):
-    swarm = Swarm(seeker_pop=seeker_population, explorer_pop=explorer_population, timestep=timestep, map_size=map_size)
+    swarm = Swarm(seeker_pop=seeker_population, explorer_pop=explorer_population, 
+                  com_radius=communication_radius, speed=speed, timestep=timestep, map_size=map_size)
     swarm.construct()
     surf_plot()
 
