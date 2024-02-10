@@ -7,7 +7,7 @@ from Environment import Env
 
 class Buoy():
 
-    def __init__(self, id, behv="seeker", speed=2, com_radius=10, repulsion_radius=0.5, timestep=0.1, bounds=10):
+    def __init__(self, id, behv="seeker", speed=2, com_radius=5, repulsion_radius=0.5, timestep=0.1, bounds=10):
         self.id = id
         self.env = Env(dt=timestep, bounds = bounds)
         self.position = [random.uniform(-self.env.bounds, self.env.bounds), random.uniform(-self.env.bounds, self.env.bounds)]
@@ -25,7 +25,7 @@ class Buoy():
         self.repulsion_radius = repulsion_radius
 
     def measure(self):
-        z_pos = Env.scalar(self.position[0], self.position[1])
+        z_pos = self.env.scalar(self.position[0], self.position[1])
         return z_pos
     
     def behavior(self):
@@ -38,7 +38,7 @@ class Buoy():
             self.A = 0.05
             self.B = 2
             self.C = 1
-            self.repulsion_radius = 2
+            self.repulsion_radius = 3
 
         return self.A, self.B, self.C, self.repulsion_radius
 

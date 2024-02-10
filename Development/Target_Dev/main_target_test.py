@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from Target import Target
+from Target_test import Target
 from Environment_test import Env
 
 

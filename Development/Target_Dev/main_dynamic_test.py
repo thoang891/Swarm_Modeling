@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from Environment_test import Env
+from Buoy_test import Buoy
 
 # Settings
 timestep = 0.1

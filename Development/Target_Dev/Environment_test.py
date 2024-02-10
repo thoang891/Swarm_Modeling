@@ -1,6 +1,6 @@
 import numpy as np
 
-from Target import Target
+from Target_test import Target
 
 class Env():
 
