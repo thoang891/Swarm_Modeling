@@ -8,7 +8,7 @@ from Environment import Env
 class Buoy():
 
     def __init__(self, id, behv="seeker", speed=2, com_radius=7, 
-                 repulsion_radius=0.5, timestep=0.1, bounds=10):
+                 repulsion_radius=0.5, timestep=0.1, bounds=10, iso_thresh=5, iso_goal=50):
         self.id = id
         self.env = Env(dt=timestep, bounds = bounds)
         self.position = [random.uniform(-self.env.bounds, self.env.bounds), 
@@ -17,15 +17,19 @@ class Buoy():
         self.measurement = None
         self.com_radius = com_radius
         self.repulsion_radius = repulsion_radius
+        self.isocontour_threshold = iso_thresh
+        self.isocontour_goal = iso_goal # Goal measurement for isocontour behavior
         self.behv = behv
         self.A = None # Local goal weight
         self.B = None # Global goal weight
         self.C = None # Repulsion weight
         self.D = None # Random walk weight
+        self.E = None # Isocontour weight
         self.local_goal_vector = None
         self.global_goal_vector = None
         self.repulsion_vector = None
         self.random_vector = None
+        self.isocontour_vector = None
         self.speed = speed
         self.broadcast_data_processed = None
         self.best_known_position = self.position
@@ -43,15 +47,25 @@ class Buoy():
             self.B = 3
             self.C = 5
             self.D = 0.5
+            self.E = 0
             
         elif self.behv == "explorer":
             self.A = 0.05
             self.B = 0.05
             self.C = 2
             self.D = 1
+            self.E = 0
             self.repulsion_radius = 3
 
-        return self.A, self.B, self.C, self.D, self.repulsion_radius
+        elif self.behv == "isocontour":
+            self.A = 0
+            self.B = 0
+            self.C = 1.1
+            self.D = 0.4
+            self.E = 1
+            self.repulsion_radius = 1
+
+        return self.A, self.B, self.C, self.D, self.E, self.repulsion_radius
 
     def move(self):
         # Update position by adding velocity * time step
@@ -67,11 +81,14 @@ class Buoy():
         self.global_goal()
         self.repulse()
         self.random_walk()
+        self.isocontour_walk()
 
         u = (self.A*self.local_goal_vector[0] + self.B*self.global_goal_vector[0] +
-            self.C*self.repulsion_vector[0] + self.D*self.random_vector[0])
+            self.C*self.repulsion_vector[0] + self.D*self.random_vector[0] + 
+            self.E*self.isocontour_vector[0])
         v = (self.A*self.local_goal_vector[1] + self.B*self.global_goal_vector[1] +
-            self.C*self.repulsion_vector[1] + self.D*self.random_vector[1])
+            self.C*self.repulsion_vector[1] + self.D*self.random_vector[1] + 
+            self.E*self.isocontour_vector[1])
         
         # Normalize the velocity vector then multiply by speed
         velocity_unnormalized = [u, v]
@@ -134,8 +151,6 @@ class Buoy():
     
     def global_goal(self):
         # Calculate normalized vector pointing from position to best known position
-        # Need to condition it such that this only applies if there exists enough difference otherwise division by 0
-        # condition with distance
 
         distance = np.sqrt((self.best_known_position[0] - self.position[0])**2 + 
                            (self.best_known_position[1] - self.position[1])**2)
@@ -240,6 +255,86 @@ class Buoy():
                               random_vector_unnormalized[1]/random_vector_magnitude]
         print("Random vector: {0}".format(self.random_vector))
         return self.random_vector
+
+    def isocontour_walk(self):
+        data_frame = self.broadcast_data_processed.copy() # Copy the broadcast data to a local variable
+        sum_neighbor_vector = [0, 0] # Reset neighbor vector
+        goal_contour = self.isocontour_goal # Goal measurement for isocontour behavior
+        self.isocontour_vector = [0, 0] # Reset isocontour vector
+        
+        lower_bound = goal_contour - self.isocontour_threshold
+        upper_bound = goal_contour + self.isocontour_threshold
+        
+        print("Self Measurement: {0}".format(self.measurement))
+
+        # If within threshold of goal contour, move opposite to neighborhood vector
+        if self.measurement >= lower_bound and self.measurement <= upper_bound:
+            print("Buoy {0} is close enough to the goal".format(self.id))
+            print("Buoy {0} is moving away from its neighbors")
+
+            sum_neighbor_vector = [0, 0]
+            for data in data_frame:
+                x2 = data['x']
+                y2 = data['y']
+                neighbor_vector_unnormalized = [self.position[0] - x2, self.position[1] - y2]
+                sum_neighbor_vector[0] += neighbor_vector_unnormalized[0]
+                sum_neighbor_vector[1] += neighbor_vector_unnormalized[1]
+            
+            # Normalize the sum of the neighbor vectors 
+            if sum_neighbor_vector[0] != 0 or sum_neighbor_vector[1] != 0:
+                sum_neighbor_vector_magnitude = np.linalg.norm(sum_neighbor_vector)
+                self.isocontour_vector = [sum_neighbor_vector[0]/sum_neighbor_vector_magnitude, 
+                                        sum_neighbor_vector[1]/sum_neighbor_vector_magnitude]
+
+            print("Moving opposite to neighborhood vector: {0}".format(self.isocontour_vector))
+
+        # Check if the average measurement is greater than goal contour
+        elif goal_contour > self.measurement:
+            print("Buoy {0} is measuring less than the goal".format(self.id))
+            # Move towards the average of neighbors measuring greater than goal contour
+            sum_neighbor_vector = [0, 0]
+            for data in data_frame:
+                if data['Measurement'] > self.measurement:
+                    x2 = data['x']
+                    y2 = data['y']
+                    neighbor_vector_unnormalized = [x2 - self.position[0], y2 - self.position[1]]
+                    # Assign a penalty weight based on the difference between the average and goal
+                    # Buoys measuring further from the goal will have less influence
+                    weight = abs(goal_contour - data['Measurement'])
+                    sum_neighbor_vector[0] += neighbor_vector_unnormalized[0]/weight
+                    sum_neighbor_vector[1] += neighbor_vector_unnormalized[1]/weight
+                    print("Adding neighbor vector: {0} from buoy {1} because it is measuring {2}".format(neighbor_vector_unnormalized, data['ID'], data['Measurement']))
+
+                    # Normalize the sum of the neighbor vectors
+                    sum_neighbor_vector_magnitude = np.linalg.norm(sum_neighbor_vector)
+                    self.isocontour_vector = [sum_neighbor_vector[0]/sum_neighbor_vector_magnitude, 
+                                            sum_neighbor_vector[1]/sum_neighbor_vector_magnitude]
+                    
+        # Check if the average measurement is less than goal contour
+        elif goal_contour < self.measurement:
+            print("Buoy {0} is measuring greater than the goal".format(self.id))
+            # Move towards the average of neighbors measuring less than goal contour
+            sum_neighbor_vector = [0, 0]
+            for data in data_frame:
+                if data['Measurement'] < self.measurement:
+                    x2 = data['x']
+                    y2 = data['y']
+                    neighbor_vector_unnormalized = [x2 - self.position[0], y2 - self.position[1]]
+                    # Assign a penalty weight based on the difference between the average and goal
+                    # Buoys measuring further from the goal will have less influence
+                    weight = abs(data['Measurement'] - goal_contour)
+                    sum_neighbor_vector[0] += neighbor_vector_unnormalized[0]/weight
+                    sum_neighbor_vector[1] += neighbor_vector_unnormalized[1]/weight
+                    print("Adding neighbor vector: {0} from buoy {1} because it is measuring {2}".format(neighbor_vector_unnormalized, data['ID'], data['Measurement']))
+                    
+                    # Normalize the sum of the neighbor vectors
+                    sum_neighbor_vector_magnitude = np.linalg.norm(sum_neighbor_vector)
+                    self.isocontour_vector = [sum_neighbor_vector[0]/sum_neighbor_vector_magnitude, 
+                                            sum_neighbor_vector[1]/sum_neighbor_vector_magnitude]
+
+        print("Isocontour vector: {0}".format(self.isocontour_vector))
+
+        return self.isocontour_vector
 
     def read_mail(self, broadcast_data):
         print()

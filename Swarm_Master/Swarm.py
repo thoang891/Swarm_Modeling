@@ -2,26 +2,40 @@ from Buoy import Buoy
 
 class Swarm():
 
-    def __init__(self, seeker_pop = 2, explorer_pop = 2, com_radius = 7, 
-                 speed=2, timestep = 0.1, map_size = 10):
+    def __init__(self, seeker_pop=2, explorer_pop=2, iso_pop=2, com_radius=7, 
+                iso_goal=0, iso_thresh=5, speed=2, timestep=0.1, map_size=10):
         self.seeker_population = seeker_pop
         self.explorer_population = explorer_pop
+        self.isocontour_population = iso_pop
         self.swarm = []
         self.timestep = timestep
         self.map_size = map_size
         self.broadcast_data = []
         self.com_radius = com_radius
         self.speed = speed
+        self.isocontour_goal = iso_goal
+        self.isocontour_threshold = iso_thresh
 
     def construct(self):
-        for i in range(self.seeker_population):
-            self.swarm.append(Buoy(id=i+1, com_radius=self.com_radius, 
-                                   speed=self.speed, timestep=self.timestep, 
-                                   behv="seeker", bounds=self.map_size))
-        
-        for i in range(self.explorer_population):
-            self.swarm.append(Buoy(id=i+1+self.seeker_population, com_radius=self.com_radius, 
-                                   speed=self.speed, timestep=self.timestep, behv="explorer", bounds=self.map_size))
+        # Generate seeker buoys
+        if self.seeker_population !=0:
+            for i in range(self.seeker_population):
+                self.swarm.append(Buoy(id=i+1, com_radius=self.com_radius, 
+                                    speed=self.speed, timestep=self.timestep, 
+                                    behv="seeker", bounds=self.map_size))
+        # Generate explorer buoys
+        if self.explorer_population !=0:
+            for i in range(self.explorer_population):
+                self.swarm.append(Buoy(id=i+1+self.seeker_population, com_radius=self.com_radius, 
+                                    speed=self.speed, timestep=self.timestep, 
+                                    behv="explorer", bounds=self.map_size))
+        # Generate isocontour buoys
+        if self.isocontour_population !=0:   
+            for i in range(self.isocontour_population):
+                self.swarm.append(Buoy(id=i+1+self.seeker_population+self.explorer_population, 
+                                    com_radius=self.com_radius, speed=self.speed, 
+                                    timestep=self.timestep, behv="isocontour", bounds=self.map_size,
+                                    iso_goal=self.isocontour_goal, iso_thresh=self.isocontour_threshold))
 
         for buoy in self.swarm:
             buoy.measure()
@@ -56,9 +70,6 @@ class Swarm():
         return self.broadcast_data
 
     def update(self):
-        # for buoy in self.swarm:
-        #     buoy.measure()
-
         self.broadcast()
         for buoy in self.swarm:
             buoy.read_mail(self.broadcast_data)

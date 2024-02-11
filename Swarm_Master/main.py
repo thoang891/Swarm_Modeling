@@ -5,12 +5,16 @@ from Swarm import Swarm
 
 # Settings
 timestep = 0.1
-iterations = 1000
+iterations = 10000
 map_size = 10
-seeker_population = 5
-explorer_population = 20
-communication_radius = 10
+seeker_population = 0
+explorer_population = 0
+isocontour_population = 50
+communication_radius = 6
+isocontour_goal = 80
+isocontour_threshold = 5
 speed = 2
+animation_delay = 0.005 # lower is faster
 
 # Initialize Environment and Plot
 env = Env(bounds=map_size, fidelity=2000, dt=timestep)
@@ -24,12 +28,12 @@ def surf_plot():
 
 def main(iters=iterations):
     swarm = Swarm(seeker_pop=seeker_population, explorer_pop=explorer_population, 
-                  com_radius=communication_radius, speed=speed, timestep=timestep, map_size=map_size)
+                  iso_pop=isocontour_population, com_radius=communication_radius, 
+                  speed=speed, timestep=timestep, map_size=map_size, iso_goal=isocontour_goal)
     swarm.construct()
     surf_plot()
 
     scatter_plots = []
-    delay = 0.2
     total_time = iters*env.dt
 
     # Animation Loop
@@ -56,11 +60,13 @@ def main(iters=iterations):
            
             if behavior == "seeker":
                 scatter_plot = ax.scatter(x, y, z, c='r', marker='o')
-            else:
+            elif behavior == "explorer":
                 scatter_plot = ax.scatter(x, y, z, c='b', marker='o')
+            elif behavior == "isocontour":
+                scatter_plot = ax.scatter(x, y, z, c='g', marker='o')
             scatter_plots.append(scatter_plot)
 
-        plt.pause(delay)
+        plt.pause(animation_delay)
         print(" ")
 
     plt.show()
