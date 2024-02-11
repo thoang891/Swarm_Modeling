@@ -18,10 +18,12 @@ class Buoy():
         self.com_radius = com_radius
         self.repulsion_radius = repulsion_radius
         self.behv = behv
-        self.A = None
-        self.B = None
-        self.C = None
-        self.goal_vector = None
+        self.A = None # Local goal weight
+        self.B = None # Global goal weight
+        self.C = None # Repulsion weight
+        self.D = None # Random walk weight
+        self.local_goal_vector = None
+        self.global_goal_vector = None
         self.repulsion_vector = None
         self.random_vector = None
         self.speed = speed
@@ -38,16 +40,18 @@ class Buoy():
     def behavior(self):
         if self.behv == "seeker":
             self.A = 1
-            self.B = 5
-            self.C = 0.5
+            self.B = 3
+            self.C = 5
+            self.D = 0.5
             
         elif self.behv == "explorer":
             self.A = 0.05
-            self.B = 2
-            self.C = 1
+            self.B = 0.05
+            self.C = 2
+            self.D = 1
             self.repulsion_radius = 3
 
-        return self.A, self.B, self.C, self.repulsion_radius
+        return self.A, self.B, self.C, self.D, self.repulsion_radius
 
     def move(self):
         # Update position by adding velocity * time step
@@ -59,23 +63,29 @@ class Buoy():
         self.velocity = [] 
 
         # Define behavior vectors
-        self.goal()
+        self.local_goal()
+        self.global_goal()
         self.repulse()
         self.random_walk()
 
-        u = (self.A*self.goal_vector[0] + self.B*self.repulsion_vector[0] + self.C*self.random_vector[0])
-        v = (self.A*self.goal_vector[1] + self.B*self.repulsion_vector[1] + self.C*self.random_vector[1])
+        u = (self.A*self.local_goal_vector[0] + self.B*self.global_goal_vector[0] +
+            self.C*self.repulsion_vector[0] + self.D*self.random_vector[0])
+        v = (self.A*self.local_goal_vector[1] + self.B*self.global_goal_vector[1] +
+            self.C*self.repulsion_vector[1] + self.D*self.random_vector[1])
+        
+        # Normalize the velocity vector then multiply by speed
         velocity_unnormalized = [u, v]
         velocity_magnitude = np.linalg.norm(velocity_unnormalized)
         self.velocity = [velocity_unnormalized[0]*self.speed/velocity_magnitude, 
                          velocity_unnormalized[1]*self.speed/velocity_magnitude]
+        
         return self.velocity
 
-    def goal(self):
+    def local_goal(self):
         data_frame = self.broadcast_data_processed.copy() # Copy the broadcast data to a local variable
         goal_vector_unnormalized = [0, 0] # Reset goal vector
         sum_neighbor_vector = [0, 0] # Reset neighbor vector
-        self.goal_vector = [0, 0] # Reset goal vector
+        self.local_goal_vector = [0, 0] # Reset goal vector
         
         # If data frame is not empty, find the buoy with the maximum measurement
         if data_frame:
@@ -86,7 +96,7 @@ class Buoy():
                 goal_vector_unnormalized = [max_measurement['x'] - self.position[0], 
                                             max_measurement['y'] - self.position[1]]
                 goal_vector_magnitude = np.linalg.norm(goal_vector_unnormalized)
-                self.goal_vector = [goal_vector_unnormalized[0]/goal_vector_magnitude, 
+                self.local_goal_vector = [goal_vector_unnormalized[0]/goal_vector_magnitude, 
                                     goal_vector_unnormalized[1]/goal_vector_magnitude]
 
                 print()
@@ -107,7 +117,7 @@ class Buoy():
 
                 # Normalize the sum of the neighbor vectors
                 sum_neighbor_vector_magnitude = np.linalg.norm(sum_neighbor_vector)
-                self.goal_vector = [sum_neighbor_vector[0]/sum_neighbor_vector_magnitude, 
+                self.local_goal_vector = [sum_neighbor_vector[0]/sum_neighbor_vector_magnitude, 
                                     sum_neighbor_vector[1]/sum_neighbor_vector_magnitude]
 
                 print()
@@ -115,11 +125,35 @@ class Buoy():
                 print()
 
         else:
-            self.goal_vector = [0, 0]
+            self.local_goal_vector = [0, 0]
             print()
             print("No nearby neighbors to move with")
 
-        return self.goal_vector
+        print("Local goal vector: {0}".format(self.local_goal_vector))
+        return self.local_goal_vector
+    
+    def global_goal(self):
+        # Calculate normalized vector pointing from position to best known position
+        # Need to condition it such that this only applies if there exists enough difference otherwise division by 0
+        # condition with distance
+
+        distance = np.sqrt((self.best_known_position[0] - self.position[0])**2 + 
+                           (self.best_known_position[1] - self.position[1])**2)
+        
+        if distance > 0.001:
+            goal_vector_unnormalized = [self.best_known_position[0] - self.position[0], 
+                                        self.best_known_position[1] - self.position[1]]
+            goal_vector_magnitude = np.linalg.norm(goal_vector_unnormalized)
+            self.global_goal_vector = [goal_vector_unnormalized[0]/goal_vector_magnitude, 
+                                    goal_vector_unnormalized[1]/goal_vector_magnitude]
+        else:
+            self.global_goal_vector = [0, 0]
+            print()
+            print("Buoy {0} is close enough to best known position".format(self.id))
+            print()
+        print("Global goal vector: {0}".format(self.global_goal_vector))
+
+        return self.global_goal_vector
 
     def repulse(self):
         data_frame = self.broadcast_data_processed.copy() # Copy the broadcast data to a local variable
@@ -204,6 +238,7 @@ class Buoy():
         random_vector_magnitude = np.linalg.norm(random_vector_unnormalized)
         self.random_vector = [random_vector_unnormalized[0]/random_vector_magnitude, 
                               random_vector_unnormalized[1]/random_vector_magnitude]
+        print("Random vector: {0}".format(self.random_vector))
         return self.random_vector
 
     def read_mail(self, broadcast_data):

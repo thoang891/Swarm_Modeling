@@ -5,11 +5,11 @@ from Swarm import Swarm
 
 # Settings
 timestep = 0.1
-iterations = 100
+iterations = 1000
 map_size = 10
 seeker_population = 5
-explorer_population = 5
-communication_radius = 7
+explorer_population = 20
+communication_radius = 10
 speed = 2
 
 # Initialize Environment and Plot
