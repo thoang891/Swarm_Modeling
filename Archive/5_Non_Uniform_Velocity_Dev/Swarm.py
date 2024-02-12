@@ -1,3 +1,4 @@
+import numpy as np
 from Buoy import Buoy
 
 class Swarm():
@@ -51,21 +52,34 @@ class Swarm():
             behavior = buoy.behv
             x = buoy.position[0]
             y = buoy.position[1]
-            z = buoy.measure()
+            z = buoy.measurement
             best_x = buoy.best_known_position[0]
             best_y = buoy.best_known_position[1]
             best_measure = buoy.best_known_measure
             best_id = buoy.best_known_id
 
-            print("ID: {0:>2}, Behavior: {1:8}, Position: {2:>6.2f}, {3:>6.2f}, Measurement: {4:>6.2f}, Best Known Position: {5:>6.2f}, {6:>6.2f}, Best Known Measurement: {7:>6.2f}, Best Known ID: {8:>2}"
-                  .format(id, behavior, x, y, z, best_x, best_y, best_measure, best_id))
+            if buoy.velocity is not None:
+                u = buoy.velocity[0]
+                v = buoy.velocity[1]
+                speed = np.sqrt(u**2 + v**2)
 
-            buoy_data = {'ID': id, 'behv': behavior , 'x': x, 'y': y, 'Measurement': z, 
-                         'best_x': best_x, 'best_y': best_y, 'best_measure': best_measure, 'best_id': best_id}
+                print("ID: {0:>2}, Behavior: {1:8}, Position: {2:>6.2f}, {3:>6.2f}, Measurement: {4:>6.2f}, Velocity: {5:>6.2f}, {6:>6.2f}, Speed: {7:>6.2f}, Best Known Position: {8:>6.2f}, {9:>6.2f}, Best Known Measurement: {10:>6.2f}, Best Known ID: {11:>2}"
+                    .format(id, behavior, x, y, z, u, v, speed, best_x, best_y, best_measure, best_id))
+                
+                buoy_data = {'ID': id, 'behv': behavior , 'x': x, 'y': y, 'Measurement': z,
+                            'u': u, 'v': v, 'speed': speed, 'best_x': best_x, 'best_y': best_y, 
+                            'best_measure': best_measure, 'best_id': best_id}
+            else:
+                print("ID: {0:>2}, Behavior: {1:8}, Position: {2:>6.2f}, {3:>6.2f}, Measurement: {4:>6.2f}, Best Known Position: {5:>6.2f}, {6:>6.2f}, Best Known Measurement: {7:>6.2f}, Best Known ID: {8:>2}"
+                    .format(id, behavior, x, y, z, best_x, best_y, best_measure, best_id))
+
+                buoy_data = {'ID': id, 'behv': behavior , 'x': x, 'y': y, 'Measurement': z, 
+                            'best_x': best_x, 'best_y': best_y, 'best_measure': best_measure, 'best_id': best_id}
+                
             broadcast_data.append(buoy_data)
-        
-        print("Broadcast Data")
-        print("\n".join(str(data) for data in broadcast_data)) # Print broadcast data to be read by buoy
+        print()
+        print("Unfiltered Broadcast Data")
+        print("\n".join(str(data) for data in broadcast_data)) # Print broadcast data to be processed by buoy
         self.broadcast_data = broadcast_data
         return self.broadcast_data
 

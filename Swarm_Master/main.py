@@ -7,14 +7,14 @@ from Swarm import Swarm
 timestep = 0.1
 iterations = 10000
 map_size = 10
-seeker_population = 0
-explorer_population = 0
-isocontour_population = 25
+seeker_population = 5
+explorer_population = 15
+isocontour_population = 5
 communication_radius = 6
-isocontour_goal = 80
+isocontour_goal = -80
 isocontour_threshold = 5
-speed = 2
-animation_delay = 0.001 # lower is faster
+speed = 3
+animation_delay = 0.1 # lower is faster
 
 # Initialize Environment and Plot
 env = Env(bounds=map_size, fidelity=2000, dt=timestep)

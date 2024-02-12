@@ -42,28 +42,46 @@ class Buoy():
         return self.measurement
     
     def behavior(self):
+
+        def normalize(A, B, C, D, E):
+            sum_behv = sum([A, B, C, D, E])
+            self.A = A/sum_behv
+            self.B = B/sum_behv
+            self.C = C/sum_behv
+            self.D = D/sum_behv
+            self.E = E/sum_behv
+            return self.A, self.B, self.C, self.D, self.E
+
         if self.behv == "seeker":
-            self.A = 1
-            self.B = 3
-            self.C = 5
-            self.D = 0.5
-            self.E = 0
-            
+            A = 1
+            B = 3
+            C = 5
+            D = 0.5
+            E = 0
+
         elif self.behv == "explorer":
-            self.A = 0.05
-            self.B = 0.05
-            self.C = 2
-            self.D = 1
-            self.E = 0
+            A = 0.05
+            B = 0.05
+            D = 1
+            C = 2
+            E = 0
             self.repulsion_radius = 3
 
         elif self.behv == "isocontour":
-            self.A = 0
-            self.B = 0
-            self.C = 1.1
-            self.D = 0.4
-            self.E = 1
+            A = 0
+            B = 0
+            C = 1.1
+            D = 0.4
+            E = 1
             self.repulsion_radius = 1
+
+        normalize(A, B, C, D, E)
+
+        check_sum = sum([self.A, self.B, self.C, self.D, self.E])
+
+        print("Buoy {0} is a {1} with weights A: {2}, B: {3}, C: {4}, D: {5}, E: {6}"
+              .format(self.id, self.behv, self.A, self.B, self.C, self.D, self.E))
+        print("Check sum: ", check_sum)
 
         return self.A, self.B, self.C, self.D, self.E, self.repulsion_radius
 
@@ -83,18 +101,14 @@ class Buoy():
         self.random_walk()
         self.isocontour_walk()
 
-        u = (self.A*self.local_goal_vector[0] + self.B*self.global_goal_vector[0] +
-            self.C*self.repulsion_vector[0] + self.D*self.random_vector[0] + 
-            self.E*self.isocontour_vector[0])
-        v = (self.A*self.local_goal_vector[1] + self.B*self.global_goal_vector[1] +
-            self.C*self.repulsion_vector[1] + self.D*self.random_vector[1] + 
-            self.E*self.isocontour_vector[1])
+        u = (self.A*self.speed*self.local_goal_vector[0] + self.B*self.speed*self.global_goal_vector[0] +
+            self.C*self.speed*self.repulsion_vector[0] + self.D*self.speed*self.random_vector[0] +
+            self.E*self.speed*self.isocontour_vector[0])
+        v = (self.A*self.speed*self.local_goal_vector[1] + self.B*self.speed*self.global_goal_vector[1] +
+            self.C*self.speed*self.repulsion_vector[1] + self.D*self.speed*self.random_vector[1] +
+            self.E*self.speed*self.isocontour_vector[1])
         
-        # Normalize the velocity vector then multiply by speed
-        velocity_unnormalized = [u, v]
-        velocity_magnitude = np.linalg.norm(velocity_unnormalized)
-        self.velocity = [velocity_unnormalized[0]*self.speed/velocity_magnitude, 
-                         velocity_unnormalized[1]*self.speed/velocity_magnitude]
+        self.velocity = [u, v]
         
         return self.velocity
 
