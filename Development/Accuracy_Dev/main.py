@@ -3,19 +3,27 @@ import matplotlib.pyplot as plt
 from Environment import Env
 from Swarm import Swarm
 
-# Settings
+# Animation and Iteration Settings
+animation_delay = 0.001 # lower is faster
 timestep = 0.1
 iterations = 10000
+
+# Environment Settings
 map_size = 10
+
+# Swarm Population Settings
 seeker_population = 5
-explorer_population = 10
-isocontour_population = 5
-communication_radius = 6
+explorer_population = 20
+isocontour_population = 0
+
+# Swarm Performance Settings
+communication_radius = 10
 isocontour_goal = -80
 isocontour_threshold = 5
-speed = 1.5
+speed = 3
 battery = 47520
-animation_delay = 0.001 # lower is faster
+gps_accuracy = 1 # Control decimal places of GPS coordinates. Minimum is 1.
+sensor_accuracy = 1 # Control decimal places of sensor measurements. Minimum is 1.
 
 # Initialize Environment and Plot
 env = Env(bounds=map_size, fidelity=2000, dt=timestep)
@@ -31,7 +39,7 @@ def main(iters=iterations):
     swarm = Swarm(seeker_pop=seeker_population, explorer_pop=explorer_population, 
                   iso_pop=isocontour_population, com_radius=communication_radius, 
                   speed=speed, battery = battery, timestep=timestep, map_size=map_size, 
-                  iso_goal=isocontour_goal)
+                  iso_goal=isocontour_goal, gps_accuracy=gps_accuracy, sensor_accuracy=sensor_accuracy)
     
     swarm.construct()
     surf_plot()
