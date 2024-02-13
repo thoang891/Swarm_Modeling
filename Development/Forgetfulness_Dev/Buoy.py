@@ -71,7 +71,7 @@ class Buoy():
     
     def behavior(self):
 
-        def normalize(A, B, C, D, E):
+        def normalize_behavior(A, B, C, D, E):
             sum_behv = sum([A, B, C, D, E])
             self.A = A/sum_behv
             self.B = B/sum_behv
@@ -102,7 +102,7 @@ class Buoy():
             D = 0.4
             E = 1
             
-        normalize(A, B, C, D, E)
+        normalize_behavior(A, B, C, D, E)
 
         check_sum = sum([self.A, self.B, self.C, self.D, self.E])
 
