@@ -8,16 +8,19 @@ from Environment import Env
 class Buoy():
 
     def __init__(self, id, behv="seeker", speed=2, com_radius=7, 
-                 repulsion_radius=0.5, timestep=0.1, bounds=10, iso_thresh=5, iso_goal=50):
+                repulsion_radius=0.5, timestep=0.1, bounds=10, iso_thresh=5, 
+                iso_goal=50, battery=47520):
         self.id = id
         self.env = Env(dt=timestep, bounds = bounds)
         self.position = [random.uniform(-self.env.bounds, self.env.bounds), 
-                         random.uniform(-self.env.bounds, self.env.bounds)]
-        self.velocity = None
-        self.measurement = None
-        self.com_radius = com_radius
-        self.repulsion_radius = repulsion_radius
-        self.isocontour_threshold = iso_thresh
+                         random.uniform(-self.env.bounds, self.env.bounds)] # [m, m]
+        self.velocity = None # [m/s, m/s]
+        self.measurement = None # scalar value
+        self.full_battery = battery # Default battery life is movement at 1 m/s for 1 hour. [watt*second]
+        self.battery = battery 
+        self.com_radius = com_radius # [m]
+        self.repulsion_radius = repulsion_radius # [m]
+        self.isocontour_threshold = iso_thresh 
         self.isocontour_goal = iso_goal # Goal measurement for isocontour behavior
         self.behv = behv
         self.A = None # Local goal weight
@@ -30,7 +33,7 @@ class Buoy():
         self.repulsion_vector = None
         self.random_vector = None
         self.isocontour_vector = None
-        self.speed = speed
+        self.speed = speed # [m/s]
         self.broadcast_data_processed = None
         self.best_known_position = self.position
         self.best_known_measure = self.measure()
@@ -40,6 +43,32 @@ class Buoy():
         z_pos = self.env.scalar(self.position[0], self.position[1])
         self.measurement = z_pos
         return self.measurement
+    
+    ## BATTERY DEV ##
+    def update_battery(self):
+        # Calculate battery discharge based on magnitude of velocity developed by motor function.
+        # Velocity is translated into power based on a cubic polynomial fit of buoy drag properties 
+        # developed by Brandon Zoss in his thesis. Power is then integrated over the time step to
+        # calculate the discharge. Discharge is then subtracted from the battery level.
+        
+        velocity_magnitude = 0 # Reset velocity magnitude. Unit is m/s
+        power = 0 # Reset power. Unit is watts.
+        discharge = 0 # Reset discharge
+
+        if self.velocity is not None:
+            print("#"*80)
+            print("Battery Data for Buoy {0}".format(self.id))
+            velocity_magnitude = round(np.linalg.norm(self.velocity), 2) # Rounded to 2 decimal places to prevent negative power values
+            print("Velocity magnitude: ", velocity_magnitude)   
+            power = 12.545*(velocity_magnitude**3) + 0.662*(velocity_magnitude**2) - 0.007*velocity_magnitude 
+            print("Power: ", power)
+            discharge = power*self.env.dt
+            print("Discharge: ", discharge)
+            self.battery -= discharge
+            print("Remaining battery: ", self.battery)
+            print("Remaining battery percentage: ", (self.battery/self.full_battery)*100, "%")
+            print("#"*80)
+            return self.battery
     
     def behavior(self):
 
@@ -92,25 +121,32 @@ class Buoy():
 
     def motor(self):
         # Reset velocity vector
-        self.velocity = [] 
+        self.velocity = []
 
+        if self.battery <= 0:
+            print("Buoy {0} is out of battery".format(self.id))
+            self.velocity = [0, 0]
+            return self.velocity 
+
+        else:
         # Define behavior vectors
-        self.local_goal()
-        self.global_goal()
-        self.repulse()
-        self.random_walk()
-        self.isocontour_walk()
+            self.local_goal()
+            self.global_goal()
+            self.repulse()
+            self.random_walk()
+            self.isocontour_walk()
 
-        u = (self.A*self.speed*self.local_goal_vector[0] + self.B*self.speed*self.global_goal_vector[0] +
-            self.C*self.speed*self.repulsion_vector[0] + self.D*self.speed*self.random_vector[0] +
-            self.E*self.speed*self.isocontour_vector[0])
-        v = (self.A*self.speed*self.local_goal_vector[1] + self.B*self.speed*self.global_goal_vector[1] +
-            self.C*self.speed*self.repulsion_vector[1] + self.D*self.speed*self.random_vector[1] +
-            self.E*self.speed*self.isocontour_vector[1])
+            u = (self.A*self.speed*self.local_goal_vector[0] + self.B*self.speed*self.global_goal_vector[0] +
+                self.C*self.speed*self.repulsion_vector[0] + self.D*self.speed*self.random_vector[0] +
+                self.E*self.speed*self.isocontour_vector[0])
+            v = (self.A*self.speed*self.local_goal_vector[1] + self.B*self.speed*self.global_goal_vector[1] +
+                self.C*self.speed*self.repulsion_vector[1] + self.D*self.speed*self.random_vector[1] +
+                self.E*self.speed*self.isocontour_vector[1])
+            
+            self.velocity = [u, v]
+            self.update_battery()
         
-        self.velocity = [u, v]
-        
-        return self.velocity
+            return self.velocity
 
     def local_goal(self):
         data_frame = self.broadcast_data_processed.copy() # Copy the broadcast data to a local variable

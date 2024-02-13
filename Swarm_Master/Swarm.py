@@ -4,7 +4,7 @@ from Buoy import Buoy
 class Swarm():
 
     def __init__(self, seeker_pop=2, explorer_pop=2, iso_pop=2, com_radius=7, 
-                iso_goal=0, iso_thresh=5, speed=2, timestep=0.1, map_size=10):
+                iso_goal=0, iso_thresh=5, speed=2, battery=3600, timestep=0.1, map_size=10):
         self.seeker_population = seeker_pop
         self.explorer_population = explorer_pop
         self.isocontour_population = iso_pop
@@ -16,6 +16,7 @@ class Swarm():
         self.speed = speed
         self.isocontour_goal = iso_goal
         self.isocontour_threshold = iso_thresh
+        self.battery = battery
 
     def construct(self):
         # Generate seeker buoys
@@ -23,20 +24,21 @@ class Swarm():
             for i in range(self.seeker_population):
                 self.swarm.append(Buoy(id=i+1, com_radius=self.com_radius, 
                                     speed=self.speed, timestep=self.timestep, 
-                                    behv="seeker", bounds=self.map_size))
+                                    battery=self.battery, behv="seeker", bounds=self.map_size))
         # Generate explorer buoys
         if self.explorer_population !=0:
             for i in range(self.explorer_population):
                 self.swarm.append(Buoy(id=i+1+self.seeker_population, com_radius=self.com_radius, 
                                     speed=self.speed, timestep=self.timestep, 
-                                    behv="explorer", bounds=self.map_size))
+                                    battery=self.battery, behv="explorer", bounds=self.map_size))
         # Generate isocontour buoys
         if self.isocontour_population !=0:   
             for i in range(self.isocontour_population):
                 self.swarm.append(Buoy(id=i+1+self.seeker_population+self.explorer_population, 
                                     com_radius=self.com_radius, speed=self.speed, 
-                                    timestep=self.timestep, behv="isocontour", bounds=self.map_size,
-                                    iso_goal=self.isocontour_goal, iso_thresh=self.isocontour_threshold))
+                                    timestep=self.timestep, battery=self.battery, behv="isocontour", 
+                                    bounds=self.map_size, iso_goal=self.isocontour_goal, 
+                                    iso_thresh=self.isocontour_threshold))
 
         for buoy in self.swarm:
             buoy.measure()
@@ -53,6 +55,7 @@ class Swarm():
             x = buoy.position[0]
             y = buoy.position[1]
             z = buoy.measurement
+            battery = buoy.battery/buoy.full_battery*100
             best_x = buoy.best_known_position[0]
             best_y = buoy.best_known_position[1]
             best_measure = buoy.best_known_measure
@@ -63,17 +66,17 @@ class Swarm():
                 v = buoy.velocity[1]
                 speed = np.sqrt(u**2 + v**2)
 
-                print("ID: {0:>2}, Behavior: {1:8}, Position: {2:>6.2f}, {3:>6.2f}, Measurement: {4:>6.2f}, Velocity: {5:>6.2f}, {6:>6.2f}, Speed: {7:>6.2f}, Best Known Position: {8:>6.2f}, {9:>6.2f}, Best Known Measurement: {10:>6.2f}, Best Known ID: {11:>2}"
-                    .format(id, behavior, x, y, z, u, v, speed, best_x, best_y, best_measure, best_id))
+                print("ID: {0:>2}, Behavior: {1:8}, Battery: {2:>6.2f}%, Position: {3:>6.2f}, {4:>6.2f}, Measurement: {5:>6.2f}, Velocity: {6:>6.2f}, {7:>6.2f}, Speed: {8:>6.2f}, Best Known Position: {9:>6.2f}, {10:>6.2f}, Best Known Measurement: {11:>6.2f}, Best Known ID: {12:>2}"
+                    .format(id, behavior, battery, x, y, z, u, v, speed, best_x, best_y, best_measure, best_id))
                 
-                buoy_data = {'ID': id, 'behv': behavior , 'x': x, 'y': y, 'Measurement': z,
+                buoy_data = {'ID': id, 'Battery': battery, 'behv': behavior , 'x': x, 'y': y, 'Measurement': z,
                             'u': u, 'v': v, 'speed': speed, 'best_x': best_x, 'best_y': best_y, 
                             'best_measure': best_measure, 'best_id': best_id}
             else:
-                print("ID: {0:>2}, Behavior: {1:8}, Position: {2:>6.2f}, {3:>6.2f}, Measurement: {4:>6.2f}, Best Known Position: {5:>6.2f}, {6:>6.2f}, Best Known Measurement: {7:>6.2f}, Best Known ID: {8:>2}"
-                    .format(id, behavior, x, y, z, best_x, best_y, best_measure, best_id))
-
-                buoy_data = {'ID': id, 'behv': behavior , 'x': x, 'y': y, 'Measurement': z, 
+                print("ID: {0:>2}, Behavior: {1:8}, Battery: {2:>6.2f}%, Position: {3:>6.2f}, {4:>6.2f}, Measurement: {5:>6.2f}, Best Known Position: {6:>6.2f}, {7:>6.2f}, Best Known Measurement: {8:>6.2f}, Best Known ID: {9:>2}"
+                      .format(id, behavior, battery, x, y, z, best_x, best_y, best_measure, best_id))
+                
+                buoy_data = {'ID': id, 'Battery': battery, 'behv': behavior , 'x': x, 'y': y, 'Measurement': z, 
                             'best_x': best_x, 'best_y': best_y, 'best_measure': best_measure, 'best_id': best_id}
                 
             broadcast_data.append(buoy_data)
