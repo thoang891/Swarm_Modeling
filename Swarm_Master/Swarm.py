@@ -5,7 +5,7 @@ class Swarm():
 
     def __init__(self, seeker_pop=2, explorer_pop=2, iso_pop=2, com_radius=7, 
                 iso_goal=0, iso_thresh=5, speed=2, battery=3600, timestep=0.1, map_size=10,
-                gps_accuracy=3, sensor_accuracy=3, external_force_magnitude=0.25):
+                gps_accuracy=3, sensor_accuracy=3, external_force_magnitude=0.25, memory_duration=2):
         self.seeker_population = seeker_pop
         self.explorer_population = explorer_pop
         self.isocontour_population = iso_pop
@@ -21,6 +21,7 @@ class Swarm():
         self.gps_accuracy = gps_accuracy # Integer value for decimal places of GPS coordinates. Minumum is 1.
         self.sensor_accuracy = sensor_accuracy # Integer value for decimal places of sensor measurements. Minimum is 1.
         self.external_force_magitude = external_force_magnitude # Scalar for how strong external forces are.
+        self.memory_duration = memory_duration # How long a buoy can remember the best measurement
 
     def construct(self):
         # Generate seeker buoys
@@ -93,9 +94,14 @@ class Swarm():
         self.broadcast_data = broadcast_data
         return self.broadcast_data
 
-    def update(self):
+    def update(self, current_time):
+        if current_time % self.memory_duration == 0:
+            print("Forgetting at time: {0:>6.2f}".format(current_time))
+            for buoy in self.swarm:
+                buoy.forget()
+
         self.broadcast()
+
         for buoy in self.swarm:
             buoy.read_mail(self.broadcast_data)
             buoy.update()
- 

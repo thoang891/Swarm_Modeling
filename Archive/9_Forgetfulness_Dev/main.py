@@ -4,7 +4,7 @@ from Environment import Env
 from Swarm import Swarm
 
 # Animation and Iteration Settings
-animation_delay = 0.0001 # lower is faster
+animation_delay = 0.1 # lower is faster
 timestep = 0.1
 iterations = 10000
 
@@ -13,18 +13,19 @@ map_size = 10
 external_force_magnitude = 0.1
 
 # Swarm Population Settings
-seeker_population = 0
-explorer_population = 0
-isocontour_population = 30
+seeker_population = 5
+explorer_population = 20
+isocontour_population = 20
 
 # Swarm Performance Settings
-communication_radius = 5
+communication_radius = 7
 isocontour_goal = -80
 isocontour_threshold = 1
 speed = 1.5
 battery = 47520
 gps_accuracy = 1 # Control decimal places of GPS coordinates. Minimum is 1.
 sensor_accuracy = 1 # Control decimal places of sensor measurements. Minimum is 1.
+memory_duration = 2 # How long a buoy can remember the best measurement in seconds.
 
 # Initialize Environment and Plot
 env = Env(bounds=map_size, fidelity=2000, dt=timestep)
@@ -41,7 +42,7 @@ def main(iters=iterations):
                   iso_pop=isocontour_population, com_radius=communication_radius, 
                   speed=speed, battery = battery, timestep=timestep, map_size=map_size, 
                   iso_goal=isocontour_goal, gps_accuracy=gps_accuracy, sensor_accuracy=sensor_accuracy,
-                  external_force_magnitude=external_force_magnitude)
+                  external_force_magnitude=external_force_magnitude, memory_duration=memory_duration)
     
     swarm.construct()
     surf_plot()
@@ -56,12 +57,13 @@ def main(iters=iterations):
             plot.remove()
         scatter_plots = []  # Clear the list for the new iteration
         broadcast_data = [] # Clear the list for the new iteration
+        current_time = i*env.dt
 
         print("#"*100)
-        print("Iteration: {0} Time Elapsed: {1:>10.2f} seconds/ {2:>10.2f} seconds".format(i, i*env.dt, total_time))
+        print("Iteration: {0} Time Elapsed: {1:>10.2f} seconds/ {2:>10.2f} seconds".format(i, current_time, total_time))
         print("#"*100)
 
-        swarm.update()
+        swarm.update(current_time)
         broadcast_data = swarm.broadcast_data
 
         for mail in broadcast_data:

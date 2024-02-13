@@ -466,6 +466,12 @@ class Buoy():
 
         return self.best_known_position, self.best_known_measure, self.best_known_id
     
+    def forget(self):
+        # Reset best known parameters
+        self.best_known_position = self.position
+        self.best_known_measure = self.measure()
+        self.best_known_id = self.id
+    
     def update(self):
         self.behavior()
         self.measure()
