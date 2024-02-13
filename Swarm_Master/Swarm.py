@@ -4,7 +4,8 @@ from Buoy import Buoy
 class Swarm():
 
     def __init__(self, seeker_pop=2, explorer_pop=2, iso_pop=2, com_radius=7, 
-                iso_goal=0, iso_thresh=5, speed=2, battery=3600, timestep=0.1, map_size=10):
+                iso_goal=0, iso_thresh=5, speed=2, battery=3600, timestep=0.1, map_size=10,
+                gps_accuracy=3, sensor_accuracy=3):
         self.seeker_population = seeker_pop
         self.explorer_population = explorer_pop
         self.isocontour_population = iso_pop
@@ -17,6 +18,8 @@ class Swarm():
         self.isocontour_goal = iso_goal
         self.isocontour_threshold = iso_thresh
         self.battery = battery
+        self.gps_accuracy = gps_accuracy # Integer value for decimal places of GPS coordinates. Minumum is 1.
+        self.sensor_accuracy = sensor_accuracy # Integer value for decimal places of sensor measurements. Minimum is 1.
 
     def construct(self):
         # Generate seeker buoys
@@ -46,25 +49,25 @@ class Swarm():
         return self.swarm
 
     def broadcast(self):
-        broadcast_data = [] # Clear the list for the new iteration
+        broadcast_data = [] # Clear the list for the new iterationcdd
 
         # Build broadcast data for each buoy from each buoy
         for buoy in self.swarm:
             id = buoy.id
             behavior = buoy.behv
-            x = buoy.position[0]
-            y = buoy.position[1]
-            z = buoy.measurement
+            x = round(buoy.position[0], self.gps_accuracy)
+            y = round(buoy.position[1], self.gps_accuracy)
+            z = round(buoy.measurement, self.sensor_accuracy)
             battery = buoy.battery/buoy.full_battery*100
-            best_x = buoy.best_known_position[0]
-            best_y = buoy.best_known_position[1]
-            best_measure = buoy.best_known_measure
+            best_x = round(buoy.best_known_position[0], self.gps_accuracy)
+            best_y = round(buoy.best_known_position[1], self.gps_accuracy)
+            best_measure = round(buoy.best_known_measure, self.sensor_accuracy)
             best_id = buoy.best_known_id
 
             if buoy.velocity is not None:
-                u = buoy.velocity[0]
-                v = buoy.velocity[1]
-                speed = np.sqrt(u**2 + v**2)
+                u = round(buoy.velocity[0], self.gps_accuracy)
+                v = round(buoy.velocity[1], self.gps_accuracy)
+                speed = round(np.sqrt(u**2 + v**2), self.gps_accuracy)
 
                 print("ID: {0:>2}, Behavior: {1:8}, Battery: {2:>6.2f}%, Position: {3:>6.2f}, {4:>6.2f}, Measurement: {5:>6.2f}, Velocity: {6:>6.2f}, {7:>6.2f}, Speed: {8:>6.2f}, Best Known Position: {9:>6.2f}, {10:>6.2f}, Best Known Measurement: {11:>6.2f}, Best Known ID: {12:>2}"
                     .format(id, behavior, battery, x, y, z, u, v, speed, best_x, best_y, best_measure, best_id))
