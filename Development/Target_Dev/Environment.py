@@ -1,4 +1,7 @@
 import numpy as np
+import math
+
+from Target import Target
 
 class Env():
 
@@ -8,6 +11,9 @@ class Env():
         self.y_space = self.x_space.copy().T
         self.dt = dt
         self.external_force_magnitude = external_force_magnitude
+        self.target = Target()
+        self.z_space = self.scalar(self.x_space, self.y_space)
+
 
     @staticmethod
     def scalar(x, y): 
@@ -30,7 +36,33 @@ class Env():
         
         return scaled_force
     
-    def z_space(self):
-        z_space = Env.scalar(self.x_space, self.y_space)
-        return z_space
-        
+    def update_z_space(self):
+        self.z_space = self.scalar(self.x_space, self.y_space)
+        return self.z_space
+    
+    def update_scalar(self):
+        tar_pos_x = self.target.position[0]
+        tar_pos_y = self.target.position[1]
+        print(tar_pos_x, tar_pos_y)
+        self.scalar = lambda x, y: -((x-tar_pos_x)**2 + (y-tar_pos_y)**2) # This function should match the scalar
+
+
+    def update(self):
+        self.target.update()
+        self.update_scalar()
+        print(self.scalar(self.target.position[0], self.target.position[1]))
+        self.update_z_space()
+
+
+# ## TESTING ##
+# def main():
+#     env = Env()
+#     z = env.scalar(0, 0)
+#     print("z: ", z) 
+#     for i in range(10):
+#         env.update()
+#         z = env.scalar(0, 0)
+#         print("z: ", z) 
+
+# if __name__ == "__main__":
+#     main()

@@ -1,5 +1,6 @@
 import numpy as np
 from Buoy import Buoy
+from Environment import Env
 
 class Swarm():
 
@@ -22,6 +23,7 @@ class Swarm():
         self.sensor_accuracy = sensor_accuracy # Integer value for decimal places of sensor measurements. Minimum is 1.
         self.external_force_magitude = external_force_magnitude # Scalar for how strong external forces are.
         self.memory_duration = memory_duration # How long a buoy can remember the best measurement
+        self.env = Env() # Need to create this as the single environment instance. 
 
     def construct(self):
         # Generate seeker buoys

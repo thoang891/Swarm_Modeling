@@ -13,9 +13,9 @@ map_size = 10
 external_force_magnitude = 0.1
 
 # Swarm Population Settings
-seeker_population = 5
-explorer_population = 20
-isocontour_population = 20
+seeker_population = 1
+explorer_population = 1
+isocontour_population = 1
 
 # Swarm Performance Settings
 communication_radius = 7
@@ -28,14 +28,17 @@ sensor_accuracy = 1 # Control decimal places of sensor measurements. Minimum is 
 memory_duration = 2 # How long a buoy can remember the best measurement in seconds.
 
 # Initialize Environment and Plot
-env = Env(bounds=map_size, fidelity=2000, dt=timestep)
+env = Env(bounds=map_size, fidelity=100, dt=timestep)
 ax = plt.axes(projection='3d')
 ax.set_xlim(-env.bounds, env.bounds)
 ax.set_ylim(-env.bounds, env.bounds)
 
-def surf_plot():
-    ax.plot_surface(env.x_space, env.y_space, 
-                    env.z_space(), cmap='viridis', alpha=0.5) # Plot the surface
+def surf_plot(surface_plot):
+    if surface_plot is not None:
+        surface_plot.remove()
+    surface_plot = ax.plot_surface(env.x_space, env.y_space, 
+                    env.z_space, cmap='viridis', alpha=0.5) # Plot the surface
+    return surface_plot
 
 def main(iters=iterations):
     swarm = Swarm(seeker_pop=seeker_population, explorer_pop=explorer_population, 
@@ -45,13 +48,18 @@ def main(iters=iterations):
                   external_force_magnitude=external_force_magnitude, memory_duration=memory_duration)
     
     swarm.construct()
-    surf_plot()
+    surface_plot = surf_plot(None)
 
     scatter_plots = []
+    # surface_plot = None
     total_time = iters*env.dt
 
     # Animation Loop
     for i in range(iters):
+
+        if surface_plot is not None and i > iterations - 1:
+            surface_plot = None
+
         # Clear the previous scatter plots
         for plot in scatter_plots:
             plot.remove()
@@ -65,6 +73,9 @@ def main(iters=iterations):
 
         swarm.update(current_time)
         broadcast_data = swarm.broadcast_data
+        env.update()
+
+        surface_plot = surf_plot(surface_plot)
 
         for mail in broadcast_data:
             id = mail['ID']
@@ -81,6 +92,12 @@ def main(iters=iterations):
                 scatter_plot = ax.scatter(x, y, z, c='g', marker='.')
             scatter_plots.append(scatter_plot)
 
+        x_targ = env.target.position[0]
+        y_targ = env.target.position[1]
+        z_targ = env.scalar(x_targ, y_targ)
+
+        scatter_plot = ax.scatter(x_targ, y_targ, z_targ, c='r', marker='x', depthshade=False)
+        scatter_plots.append(scatter_plot)
         plt.pause(animation_delay)
         print(" ")
 
