@@ -1,21 +1,22 @@
 import matplotlib.pyplot as plt
 
-from Environment import Env
 from Swarm import Swarm
 
 # Animation and Iteration Settings
-animation_delay = 0.1 # lower is faster
+animation_delay = 0.01 # lower is faster
 timestep = 0.1
 iterations = 10000
 
 # Environment Settings
 map_size = 10
 external_force_magnitude = 0.1
+fidelity = 100
+target_setting = "OFF" # "ON" or "OFF"
 
 # Swarm Population Settings
-seeker_population = 1
-explorer_population = 1
-isocontour_population = 1
+seeker_population = 4
+explorer_population = 10
+isocontour_population = 0
 
 # Swarm Performance Settings
 communication_radius = 7
@@ -25,10 +26,17 @@ speed = 1.5
 battery = 47520
 gps_accuracy = 1 # Control decimal places of GPS coordinates. Minimum is 1.
 sensor_accuracy = 1 # Control decimal places of sensor measurements. Minimum is 1.
-memory_duration = 2 # How long a buoy can remember the best measurement in seconds.
+memory_duration = 1 # How long a buoy can remember the best measurement in seconds.
 
-# Initialize Environment and Plot
-env = Env(bounds=map_size, fidelity=100, dt=timestep)
+# Initialize Swarm and Environment
+swarm = Swarm(seeker_pop=seeker_population, explorer_pop=explorer_population, 
+                iso_pop=isocontour_population, com_radius=communication_radius, 
+                speed=speed, battery = battery, timestep=timestep, map_size=map_size, 
+                iso_goal=isocontour_goal, gps_accuracy=gps_accuracy, sensor_accuracy=sensor_accuracy,
+                external_force_magnitude=external_force_magnitude, memory_duration=memory_duration,
+                fidelity=fidelity, target_setting=target_setting)
+
+env = swarm.env
 ax = plt.axes(projection='3d')
 ax.set_xlim(-env.bounds, env.bounds)
 ax.set_ylim(-env.bounds, env.bounds)
@@ -41,12 +49,6 @@ def surf_plot(surface_plot):
     return surface_plot
 
 def main(iters=iterations):
-    swarm = Swarm(seeker_pop=seeker_population, explorer_pop=explorer_population, 
-                  iso_pop=isocontour_population, com_radius=communication_radius, 
-                  speed=speed, battery = battery, timestep=timestep, map_size=map_size, 
-                  iso_goal=isocontour_goal, gps_accuracy=gps_accuracy, sensor_accuracy=sensor_accuracy,
-                  external_force_magnitude=external_force_magnitude, memory_duration=memory_duration)
-    
     swarm.construct()
     surface_plot = surf_plot(None)
 
@@ -73,7 +75,6 @@ def main(iters=iterations):
 
         swarm.update(current_time)
         broadcast_data = swarm.broadcast_data
-        env.update()
 
         surface_plot = surf_plot(surface_plot)
 
@@ -92,12 +93,14 @@ def main(iters=iterations):
                 scatter_plot = ax.scatter(x, y, z, c='g', marker='.')
             scatter_plots.append(scatter_plot)
 
-        x_targ = env.target.position[0]
-        y_targ = env.target.position[1]
-        z_targ = env.scalar(x_targ, y_targ)
+        if env.target_setting == "ON":
+            x_targ = env.target.position[0]
+            y_targ = env.target.position[1]
+            z_targ = env.scalar(x_targ, y_targ)
 
-        scatter_plot = ax.scatter(x_targ, y_targ, z_targ, c='r', marker='x', depthshade=False)
-        scatter_plots.append(scatter_plot)
+            scatter_plot = ax.scatter(x_targ, y_targ, z_targ, c='r', marker='x', depthshade=False)
+            scatter_plots.append(scatter_plot)
+
         plt.pause(animation_delay)
         print(" ")
 

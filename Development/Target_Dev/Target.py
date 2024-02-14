@@ -5,7 +5,7 @@ import random
 
 class Target():
 
-    def __init__(self, timestep = 0.1, bounds = 10, speed=2):
+    def __init__(self, timestep = 0.1, bounds = 10, speed=4):
         # self.env = Env(dt = timestep, bounds = bounds)
         # self.position = [random.uniform(-bounds, bounds), random.uniform(-bounds, bounds)]
         self.position = [0,0]

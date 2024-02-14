@@ -4,7 +4,7 @@ from Environment import Env
 from Swarm import Swarm
 
 # Animation and Iteration Settings
-animation_delay = 0.1 # lower is faster
+animation_delay = 0.001 # lower is faster
 timestep = 0.1
 iterations = 10000
 
@@ -13,12 +13,12 @@ map_size = 10
 external_force_magnitude = 0.1
 
 # Swarm Population Settings
-seeker_population = 5
-explorer_population = 20
-isocontour_population = 20
+seeker_population = 0
+explorer_population = 0
+isocontour_population = 25
 
 # Swarm Performance Settings
-communication_radius = 7
+communication_radius = 5
 isocontour_goal = -80
 isocontour_threshold = 1
 speed = 1.5
