@@ -5,7 +5,8 @@ from Target import Target
 
 class Env():
 
-    def __init__(self, bounds=10, fidelity=200, dt=0.1, external_force_magnitude=0.25, Target_Setting="ON"):
+    def __init__(self, bounds=10, fidelity=200, dt=0.1, external_force_magnitude=0.25, 
+                Target_Setting="ON", target_speed=3):
         self.bounds = bounds
         self.x_space = np.outer(np.linspace(-bounds, bounds, fidelity), np.ones(fidelity))
         self.y_space = self.x_space.copy().T
@@ -14,7 +15,8 @@ class Env():
         self.z_space = self.scalar(self.x_space, self.y_space)
         self.target_setting = Target_Setting
         if self.target_setting == "ON":
-            self.target = Target()
+            self.target = Target(timestep=dt, bounds=bounds, speed=target_speed)
+            self.target.behv()
 
     @staticmethod
     def scalar(x, y): 
@@ -49,11 +51,13 @@ class Env():
 
     def update(self):
         if self.target_setting == "ON":
-            self.target.update()
+            self.target.update(self)
             self.update_scalar()
             print(self.scalar(self.target.position[0], self.target.position[1]))
             self.update_z_space()
         
-        else:
+        # else:
             # self.update_scalar()
-            self.update_z_space()
+            # self.update_z_space()
+            # continue
+

@@ -9,12 +9,15 @@ iterations = 10000
 
 # Environment Settings
 map_size = 10
-external_force_magnitude = 0.1
+external_force_magnitude = 0.2
 fidelity = 100
-target_setting = "OFF" # "ON" or "OFF"
+
+# Target Settings
+target_setting = "ON" # "ON" or "OFF"
+target_speed = 10
 
 # Swarm Population Settings
-seeker_population = 4
+seeker_population = 3
 explorer_population = 10
 isocontour_population = 0
 
@@ -28,13 +31,13 @@ gps_accuracy = 1 # Control decimal places of GPS coordinates. Minimum is 1.
 sensor_accuracy = 1 # Control decimal places of sensor measurements. Minimum is 1.
 memory_duration = 1 # How long a buoy can remember the best measurement in seconds.
 
-# Initialize Swarm and Environment
+# Initialize Environment, Swarm, and Target
 swarm = Swarm(seeker_pop=seeker_population, explorer_pop=explorer_population, 
                 iso_pop=isocontour_population, com_radius=communication_radius, 
                 speed=speed, battery = battery, timestep=timestep, map_size=map_size, 
                 iso_goal=isocontour_goal, gps_accuracy=gps_accuracy, sensor_accuracy=sensor_accuracy,
                 external_force_magnitude=external_force_magnitude, memory_duration=memory_duration,
-                fidelity=fidelity, target_setting=target_setting)
+                fidelity=fidelity, target_setting=target_setting, target_speed=target_speed)
 
 env = swarm.env
 ax = plt.axes(projection='3d')
@@ -47,6 +50,9 @@ def surf_plot(surface_plot):
     surface_plot = ax.plot_surface(env.x_space, env.y_space, 
                     env.z_space, cmap='viridis', alpha=0.5) # Plot the surface
     return surface_plot
+
+def scatter_plot():
+    pass
 
 def main(iters=iterations):
     swarm.construct()

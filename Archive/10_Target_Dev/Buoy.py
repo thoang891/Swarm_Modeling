@@ -9,11 +9,9 @@ class Buoy():
                 repulsion_radius=0.5, iso_thresh=5, 
                 iso_goal=50, battery=47520, env=None):
         self.id = id
-        # self.env = Env(dt=timestep, bounds = bounds, external_force_magnitude=external_force_magitude) # Pass as an argument from Swarm class
         self.env = env
         self.position = [random.uniform(-self.env.bounds, self.env.bounds), 
                          random.uniform(-self.env.bounds, self.env.bounds)] # [m, m]
-        # self.position = [random.uniform(self.env.bounds, -self.env.bounds),]
         self.velocity = None # [m/s, m/s]
         self.measurement = None # scalar value
         self.full_battery = battery # Default battery life is movement at 1 m/s for 1 hour. [watt*second]

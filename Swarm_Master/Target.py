@@ -1,0 +1,96 @@
+import numpy as np
+import random
+
+# Target currently is generating a random walk and a repulsion vector
+# Target is generated at a random position within the bounds of the environment
+
+class Target():
+
+    def __init__(self, timestep = 0.1, bounds = 10, speed=4):
+        self.position = [random.uniform(-bounds, bounds), 
+                        random.uniform(-bounds, bounds)]
+        self.bounds = bounds
+        self.speed = speed
+        self.velocity = None
+        self.dt = timestep
+        self.random_vector = None
+        self.repulsion_vector = None
+        self.A = None
+        self.B = None
+        self.external_force = None
+
+    def move(self, env):
+        # Need to get external force
+        external_force = env.external_force(self.position[0], self.position[1])
+
+        # Update position by adding velocity * time step
+        self.position[0] += (self.velocity[0] + external_force[0])*self.dt
+        self.position[1] += (self.velocity[1] + external_force[1])*self.dt
+
+        return self.position
+
+    def motor(self):
+        self.random_walk()
+        self.repulse()
+
+        self.velocity = [self.A*self.speed*self.random_vector[0] + self.B*self.speed*self.repulsion_vector[0], 
+                        self.A*self.speed*self.random_vector[1] + self.B*self.speed*self.repulsion_vector[1]]
+        
+        return self.velocity
+
+    def behv(self):
+        
+        def normalize_behavior(A, B):
+            sum_behv = sum([A, B])
+            self.A = A/sum_behv
+            self.B = B/sum_behv
+            return self.A, self.B
+
+        A = 1
+        B = 2
+        normalize_behavior(A, B)
+
+        return self.A, self.B
+
+    def repulse(self):  
+        # Reset the repulsion vector
+        bounding_vector = [0, 0]
+        self.repulsion_vector = [0, 0]
+
+         # Calculate the repulsion vector due to the bounds
+        if self.position[0] > self.bounds:
+            bounding_vector[0] = -1
+        elif self.position[0] < -self.bounds:
+            bounding_vector[0] = 1
+        else:
+            bounding_vector[0] = 0
+
+        if self.position[1] > self.bounds:
+            bounding_vector[1] = -1
+        elif self.position[1] < -self.bounds:
+            bounding_vector[1] = 1
+        else:
+            bounding_vector[1] = 0
+        
+        # Normalize the repulsion vector if it exists
+        if bounding_vector[0] != 0 or bounding_vector[1] != 0:
+            magnitude = np.linalg.norm(bounding_vector)
+      
+            self.repulsion_vector = [bounding_vector[0]/magnitude, 
+                                     bounding_vector[1]/magnitude]
+        else: 
+            self.repulsion_vector = [0, 0]
+        
+        return self.repulsion_vector
+
+    def random_walk(self):
+        random_vector_unnormalized = [random.uniform(-1, 1), random.uniform(-1, 1)]
+        random_vector_magnitude = np.linalg.norm(random_vector_unnormalized)
+        self.random_vector = [random_vector_unnormalized[0]/random_vector_magnitude, 
+                              random_vector_unnormalized[1]/random_vector_magnitude]
+        print("Random vector: {0}".format(self.random_vector))
+        return self.random_vector
+
+    def update(self, env):
+        self.motor()
+        self.move(env)

@@ -7,7 +7,7 @@ class Swarm():
     def __init__(self, seeker_pop=2, explorer_pop=2, iso_pop=2, com_radius=7, 
                 iso_goal=0, iso_thresh=5, speed=2, battery=3600, timestep=0.1, map_size=10,
                 gps_accuracy=3, sensor_accuracy=3, external_force_magnitude=0.25, memory_duration=2, 
-                fidelity=100, target_setting="ON"):
+                fidelity=100, target_setting="ON", target_speed = 3):
         self.seeker_population = seeker_pop
         self.explorer_population = explorer_pop
         self.isocontour_population = iso_pop
@@ -22,7 +22,8 @@ class Swarm():
         self.sensor_accuracy = sensor_accuracy # Integer value for decimal places of sensor measurements. Minimum is 1.
         self.memory_duration = memory_duration # How long a buoy can remember the best measurement
         self.env = Env(bounds=map_size, dt=timestep, fidelity=fidelity,
-                       external_force_magnitude=external_force_magnitude, Target_Setting=target_setting)
+                       external_force_magnitude=external_force_magnitude, 
+                       Target_Setting=target_setting, target_speed=target_speed)
 
     def construct(self):
         # Generate seeker buoys

@@ -1,17 +1,15 @@
 import numpy as np
 import random
 
-from Environment import Env
-
 # Buoys are currently spawned in a uniform distribution within the environment
 
 class Buoy():
 
     def __init__(self, id, behv="seeker", speed=2, com_radius=7, 
-                repulsion_radius=0.5, timestep=0.1, bounds=10, iso_thresh=5, 
-                iso_goal=50, battery=47520, external_force_magitude = 0.25):
+                repulsion_radius=0.5, iso_thresh=5, 
+                iso_goal=50, battery=47520, env=None):
         self.id = id
-        self.env = Env(dt=timestep, bounds = bounds, external_force_magnitude=external_force_magitude)
+        self.env = env
         self.position = [random.uniform(-self.env.bounds, self.env.bounds), 
                          random.uniform(-self.env.bounds, self.env.bounds)] # [m, m]
         self.velocity = None # [m/s, m/s]
@@ -36,13 +34,8 @@ class Buoy():
         self.speed = speed # [m/s]
         self.broadcast_data_processed = None
         self.best_known_position = self.position
-        self.best_known_measure = self.measure()
+        self.best_known_measure = self.measurement
         self.best_known_id = self.id
-
-    def measure(self):
-        z_pos = self.env.scalar(self.position[0], self.position[1])
-        self.measurement = z_pos
-        return self.measurement
     
     def update_battery(self):
         # Calculate battery discharge based on magnitude of velocity developed by motor function.
@@ -161,7 +154,7 @@ class Buoy():
             max_measurement = max(data_frame, key=lambda x: x['Measurement'])
 
             # Move towards the buoy with the maximum measurement if the current buoy's measurement is less than the maximum measurement
-            if self.measure() < max_measurement['Measurement']:
+            if self.measurement < max_measurement['Measurement']:
                 goal_vector_unnormalized = [max_measurement['x'] - self.position[0], 
                                             max_measurement['y'] - self.position[1]]
                 goal_vector_magnitude = np.linalg.norm(goal_vector_unnormalized)
@@ -469,12 +462,12 @@ class Buoy():
     def forget(self):
         # Reset best known parameters
         self.best_known_position = self.position
-        self.best_known_measure = self.measure()
+        self.best_known_measure = self.measurement
         self.best_known_id = self.id
     
     def update(self):
         self.behavior()
-        self.measure()
+        # self.measure()
         self.memory()
         self.motor()
         self.move()

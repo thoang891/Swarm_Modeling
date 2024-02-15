@@ -1,17 +1,17 @@
 import numpy as np
 from Buoy import Buoy
+from Environment import Env
 
 class Swarm():
 
     def __init__(self, seeker_pop=2, explorer_pop=2, iso_pop=2, com_radius=7, 
                 iso_goal=0, iso_thresh=5, speed=2, battery=3600, timestep=0.1, map_size=10,
-                gps_accuracy=3, sensor_accuracy=3, external_force_magnitude=0.25, memory_duration=2):
+                gps_accuracy=3, sensor_accuracy=3, external_force_magnitude=0.25, memory_duration=2, 
+                fidelity=100, target_setting="ON", target_speed = 3):
         self.seeker_population = seeker_pop
         self.explorer_population = explorer_pop
         self.isocontour_population = iso_pop
         self.swarm = []
-        self.timestep = timestep
-        self.map_size = map_size
         self.broadcast_data = []
         self.com_radius = com_radius
         self.speed = speed
@@ -20,39 +20,41 @@ class Swarm():
         self.battery = battery
         self.gps_accuracy = gps_accuracy # Integer value for decimal places of GPS coordinates. Minumum is 1.
         self.sensor_accuracy = sensor_accuracy # Integer value for decimal places of sensor measurements. Minimum is 1.
-        self.external_force_magitude = external_force_magnitude # Scalar for how strong external forces are.
         self.memory_duration = memory_duration # How long a buoy can remember the best measurement
+        self.env = Env(bounds=map_size, dt=timestep, fidelity=fidelity,
+                       external_force_magnitude=external_force_magnitude, 
+                       Target_Setting=target_setting, target_speed=target_speed)
 
     def construct(self):
         # Generate seeker buoys
         if self.seeker_population !=0:
             for i in range(self.seeker_population):
-                self.swarm.append(Buoy(id=i+1, com_radius=self.com_radius, 
-                                    speed=self.speed, timestep=self.timestep, 
-                                    battery=self.battery, behv="seeker", bounds=self.map_size,
-                                    external_force_magitude=self.external_force_magitude))
+                self.swarm.append(Buoy(id=i+1, com_radius=self.com_radius, speed=self.speed, 
+                                       battery=self.battery, behv="seeker",env=self.env))
         # Generate explorer buoys
         if self.explorer_population !=0:
             for i in range(self.explorer_population):
                 self.swarm.append(Buoy(id=i+1+self.seeker_population, com_radius=self.com_radius, 
-                                    speed=self.speed, timestep=self.timestep, 
-                                    battery=self.battery, behv="explorer", bounds=self.map_size, 
-                                    external_force_magitude=self.external_force_magitude))
+                                    speed=self.speed, battery=self.battery, behv="explorer", env=self.env))
         # Generate isocontour buoys
         if self.isocontour_population !=0:   
             for i in range(self.isocontour_population):
                 self.swarm.append(Buoy(id=i+1+self.seeker_population+self.explorer_population, 
-                                    com_radius=self.com_radius, speed=self.speed, 
-                                    timestep=self.timestep, battery=self.battery, behv="isocontour", 
-                                    bounds=self.map_size, iso_goal=self.isocontour_goal, 
-                                    iso_thresh=self.isocontour_threshold, 
-                                    external_force_magitude=self.external_force_magitude))
+                                    com_radius=self.com_radius, speed=self.speed, battery=self.battery, 
+                                    behv="isocontour", iso_goal=self.isocontour_goal, 
+                                    iso_thresh=self.isocontour_threshold, env=self.env))
 
-        for buoy in self.swarm:
-            buoy.measure()
+        for buoy in self.swarm: # set initial measurement for buoys
+            self.measure()
 
         return self.swarm
+    
+    def measure(self):
+        for buoy in self.swarm:
+            buoy.measurement = self.env.scalar(buoy.position[0], buoy.position[1])
 
+        return self.swarm
+    
     def broadcast(self):
         broadcast_data = [] # Clear the list for the new iterationcdd
 
@@ -95,11 +97,14 @@ class Swarm():
         return self.broadcast_data
 
     def update(self, current_time):
+        # Reset best known paramters after memory_duration period
         if current_time % self.memory_duration == 0:
             print("Forgetting at time: {0:>6.2f}".format(current_time))
             for buoy in self.swarm:
                 buoy.forget()
 
+        self.env.update()
+        self.measure()
         self.broadcast()
 
         for buoy in self.swarm:
