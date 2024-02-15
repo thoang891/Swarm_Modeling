@@ -91,7 +91,7 @@ class Buoy():
         elif self.behv == "isocontour":
             A = 0
             B = 0
-            C = 1.25
+            C = 1.1
             D = 0.4
             E = 1
             
@@ -467,7 +467,6 @@ class Buoy():
     
     def update(self):
         self.behavior()
-        # self.measure()
         self.memory()
         self.motor()
         self.move()

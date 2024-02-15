@@ -55,9 +55,3 @@ class Env():
             self.update_scalar()
             print(self.scalar(self.target.position[0], self.target.position[1]))
             self.update_z_space()
-        
-        # else:
-            # self.update_scalar()
-            # self.update_z_space()
-            # continue
-

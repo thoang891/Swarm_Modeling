@@ -3,13 +3,14 @@ import matplotlib.pyplot as plt
 from Swarm import Swarm
 
 # Animation and Iteration Settings
-animation_delay = 0.01 # lower is faster
+animation = False # Set to False to disable animation
+animation_delay = 0.001 # lower is faster
 timestep = 0.1
 iterations = 10000
 
 # Environment Settings
 map_size = 10
-external_force_magnitude = 0.2
+external_force_magnitude = 0.1
 fidelity = 100
 
 # Target Settings
@@ -17,14 +18,14 @@ target_setting = "ON" # "ON" or "OFF"
 target_speed = 10
 
 # Swarm Population Settings
-seeker_population = 3
-explorer_population = 10
-isocontour_population = 0
+seeker_population = 1
+explorer_population = 1
+isocontour_population = 1
 
 # Swarm Performance Settings
 communication_radius = 7
 isocontour_goal = -80
-isocontour_threshold = 1
+isocontour_threshold = 3
 speed = 1.5
 battery = 47520
 gps_accuracy = 1 # Control decimal places of GPS coordinates. Minimum is 1.
@@ -40,9 +41,10 @@ swarm = Swarm(seeker_pop=seeker_population, explorer_pop=explorer_population,
                 fidelity=fidelity, target_setting=target_setting, target_speed=target_speed)
 
 env = swarm.env
-ax = plt.axes(projection='3d')
-ax.set_xlim(-env.bounds, env.bounds)
-ax.set_ylim(-env.bounds, env.bounds)
+if animation:
+    ax = plt.axes(projection='3d')
+    ax.set_xlim(-env.bounds, env.bounds)
+    ax.set_ylim(-env.bounds, env.bounds)
 
 def surf_plot(surface_plot):
     if surface_plot is not None:
@@ -51,39 +53,8 @@ def surf_plot(surface_plot):
                     env.z_space, cmap='viridis', alpha=0.5) # Plot the surface
     return surface_plot
 
-def scatter_plot():
-    pass
-
-def main(iters=iterations):
-    swarm.construct()
-    surface_plot = surf_plot(None)
-
-    scatter_plots = []
-    # surface_plot = None
-    total_time = iters*env.dt
-
-    # Animation Loop
-    for i in range(iters):
-
-        if surface_plot is not None and i > iterations - 1:
-            surface_plot = None
-
-        # Clear the previous scatter plots
-        for plot in scatter_plots:
-            plot.remove()
-        scatter_plots = []  # Clear the list for the new iteration
-        broadcast_data = [] # Clear the list for the new iteration
-        current_time = i*env.dt
-
-        print("#"*100)
-        print("Iteration: {0} Time Elapsed: {1:>10.2f} seconds/ {2:>10.2f} seconds".format(i, current_time, total_time))
-        print("#"*100)
-
-        swarm.update(current_time)
-        broadcast_data = swarm.broadcast_data
-
-        surface_plot = surf_plot(surface_plot)
-
+def scatter_plot(scatter_plots, broadcast_data):
+    if broadcast_data is not None:
         for mail in broadcast_data:
             id = mail['ID']
             behavior = mail['behv']
@@ -107,10 +78,45 @@ def main(iters=iterations):
             scatter_plot = ax.scatter(x_targ, y_targ, z_targ, c='r', marker='x', depthshade=False)
             scatter_plots.append(scatter_plot)
 
-        plt.pause(animation_delay)
-        print(" ")
+        return scatter_plots
 
-    plt.show()
+def main(iters=iterations):
+    swarm.construct()
+    if animation:
+        surface_plot = surf_plot(None)
+        scatter_plots = []
+
+    total_time = iters*env.dt
+
+    # Animation Loop
+    for i in range(iters):
+        if animation:
+            if surface_plot is not None and i > iterations - 1:
+                surface_plot = None
+
+            # Clear the previous scatter plots
+            for plot in scatter_plots:
+                plot.remove()
+            scatter_plots = []  # Clear the list for the new iteration
+            broadcast_data = [] # Clear the list for the new iteration
+
+        current_time = i*env.dt
+
+        print("#"*100)
+        print("Iteration: {0} Time Elapsed: {1:>10.2f} seconds/ {2:>10.2f} seconds".format(i, current_time, total_time))
+        print("#"*100)
+
+        swarm.update(current_time)
+        broadcast_data = swarm.broadcast_data
+        
+        if animation:
+            surface_plot = surf_plot(surface_plot)
+            scatter_plots = scatter_plot(scatter_plots, broadcast_data)
+
+            plt.pause(animation_delay)
+        print(" ")
+    if animation:
+        plt.show()
 
 if __name__ == "__main__":
     main(iterations)
