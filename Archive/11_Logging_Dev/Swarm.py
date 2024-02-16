@@ -96,13 +96,13 @@ class Swarm():
             x = round(buoy.position[0], gps_accuracy)
             y = round(buoy.position[1], gps_accuracy)
             z = round(buoy.measurement, sensor_accuracy)
-            battery = buoy.battery/buoy.full_battery*100
+            battery = round(buoy.battery/buoy.full_battery*100, 2)
             best_x = round(buoy.best_known_position[0], gps_accuracy)
             best_y = round(buoy.best_known_position[1], gps_accuracy)
             best_measure = round(buoy.best_known_measure, sensor_accuracy)
             best_id = buoy.best_known_id
             
-            if battery < 0:
+            if battery <= 0:
                 battery = 0
                 print("ID: {0:>2}, Behavior: {1:8}, Battery: {2:>6.2f}%, Position: {3:>6.2f}, {4:>6.2f}, Measurement: {5:>6.2f}".format(id, behavior, battery, x, y, z))
                 buoy_data = {'ID': id, 'behv': behavior, 'Battery': battery, 'x': x, 'y': y, 'Measurement': z}

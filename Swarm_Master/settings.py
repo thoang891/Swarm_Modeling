@@ -3,7 +3,7 @@
 
 settings = {
     # Animation and Iteration Settings
-    "animation": True, # True or False
+    "animation": False, # True or False
     "animation_delay": 0.001,
     "timestep": 0.1,
     "iterations": 1000,
@@ -36,7 +36,7 @@ settings = {
     "explorer_memory_duration": 5,
 
     # Isocontour Population Settings
-    "isocontour_population": 0,
+    "isocontour_population": 5,
     "iso_speed": 10,
     "iso_com_radius": 5,
     "iso_battery": 47520,

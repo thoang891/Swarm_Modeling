@@ -7,10 +7,12 @@ import random
 class Target():
 
     def __init__(self, timestep = 0.1, bounds = 10, speed=4):
+        self.ID = "Target" 
         self.position = [random.uniform(-bounds, bounds), 
                         random.uniform(-bounds, bounds)]
         self.bounds = bounds
         self.speed = speed
+        self.measurement = None
         self.velocity = None
         self.dt = timestep
         self.random_vector = None
@@ -18,6 +20,8 @@ class Target():
         self.A = None
         self.B = None
         self.external_force = None
+        self.target_data = {'ID': self.ID, 'x': round(self.position[0], 2), 
+                            'y': round(self.position[1], 2), 'u': None, 'v': None}
 
     def move(self, env):
         # Need to get external force
@@ -26,6 +30,8 @@ class Target():
         # Update position by adding velocity * time step
         self.position[0] += (self.velocity[0] + external_force[0])*self.dt
         self.position[1] += (self.velocity[1] + external_force[1])*self.dt
+
+        print("Target position: {0}".format(self.position))
 
         return self.position
 
@@ -88,9 +94,17 @@ class Target():
         random_vector_magnitude = np.linalg.norm(random_vector_unnormalized)
         self.random_vector = [random_vector_unnormalized[0]/random_vector_magnitude, 
                               random_vector_unnormalized[1]/random_vector_magnitude]
-        print("Random vector: {0}".format(self.random_vector))
+        # print("Random vector: {0}".format(self.random_vector))
         return self.random_vector
+    
+    def measure(self, env):
+        self.measurement = env.scalar(self.position[0], self.position[1])
+        return self.measurement
 
     def update(self, env):
         self.motor()
         self.move(env)
+        self.measure(env)
+        self.target_data = {'ID': self.ID, 'x': round(self.position[0], 2), 
+                            'y': round(self.position[1], 2), 'u': round(self.velocity[0], 2), 
+                            'v': round(self.velocity[1], 2), 'Measurement': round(self.measurement, 3)}

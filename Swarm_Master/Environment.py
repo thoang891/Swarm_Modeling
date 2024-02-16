@@ -46,12 +46,10 @@ class Env():
     def update_scalar(self):
         tar_pos_x = self.target.position[0]
         tar_pos_y = self.target.position[1]
-        print(tar_pos_x, tar_pos_y)
         self.scalar = lambda x, y: -((x-tar_pos_x)**2 + (y-tar_pos_y)**2) # This function should match the scalar
 
     def update(self):
         if self.target_setting == "ON":
             self.target.update(self)
             self.update_scalar()
-            print(self.scalar(self.target.position[0], self.target.position[1]))
             self.update_z_space()

@@ -396,30 +396,39 @@ class Buoy():
         return self.isocontour_vector, self.repulsion_radius
 
     def read_mail(self, broadcast_data):
-        print()
-        print("*"*80)
-        print("Buoy {0} ({1}) is reading mail and measuring {2:>6.2f} at [{3:>6.2f}, {4:>6.2f}]"
-              .format(self.id, self.behv, self.measurement, self.position[0], self.position[1]))
-        self.broadcast_data_processed = []
+        if self.battery > 0:
+            print()
+            print("*"*80)
+            print("Buoy {0} ({1}) is reading mail and measuring {2:>6.2f} at [{3:>6.2f}, {4:>6.2f}]"
+                .format(self.id, self.behv, self.measurement, self.position[0], self.position[1]))
+            self.broadcast_data_processed = []
 
-        for data in broadcast_data:
-            if data['ID'] != self.id:
-                x2 = data['x']
-                y2 = data['y']
+            for data in broadcast_data:
+                if data['ID'] != self.id:
+                    if data['Battery'] > 0:
+                        x2 = data['x']
+                        y2 = data['y']
 
-                # Calculate the distance between the two buoys
-                distance = np.sqrt((x2 - self.position[0])**2 + (y2 - self.position[1])**2)
+                        # Calculate the distance between the two buoys
+                        distance = np.sqrt((x2 - self.position[0])**2 + (y2 - self.position[1])**2)
 
-                # Remove data from buoys that are outside the communication radius
-                if distance <= self.com_radius:
-                    self.broadcast_data_processed.append(data)
-                else:
-                    print("Removed buoy {0}'s data from buoy {1}'s mail because the distance {2} is greater than the communication radius {3}"
-                          .format(data['ID'], self.id, distance, self.com_radius))
+                        # Remove data from buoys that are outside the communication radius
+                        if distance <= self.com_radius:
+                            self.broadcast_data_processed.append(data)
+                        else:
+                            print("Removed buoy {0}'s data from buoy {1}'s mail because the distance {2} is greater than the communication radius {3}"
+                                .format(data['ID'], self.id, distance, self.com_radius))
+                    else:
+                        print("Removed buoy {0}'s data from buoy {1}'s mail because buoy {0} is out of battery"
+                            .format(data['ID'], self.id))
 
-        print("The remaining neighbor data for buoy {} is:".format(self.id))
-        print("\n".join(str(data) for data in self.broadcast_data_processed)) # Print broadcast data to be read by buoy
-        return self.broadcast_data_processed
+            print("The remaining neighbor data for buoy {} is:".format(self.id))
+            print("\n".join(str(data) for data in self.broadcast_data_processed)) # Print broadcast data to be read by buoy
+            return self.broadcast_data_processed
+        else:
+            print("Buoy {0} is out of battery".format(self.id))
+            self.broadcast_data_processed = None
+            return self.broadcast_data_processed
     
     def memory(self):
         data_frame = self.broadcast_data_processed.copy()
@@ -428,10 +437,6 @@ class Buoy():
         if data_frame:
             max_measurement = max(data_frame, key=lambda x: x['Measurement'])
             max_best_known_measurement = max(data_frame, key=lambda x: x['best_measure'])
-            print()
-            print("max neighbor measurement: {0}".format(max_measurement))
-            print()
-            print("max neighbor best known measurement: {0}".format(max_best_known_measurement))
 
            # If neighbor has a better measurement, update best known position and measurement
             if self.best_known_measure < max_measurement['Measurement']:
@@ -450,12 +455,6 @@ class Buoy():
             self.best_known_position = self.position
             self.best_known_measure = self.measurement
             self.best_known_id = self.id
-
-        print()
-        print("Buoy {0} thinks the best known position is {1} and the best known measurement is {2}"
-              .format(self.id, self.best_known_position, self.best_known_measure))
-        print("Best measurement found by buoy {0}".format(self.best_known_id))
-        print()
 
         return self.best_known_position, self.best_known_measure, self.best_known_id
     

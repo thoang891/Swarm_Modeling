@@ -78,7 +78,7 @@ def scatter_plot(scatter_plots, broadcast_data):
 def clear_plot(surface_plot, scatter_plots, i):
     pass
 
-def main(iters=set.settings['iterations']):
+def main(iters=set.settings['iterations'], log_folder=None):
     swarm.construct()
     if set.settings['animation']:
         surface_plot = surf_plot(None)
@@ -98,7 +98,7 @@ def main(iters=set.settings['iterations']):
             scatter_plots = []  # Clear the list for the new iteration
             broadcast_data = [] # Clear the list for the new iteration
 
-        current_time = i*env.dt
+        current_time = round(i*env.dt, 2)
 
         print("#"*100)
         print("Iteration: {0} Time Elapsed: {1:>10.2f} seconds/ {2:>10.2f} seconds".format(i, current_time, total_time))
@@ -106,7 +106,11 @@ def main(iters=set.settings['iterations']):
 
         swarm.update(current_time)
         broadcast_data = swarm.broadcast_data
-        
+        target_data = swarm.env.target.target_data
+        all_data = broadcast_data + [target_data]
+
+        logger.log_buoy_data(current_time, all_data, log_folder)
+
         if set.settings['animation']:
             surface_plot = surf_plot(surface_plot)
             scatter_plots = scatter_plot(scatter_plots, broadcast_data)
@@ -117,4 +121,6 @@ def main(iters=set.settings['iterations']):
         plt.show()
 
 if __name__ == "__main__":
-    main(set.settings['iterations'])
+    log_folder = logger.create_log_folder()
+    logger.log_settings(set.settings, folder_path=log_folder)
+    main(set.settings['iterations'], log_folder)
