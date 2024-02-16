@@ -7,10 +7,12 @@ import random
 class Target():
 
     def __init__(self, timestep = 0.1, bounds = 10, speed=4):
+        self.ID = "target" 
         self.position = [random.uniform(-bounds, bounds), 
                         random.uniform(-bounds, bounds)]
         self.bounds = bounds
         self.speed = speed
+        self.measurement = None
         self.velocity = None
         self.dt = timestep
         self.random_vector = None
