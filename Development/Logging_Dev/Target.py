@@ -29,6 +29,8 @@ class Target():
         self.position[0] += (self.velocity[0] + external_force[0])*self.dt
         self.position[1] += (self.velocity[1] + external_force[1])*self.dt
 
+        print("Target position: {0}".format(self.position))
+
         return self.position
 
     def motor(self):
@@ -90,7 +92,7 @@ class Target():
         random_vector_magnitude = np.linalg.norm(random_vector_unnormalized)
         self.random_vector = [random_vector_unnormalized[0]/random_vector_magnitude, 
                               random_vector_unnormalized[1]/random_vector_magnitude]
-        print("Random vector: {0}".format(self.random_vector))
+        # print("Random vector: {0}".format(self.random_vector))
         return self.random_vector
 
     def update(self, env):

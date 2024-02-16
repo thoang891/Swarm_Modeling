@@ -101,8 +101,13 @@ class Swarm():
             best_y = round(buoy.best_known_position[1], gps_accuracy)
             best_measure = round(buoy.best_known_measure, sensor_accuracy)
             best_id = buoy.best_known_id
+            
+            if battery < 0:
+                battery = 0
+                print("ID: {0:>2}, Behavior: {1:8}, Battery: {2:>6.2f}%, Position: {3:>6.2f}, {4:>6.2f}, Measurement: {5:>6.2f}".format(id, behavior, battery, x, y, z))
+                buoy_data = {'ID': id, 'behv': behavior, 'Battery': battery, 'x': x, 'y': y, 'Measurement': z}
 
-            if buoy.velocity is not None:
+            elif buoy.velocity is not None:
                 u = round(buoy.velocity[0], gps_accuracy)
                 v = round(buoy.velocity[1], gps_accuracy)
                 speed = round(np.sqrt(u**2 + v**2), gps_accuracy)
@@ -133,24 +138,25 @@ class Swarm():
             for buoy in self.swarm:
                 if buoy.behv == "seeker":
                     buoy.forget()
-                    print("Forgetting at time: {0:>6.2f}".format(current_time))
+                    print("Buoy {0:>2} is forgetting at time: {1:>6.2f}".format(buoy.id, current_time))
 
         if current_time % self.explorer_memory_duration == 0:
             for buoy in self.swarm:
                 if buoy.behv == "explorer":
                     buoy.forget()
-                    print("Forgetting at time: {0:>6.2f}".format(current_time))
+                    print("Buoy {0:>2} is forgetting at time: {1:>6.2f}".format(buoy.id, current_time))
         
         if current_time % self.isocontour_memory_duration == 0:
             for buoy in self.swarm:
                 if buoy.behv == "isocontour":
                     buoy.forget()
-                    print("Forgetting at time: {0:>6.2f}".format(current_time))
+                    print("Buoy {0:>2} is forgetting at time: {1:>6.2f}".format(buoy.id, current_time))
 
         self.env.update()
         self.measure()
         self.broadcast()
 
         for buoy in self.swarm:
-            buoy.read_mail(self.broadcast_data)
+            if buoy.battery > 0:
+                buoy.read_mail(self.broadcast_data)
             buoy.update()
