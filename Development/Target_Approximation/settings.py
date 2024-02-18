@@ -38,7 +38,7 @@ settings = {
     # Isocontour Population Settings
     "isocontour_population": 5,
     "iso_speed": 10,
-    "iso_com_radius": 5,
+    "iso_com_radius": 6,
     "iso_battery": 47520,
     "iso_gps_accuracy": 1,
     "iso_sensor_accuracy": 1,

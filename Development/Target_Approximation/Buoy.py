@@ -413,14 +413,14 @@ class Buoy():
                         distance = np.sqrt((x2 - self.position[0])**2 + (y2 - self.position[1])**2)
 
                         # Remove data from buoys that are outside the communication radius
-                        if distance <= self.com_radius:
+                        if distance <= data['com_radius']:
                             self.broadcast_data_processed.append(data)
                         else:
-                            print("Removed buoy {0}'s data from buoy {1}'s mail because the distance {2} is greater than the communication radius {3}"
-                                .format(data['ID'], self.id, distance, self.com_radius))
+                            print("Unable to read buoy {0}'s data because the distance {1:>.2f} is greater than the communication radius {2}"
+                                .format(data['ID'], distance, data['com_radius']))
                     else:
-                        print("Removed buoy {0}'s data from buoy {1}'s mail because buoy {0} is out of battery"
-                            .format(data['ID'], self.id))
+                        print("Unable to read buoy {0}'s data because buoy {0} is out of battery"
+                            .format(data['ID']))
 
             print("The remaining neighbor data for buoy {} is:".format(self.id))
             print("\n".join(str(data) for data in self.broadcast_data_processed)) # Print broadcast data to be read by buoy
