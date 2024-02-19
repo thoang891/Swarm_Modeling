@@ -35,7 +35,6 @@ class Swarm():
         self.isocontour_memory_duration = iso_memory_duration
         self.isocontour_goal = iso_goal
         self.isocontour_threshold = iso_thresh
-        self.memory_duration = 1
         self.swarm = []
         self.broadcast_data = []
         self.env = Env(bounds=map_size, dt=timestep, fidelity=fidelity,

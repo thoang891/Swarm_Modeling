@@ -10,7 +10,7 @@ settings = {
 
     # Environment Settings
     "map_size": 10,
-    "external_force_magnitude": 0.1,
+    "external_force_magnitude": 0,
     "fidelity": 100,
 
     # Target Settings
