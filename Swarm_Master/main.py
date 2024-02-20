@@ -106,8 +106,11 @@ def main(iters=set.settings['iterations'], log_folder=None):
 
         swarm.update(current_time)
         broadcast_data = swarm.broadcast_data
-        target_data = swarm.env.target.target_data
-        all_data = broadcast_data + [target_data]
+        if set.settings['target_setting'] == "ON":
+            target_data = swarm.env.target.target_data
+            all_data = broadcast_data + [target_data]
+        else:
+            all_data = broadcast_data
 
         logger.log_buoy_data(current_time, all_data, log_folder)
 

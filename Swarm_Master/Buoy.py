@@ -309,7 +309,7 @@ class Buoy():
 
         weight_lower_bound = 0.0000001 # Clip the neighbor weight
         seeking_repulsion_rad = 0.4 # Repulsion radius when searching for the contour goal
-        spreading_repulsion_rad = 4 # Repulsion radius when within contour goal threshold to promote spreading
+        spreading_repulsion_rad = 4.5 # Repulsion radius when within contour goal threshold to promote spreading
         
         lower_bound = goal_contour - self.isocontour_threshold
         upper_bound = goal_contour + self.isocontour_threshold
@@ -338,14 +338,14 @@ class Buoy():
 
             print("Moving opposite to neighborhood vector: {0}".format(self.isocontour_vector))
 
-        # Check if the average measurement is greater than goal contour
-        elif upper_bound > self.measurement:
+        # Check if the self measurement is greater than goal contour
+        elif upper_bound < self.measurement:
             self.repulsion_radius = seeking_repulsion_rad
-            print("Buoy {0} is measuring less than the goal".format(self.id))
-            # Move towards the average of neighbors measuring greater than goal contour
+            print("Buoy {0} is measuring greater than the goal".format(self.id))
+            # Move towards the average of neighbors measuring less than goal contour
             sum_neighbor_vector = [0, 0]
             for data in data_frame:
-                if data['Measurement'] > self.measurement:
+                if data['Measurement'] < self.measurement:
                     x2 = data['x']
                     y2 = data['y']
                     neighbor_vector_unnormalized = [x2 - self.position[0], y2 - self.position[1]]
@@ -365,14 +365,14 @@ class Buoy():
                 self.isocontour_vector = [sum_neighbor_vector[0]/sum_neighbor_vector_magnitude, 
                                         sum_neighbor_vector[1]/sum_neighbor_vector_magnitude]
                     
-        # Check if the average measurement is less than goal contour
-        elif lower_bound < self.measurement:
+        # Check if the self measurement is less than goal contour
+        elif lower_bound > self.measurement:
             self.repulsion_radius = seeking_repulsion_rad
-            print("Buoy {0} is measuring greater than the goal".format(self.id))
-            # Move towards the average of neighbors measuring less than goal contour
+            print("Buoy {0} is measuring less than the goal".format(self.id))
+            # Move towards the average of neighbors measuring greater than goal contour
             sum_neighbor_vector = [0, 0]
             for data in data_frame:
-                if data['Measurement'] < self.measurement:
+                if data['Measurement'] > self.measurement:
                     x2 = data['x']
                     y2 = data['y']
                     neighbor_vector_unnormalized = [x2 - self.position[0], y2 - self.position[1]]
