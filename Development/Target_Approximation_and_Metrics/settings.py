@@ -9,13 +9,13 @@ settings = {
     "iterations": 1000,
 
     # Environment Settings
-    "map_size": 10,
+    "map_size": 20,
     "external_force_magnitude": 0,
     "fidelity": 100,
 
     # Target Settings
-    "target_setting": "OFF", # "ON" or "OFF"
-    "target_speed": 10,
+    "target_setting": "ON", # "ON" or "OFF"
+    "target_speed": 4,
 
     # Seeker Population Settings
     "seeker_population": 0,
@@ -38,11 +38,11 @@ settings = {
     # Isocontour Population Settings
     "isocontour_population": 30,
     "iso_speed": 2,
-    "iso_com_radius": 4.5,
+    "iso_com_radius": 7,
     "iso_battery": 47520,
     "iso_gps_accuracy": 1,
     "iso_sensor_accuracy": 1,
     "iso_memory_duration": 1,
     "isocontour_goal": -80,
-    "isocontour_threshold": 2,
+    "isocontour_threshold": 3,
 }

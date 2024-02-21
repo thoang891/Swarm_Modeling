@@ -326,9 +326,12 @@ class Buoy():
             for data in data_frame:
                 x2 = data['x']
                 y2 = data['y']
-                neighbor_vector_unnormalized = [self.position[0] - x2, self.position[1] - y2]
-                sum_neighbor_vector[0] += neighbor_vector_unnormalized[0]
-                sum_neighbor_vector[1] += neighbor_vector_unnormalized[1]
+                z2 = data['Measurement']
+
+                if z2 > lower_bound and z2 < upper_bound:
+                    neighbor_vector_unnormalized = [self.position[0] - x2, self.position[1] - y2]
+                    sum_neighbor_vector[0] += neighbor_vector_unnormalized[0]
+                    sum_neighbor_vector[1] += neighbor_vector_unnormalized[1]
             
             # Normalize the sum of the neighbor vectors 
             if sum_neighbor_vector[0] != 0 or sum_neighbor_vector[1] != 0:
