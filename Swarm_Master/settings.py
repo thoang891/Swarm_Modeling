@@ -36,13 +36,13 @@ settings = {
     "explorer_memory_duration": 5,
 
     # Isocontour Population Settings
-    "isocontour_population": 35,
-    "iso_speed": 1.5,
+    "isocontour_population": 40,
+    "iso_speed": 2,
     "iso_com_radius": 5,
     "iso_battery": 47520,
     "iso_gps_accuracy": 1,
     "iso_sensor_accuracy": 1,
     "iso_memory_duration": 1,
-    "isocontour_goal": -80,
-    "isocontour_threshold": 4,
+    "isocontour_goal": 0,
+    "isocontour_threshold": 0.05,
 }

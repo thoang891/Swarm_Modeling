@@ -86,7 +86,7 @@ def main(iters=set.settings['iterations'], log_folder=None):
 
     total_time = iters*env.dt
 
-    # Animation Loop
+    # Animation Loop and Operating Loop
     for i in range(iters):
         if set.settings['animation']:
             if surface_plot is not None and i > set.settings['iterations'] - 1:
