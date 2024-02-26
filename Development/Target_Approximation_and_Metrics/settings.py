@@ -3,7 +3,7 @@
 
 settings = {
     # Animation and Iteration Settings
-    "animation": True, # True or False
+    "animation": False, # True or False
     "animation_delay": 0.001,
     "timestep": 0.1,
     "iterations": 1000,
@@ -18,8 +18,8 @@ settings = {
     "target_speed": 4,
 
     # Seeker Population Settings
-    "seeker_population": 0,
-    "seeker_speed": 4,
+    "seeker_population": 1,
+    "seeker_speed": 2,
     "seeker_com_radius": 5,
     "seeker_battery": 47520,
     "seeker_gps_accuracy": 1,
@@ -27,8 +27,8 @@ settings = {
     "seeker_memory_duration": 1,
 
     # Explorer Population Settings
-    "explorer_population": 0,
-    "explorer_speed": 2,
+    "explorer_population": 15,
+    "explorer_speed": 1,
     "explorer_com_radius": 10,
     "explorer_battery": 47520,
     "explorer_gps_accuracy": 1,
@@ -36,13 +36,13 @@ settings = {
     "explorer_memory_duration": 5,
 
     # Isocontour Population Settings
-    "isocontour_population": 30,
-    "iso_speed": 3,
+    "isocontour_population": 5,
+    "iso_speed": 1.5,
     "iso_com_radius": 6,
     "iso_battery": 47520,
     "iso_gps_accuracy": 1,
     "iso_sensor_accuracy": 1,
-    "iso_memory_duration": 1,
+    "iso_memory_duration": 5,
     "isocontour_goal": -200,
     "isocontour_threshold": 3,
 }

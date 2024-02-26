@@ -1,0 +1,1 @@
+First time Non-Dimensional Target Proximity is less than Proximity Threshold: 0.225

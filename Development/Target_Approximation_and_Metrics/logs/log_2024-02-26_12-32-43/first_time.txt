@@ -1,0 +1,1 @@
+First time Non-Dimensional Target Proximity is less than 0.05: 0.045

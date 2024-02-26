@@ -28,7 +28,7 @@ def log_buoy_data(current_time, all_data, folder_path):
     with open(filename, 'a', newline='') as csvfile:
         # Create a CSV writer object
         writer = csv.DictWriter(csvfile, fieldnames=['Time', 'ID', 'behv', 'com_radius',
-                                                      'Battery', 'x', 'y', 'Measurement', 
+                                                      'Battery', 'Battery Percent', 'x', 'y', 'Measurement', 
                                                       'u', 'v', 'speed', 'best_x', 'best_y', 
                                                       'best_measure', 'best_id'])
         
