@@ -246,12 +246,14 @@ def analyze_seekers(folder_path, buoy_log, settings):
 
     print(seeker_df)
 
-def analyze_explorers():
-    pass
+def analyze_explorers(folder_path, buoy_log, settings):
+    buoy_log_df = pd.read_csv(buoy_log)
+    settings_df = pd.read_csv(settings)
+
+    seeker_df = pd.DataFrame(columns=['Time', 'ID', 'x', 'y', 'u', 'v'])
 
 def analyze_isocontours():
     pass
-
 
 # Function to analyze log data in a specific folder
 def analyze_log_folder(folder_path):
@@ -268,6 +270,9 @@ def analyze_log_folder(folder_path):
 
     print("Analyzing seeker data...")
     analyze_seekers(folder_path, buoy_log_path, settings_path)
+    
+    print("Analyzing explorer data...")
+    analyze_explorers(folder_path, buoy_log_path, settings_path)
 
 # Main function to iterate through log folders
 def main():

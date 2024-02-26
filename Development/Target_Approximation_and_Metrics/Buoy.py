@@ -90,7 +90,6 @@ class Buoy():
             D = 1
             C = 2
             E = 0
-            self.repulsion_radius = 3
 
         elif self.behv == "isocontour":
             A = 0
@@ -133,7 +132,10 @@ class Buoy():
             self.global_goal()
             self.repulse()
             self.random_walk()
-            self.isocontour_walk()
+            if self.behv == "isocontour":
+                self.isocontour_walk()
+            else:
+                self.isocontour_vector = [0, 0]
 
             u = (self.A*self.speed*self.local_goal_vector[0] + self.B*self.speed*self.global_goal_vector[0] +
                 self.C*self.speed*self.repulsion_vector[0] + self.D*self.speed*self.random_vector[0] +
