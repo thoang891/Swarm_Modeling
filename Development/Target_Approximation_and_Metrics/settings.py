@@ -3,7 +3,7 @@
 
 settings = {
     # Animation and Iteration Settings
-    "animation": False, # True or False
+    "animation": True, # True or False
     "animation_delay": 0.001,
     "timestep": 0.1,
     "iterations": 1000,
@@ -18,16 +18,16 @@ settings = {
     "target_speed": 4,
 
     # Seeker Population Settings
-    "seeker_population": 1,
+    "seeker_population": 4,
     "seeker_speed": 2,
-    "seeker_com_radius": 5,
+    "seeker_com_radius": 7,
     "seeker_battery": 47520,
     "seeker_gps_accuracy": 1,
     "seeker_sensor_accuracy": 3,
     "seeker_memory_duration": 1,
 
     # Explorer Population Settings
-    "explorer_population": 15,
+    "explorer_population": 10,
     "explorer_speed": 1,
     "explorer_com_radius": 10,
     "explorer_battery": 47520,

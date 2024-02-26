@@ -232,7 +232,7 @@ def analyze_seekers(folder_path, buoy_log, settings):
 
     # Build histogram of Heading-Bearing Correlation normalized by iterations and number of seekers
     hist, bins, _ = plt.hist(seeker_df['Heading-Bearing Correlation'], 
-                             bins=11, alpha=0.5, label='Heading-Bearing Correlation')
+                            bins=11, alpha=0.5, label='Heading-Bearing Correlation')
     hist = hist / (iterations * Ns)
     plt.clf()
     plt.bar(bins[:-1], hist, width=(bins[1]-bins[0]), alpha=0.5, label='Heading-Bearing Correlation')

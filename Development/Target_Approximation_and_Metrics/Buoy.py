@@ -17,6 +17,10 @@ class Buoy():
         self.full_battery = battery # Default battery life is movement at 1 m/s for 1 hour. [watt*second]
         self.battery = battery 
         self.com_radius = com_radius # [m]
+        self.N = None # Number of neighbors
+        self.Ns = None # Number of seeker neighbors
+        self.Ne = None # Number of explorer neighbors
+        self.Ni = None # Number of isocontour neighbors
         self.repulsion_radius = repulsion_radius # [m]
         self.isocontour_threshold = iso_thresh 
         self.isocontour_goal = iso_goal # Goal measurement for isocontour behavior
@@ -466,8 +470,19 @@ class Buoy():
         self.best_known_position = self.position
         self.best_known_measure = self.measurement
         self.best_known_id = self.id
+
+    def count_neighbors(self):
+        data_frame = self.broadcast_data_processed.copy()
+        self.N = len(data_frame)
+        self.Ns = len([data for data in data_frame if data['behv'] == "seeker"])
+        self.Ne = len([data for data in data_frame if data['behv'] == "explorer"])
+        self.Ni = len([data for data in data_frame if data['behv'] == "isocontour"])
+        print("Buoy {0} has {1} neighbors, {2} seekers, {3} explorers, and {4} isocontours"
+              .format(self.id, self.N, self.Ns, self.Ne, self.Ni))
+        return self.N, self.Ns, self.Ne, self.Ni
     
     def update(self):
+        self.count_neighbors()
         self.behavior()
         self.memory()
         self.motor()

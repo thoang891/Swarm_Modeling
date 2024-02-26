@@ -98,6 +98,10 @@ class Swarm():
             z = round(buoy.measurement, sensor_accuracy)
             battery_percent = round(buoy.battery/buoy.full_battery*100, 2)
             battery = round(buoy.battery, 2)
+            N = buoy.N
+            Ns = buoy.Ns
+            Ne = buoy.Ne
+            Ni = buoy.Ni
             best_x = round(buoy.best_known_position[0], gps_accuracy)
             best_y = round(buoy.best_known_position[1], gps_accuracy)
             best_measure = round(buoy.best_known_measure, sensor_accuracy)
@@ -107,7 +111,8 @@ class Swarm():
                 battery = 0
                 print("ID: {0:>2}, Behavior: {1:8}, Battery: {2:>6.2f}%, Position: {3:>6.2f}, {4:>6.2f}, Measurement: {5:>6.2f}".format(id, behavior, battery_percent, x, y, z))
                 buoy_data = {'ID': id, 'com_radius': com_radius, 'behv': behavior, 'Battery': battery, 
-                             'Battery Percent': battery_percent, 'x': x, 'y': y, 'Measurement': z}
+                            'Battery Percent': battery_percent, 'x': x, 'y': y, 'Measurement': z,
+                            'N': N, 'Ns': Ns, 'Ne': Ne, 'Ni': Ni}
 
             elif buoy.velocity is not None:
                 u = round(buoy.velocity[0], gps_accuracy)
@@ -120,14 +125,16 @@ class Swarm():
                 buoy_data = {'ID': id, 'com_radius': com_radius, 'Battery': battery, 'Battery Percent': battery_percent, 
                             'behv': behavior , 'x': x, 'y': y, 'Measurement': z,
                             'u': u, 'v': v, 'speed': speed, 'best_x': best_x, 'best_y': best_y, 
-                            'best_measure': best_measure, 'best_id': best_id}
+                            'best_measure': best_measure, 'best_id': best_id,
+                            'N': N, 'Ns': Ns, 'Ne': Ne, 'Ni': Ni}
             else:
                 print("ID: {0:>2}, Behavior: {1:8}, Battery: {2:>6.2f}%, Position: {3:>6.2f}, {4:>6.2f}, Measurement: {5:>6.2f}, Best Known Position: {6:>6.2f}, {7:>6.2f}, Best Known Measurement: {8:>6.2f}, Best Known ID: {9:>2}"
                       .format(id, behavior, battery_percent, x, y, z, best_x, best_y, best_measure, best_id))
                 
                 buoy_data = {'ID': id, 'com_radius': com_radius, 'Battery': battery, 'Battery Percent': battery_percent, 
                             'behv': behavior , 'x': x, 'y': y, 'Measurement': z, 'best_x': best_x, 
-                            'best_y': best_y, 'best_measure': best_measure, 'best_id': best_id}
+                            'best_y': best_y, 'best_measure': best_measure, 'best_id': best_id,
+                            'N': N, 'Ns': Ns, 'Ne': Ne, 'Ni': Ni}
                 
             broadcast_data.append(buoy_data)
         print()
