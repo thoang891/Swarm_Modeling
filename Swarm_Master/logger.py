@@ -27,10 +27,10 @@ def log_buoy_data(current_time, all_data, folder_path):
     # Open the CSV file in append mode to add new data
     with open(filename, 'a', newline='') as csvfile:
         # Create a CSV writer object
-        writer = csv.DictWriter(csvfile, fieldnames=['Time', 'ID', 'behv',
-                                                      'Battery', 'x', 'y', 'Measurement', 
+        writer = csv.DictWriter(csvfile, fieldnames=['Time', 'ID', 'behv', 'com_radius',
+                                                      'Battery', 'Battery Percent', 'x', 'y', 'Measurement', 
                                                       'u', 'v', 'speed', 'best_x', 'best_y', 
-                                                      'best_measure', 'best_id'])
+                                                      'best_measure', 'best_id', 'N', 'Ns', 'Ne', 'Ni'])
         
         # Check if the file is empty and write the header row if needed
         if csvfile.tell() == 0:

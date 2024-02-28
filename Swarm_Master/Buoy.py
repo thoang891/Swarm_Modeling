@@ -17,6 +17,10 @@ class Buoy():
         self.full_battery = battery # Default battery life is movement at 1 m/s for 1 hour. [watt*second]
         self.battery = battery 
         self.com_radius = com_radius # [m]
+        self.N = None # Number of neighbors
+        self.Ns = None # Number of seeker neighbors
+        self.Ne = None # Number of explorer neighbors
+        self.Ni = None # Number of isocontour neighbors
         self.repulsion_radius = repulsion_radius # [m]
         self.isocontour_threshold = iso_thresh 
         self.isocontour_goal = iso_goal # Goal measurement for isocontour behavior
@@ -86,7 +90,6 @@ class Buoy():
             D = 1
             C = 2
             E = 0
-            self.repulsion_radius = 3
 
         elif self.behv == "isocontour":
             A = 0
@@ -129,7 +132,10 @@ class Buoy():
             self.global_goal()
             self.repulse()
             self.random_walk()
-            self.isocontour_walk()
+            if self.behv == "isocontour":
+                self.isocontour_walk()
+            else:
+                self.isocontour_vector = [0, 0]
 
             u = (self.A*self.speed*self.local_goal_vector[0] + self.B*self.speed*self.global_goal_vector[0] +
                 self.C*self.speed*self.repulsion_vector[0] + self.D*self.speed*self.random_vector[0] +
@@ -326,9 +332,12 @@ class Buoy():
             for data in data_frame:
                 x2 = data['x']
                 y2 = data['y']
-                neighbor_vector_unnormalized = [self.position[0] - x2, self.position[1] - y2]
-                sum_neighbor_vector[0] += neighbor_vector_unnormalized[0]
-                sum_neighbor_vector[1] += neighbor_vector_unnormalized[1]
+                z2 = data['Measurement']
+
+                if z2 > lower_bound and z2 < upper_bound:
+                    neighbor_vector_unnormalized = [self.position[0] - x2, self.position[1] - y2]
+                    sum_neighbor_vector[0] += neighbor_vector_unnormalized[0]
+                    sum_neighbor_vector[1] += neighbor_vector_unnormalized[1]
             
             # Normalize the sum of the neighbor vectors 
             if sum_neighbor_vector[0] != 0 or sum_neighbor_vector[1] != 0:
@@ -342,7 +351,7 @@ class Buoy():
         elif upper_bound < self.measurement:
             self.repulsion_radius = seeking_repulsion_rad
             print("Buoy {0} is measuring greater than the goal".format(self.id))
-            # Move towards the average of neighbors measuring less than goal contour
+            # Move towards the neighbors measuring less than self measurement
             sum_neighbor_vector = [0, 0]
             for data in data_frame:
                 if data['Measurement'] < self.measurement:
@@ -369,7 +378,7 @@ class Buoy():
         elif lower_bound > self.measurement:
             self.repulsion_radius = seeking_repulsion_rad
             print("Buoy {0} is measuring less than the goal".format(self.id))
-            # Move towards the average of neighbors measuring greater than goal contour
+            # Move towards the neighbors measuring more than self measurement
             sum_neighbor_vector = [0, 0]
             for data in data_frame:
                 if data['Measurement'] > self.measurement:
@@ -413,14 +422,14 @@ class Buoy():
                         distance = np.sqrt((x2 - self.position[0])**2 + (y2 - self.position[1])**2)
 
                         # Remove data from buoys that are outside the communication radius
-                        if distance <= self.com_radius:
+                        if distance <= data['com_radius']:
                             self.broadcast_data_processed.append(data)
                         else:
-                            print("Removed buoy {0}'s data from buoy {1}'s mail because the distance {2} is greater than the communication radius {3}"
-                                .format(data['ID'], self.id, distance, self.com_radius))
+                            print("Unable to read buoy {0}'s data because the distance {1:>.2f} is greater than the communication radius {2}"
+                                .format(data['ID'], distance, data['com_radius']))
                     else:
-                        print("Removed buoy {0}'s data from buoy {1}'s mail because buoy {0} is out of battery"
-                            .format(data['ID'], self.id))
+                        print("Unable to read buoy {0}'s data because buoy {0} is out of battery"
+                            .format(data['ID']))
 
             print("The remaining neighbor data for buoy {} is:".format(self.id))
             print("\n".join(str(data) for data in self.broadcast_data_processed)) # Print broadcast data to be read by buoy
@@ -463,8 +472,19 @@ class Buoy():
         self.best_known_position = self.position
         self.best_known_measure = self.measurement
         self.best_known_id = self.id
+
+    def count_neighbors(self):
+        data_frame = self.broadcast_data_processed.copy()
+        self.N = len(data_frame)
+        self.Ns = len([data for data in data_frame if data['behv'] == "seeker"])
+        self.Ne = len([data for data in data_frame if data['behv'] == "explorer"])
+        self.Ni = len([data for data in data_frame if data['behv'] == "isocontour"])
+        print("Buoy {0} has {1} neighbors, {2} seekers, {3} explorers, and {4} isocontours"
+              .format(self.id, self.N, self.Ns, self.Ne, self.Ni))
+        return self.N, self.Ns, self.Ne, self.Ni
     
     def update(self):
+        self.count_neighbors()
         self.behavior()
         self.memory()
         self.motor()

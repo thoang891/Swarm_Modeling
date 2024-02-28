@@ -4,17 +4,18 @@ from Environment import Env
 
 class Swarm():
 
-    def __init__(self, seeker_pop=2, seeker_speed=1.5, seeker_com_radius=7, seeker_battery=47520, 
-                seeker_gps_accuracy=1, seeker_sensor_accuracy=1, seeker_memory_duration=1, 
-                explorer_pop=2, explorer_speed=1.5, explorer_com_radius=7, explorer_battery=47520, 
-                explorer_gps_accuracy=1, explorer_sensor_accuracy=1, explorer_memory_duration=1, 
-                iso_pop=2, iso_speed=1.5, iso_com_radius=7, iso_battery=47520, iso_gps_accuracy=1, 
-                iso_sensor_accuracy=1, iso_memory_duration=1, iso_goal=-80, iso_thresh=3,
-                timestep=0.1, map_size=10, external_force_magnitude=0.25, fidelity=100, 
+    def __init__(self, seeker_pop=2, seeker_speed=1.5, seeker_com_radius=7, seeker_repulsion_radius=0.5, 
+                seeker_battery=47520, seeker_gps_accuracy=1, seeker_sensor_accuracy=1, seeker_memory_duration=1, 
+                explorer_pop=2, explorer_speed=1.5, explorer_com_radius=7, explorer_repulsion_radius=5, 
+                explorer_battery=47520, explorer_gps_accuracy=1, explorer_sensor_accuracy=1, 
+                explorer_memory_duration=1, iso_pop=2, iso_speed=1.5, iso_com_radius=7, iso_repulsion_radius=0.5, 
+                iso_battery=47520, iso_gps_accuracy=1, iso_sensor_accuracy=1, iso_memory_duration=1, iso_goal=-80, 
+                iso_thresh=3, timestep=0.1, map_size=10, external_force_magnitude=0.25, fidelity=100, 
                 target_setting="ON", target_speed = 3):
         self.seeker_population = seeker_pop
         self.seeker_speed = seeker_speed
         self.seeker_com_radius = seeker_com_radius
+        self.seeker_repulsion_radius = seeker_repulsion_radius
         self.seeker_battery = seeker_battery
         self.seeker_gps_accuracy = seeker_gps_accuracy
         self.seeker_sensor_accuracy = seeker_sensor_accuracy
@@ -22,6 +23,7 @@ class Swarm():
         self.explorer_population = explorer_pop
         self.explorer_speed = explorer_speed
         self.explorer_com_radius = explorer_com_radius
+        self.explorer_repulsion_radius = explorer_repulsion_radius
         self.explorer_battery = explorer_battery
         self.explorer_gps_accuracy = explorer_gps_accuracy
         self.explorer_sensor_accuracy = explorer_sensor_accuracy
@@ -29,13 +31,13 @@ class Swarm():
         self.isocontour_population = iso_pop
         self.isocontour_speed = iso_speed
         self.isocontour_com_radius = iso_com_radius
+        self.isocontour_repulsion_radius = iso_repulsion_radius
         self.isocontour_battery = iso_battery
         self.isocontour_gps_accuracy = iso_gps_accuracy
         self.isocontour_sensor_accuracy = iso_sensor_accuracy
         self.isocontour_memory_duration = iso_memory_duration
         self.isocontour_goal = iso_goal
         self.isocontour_threshold = iso_thresh
-        self.memory_duration = 1
         self.swarm = []
         self.broadcast_data = []
         self.env = Env(bounds=map_size, dt=timestep, fidelity=fidelity,
@@ -47,19 +49,22 @@ class Swarm():
         if self.seeker_population !=0:
             for i in range(self.seeker_population):
                 self.swarm.append(Buoy(id=i+1, com_radius=self.seeker_com_radius, 
-                                       speed=self.seeker_speed, battery=self.seeker_battery,
-                                        behv="seeker", env=self.env))
+                                    repulsion_radius=self.seeker_repulsion_radius, 
+                                    speed=self.seeker_speed, battery=self.seeker_battery,
+                                    behv="seeker", env=self.env))
         # Generate explorer buoys
         if self.explorer_population !=0:
             for i in range(self.explorer_population):
-                self.swarm.append(Buoy(id=i+1+self.seeker_population, com_radius=self.explorer_com_radius,
+                self.swarm.append(Buoy(id=i+1+self.seeker_population, com_radius=self.explorer_com_radius, 
+                                    repulsion_radius=self.explorer_repulsion_radius,
                                     speed=self.explorer_speed, battery=self.explorer_battery,
                                     behv="explorer", env=self.env))
         # Generate isocontour buoys
         if self.isocontour_population !=0:   
             for i in range(self.isocontour_population):
                 self.swarm.append(Buoy(id=i+1+self.seeker_population+self.explorer_population, 
-                                    com_radius=self.isocontour_com_radius,
+                                    com_radius=self.isocontour_com_radius, 
+                                    repulsion_radius=self.isocontour_repulsion_radius,
                                     speed=self.isocontour_speed, battery=self.isocontour_battery,
                                     iso_thresh=self.isocontour_threshold, iso_goal=self.isocontour_goal,
                                     behv="isocontour", env=self.env))
@@ -82,6 +87,7 @@ class Swarm():
         for buoy in self.swarm:
             id = buoy.id
             behavior = buoy.behv
+            com_radius = buoy.com_radius
 
             if behavior == "seeker":
                 gps_accuracy = self.seeker_gps_accuracy
@@ -96,7 +102,12 @@ class Swarm():
             x = round(buoy.position[0], gps_accuracy)
             y = round(buoy.position[1], gps_accuracy)
             z = round(buoy.measurement, sensor_accuracy)
-            battery = round(buoy.battery/buoy.full_battery*100, 2)
+            battery_percent = round(buoy.battery/buoy.full_battery*100, 2)
+            battery = round(buoy.battery, 2)
+            N = buoy.N
+            Ns = buoy.Ns
+            Ne = buoy.Ne
+            Ni = buoy.Ni
             best_x = round(buoy.best_known_position[0], gps_accuracy)
             best_y = round(buoy.best_known_position[1], gps_accuracy)
             best_measure = round(buoy.best_known_measure, sensor_accuracy)
@@ -104,8 +115,10 @@ class Swarm():
             
             if battery <= 0:
                 battery = 0
-                print("ID: {0:>2}, Behavior: {1:8}, Battery: {2:>6.2f}%, Position: {3:>6.2f}, {4:>6.2f}, Measurement: {5:>6.2f}".format(id, behavior, battery, x, y, z))
-                buoy_data = {'ID': id, 'behv': behavior, 'Battery': battery, 'x': x, 'y': y, 'Measurement': z}
+                print("ID: {0:>2}, Behavior: {1:8}, Battery: {2:>6.2f}%, Position: {3:>6.2f}, {4:>6.2f}, Measurement: {5:>6.2f}".format(id, behavior, battery_percent, x, y, z))
+                buoy_data = {'ID': id, 'com_radius': com_radius, 'behv': behavior, 'Battery': battery, 
+                            'Battery Percent': battery_percent, 'x': x, 'y': y, 'Measurement': z,
+                            'N': N, 'Ns': Ns, 'Ne': Ne, 'Ni': Ni}
 
             elif buoy.velocity is not None:
                 u = round(buoy.velocity[0], gps_accuracy)
@@ -113,17 +126,21 @@ class Swarm():
                 speed = round(np.sqrt(u**2 + v**2), gps_accuracy)
 
                 print("ID: {0:>2}, Behavior: {1:8}, Battery: {2:>6.2f}%, Position: {3:>6.2f}, {4:>6.2f}, Measurement: {5:>6.2f}, Velocity: {6:>6.2f}, {7:>6.2f}, Speed: {8:>6.2f}, Best Known Position: {9:>6.2f}, {10:>6.2f}, Best Known Measurement: {11:>6.2f}, Best Known ID: {12:>2}"
-                    .format(id, behavior, battery, x, y, z, u, v, speed, best_x, best_y, best_measure, best_id))
+                    .format(id, behavior, battery_percent, x, y, z, u, v, speed, best_x, best_y, best_measure, best_id))
                 
-                buoy_data = {'ID': id, 'Battery': battery, 'behv': behavior , 'x': x, 'y': y, 'Measurement': z,
+                buoy_data = {'ID': id, 'com_radius': com_radius, 'Battery': battery, 'Battery Percent': battery_percent, 
+                            'behv': behavior , 'x': x, 'y': y, 'Measurement': z,
                             'u': u, 'v': v, 'speed': speed, 'best_x': best_x, 'best_y': best_y, 
-                            'best_measure': best_measure, 'best_id': best_id}
+                            'best_measure': best_measure, 'best_id': best_id,
+                            'N': N, 'Ns': Ns, 'Ne': Ne, 'Ni': Ni}
             else:
                 print("ID: {0:>2}, Behavior: {1:8}, Battery: {2:>6.2f}%, Position: {3:>6.2f}, {4:>6.2f}, Measurement: {5:>6.2f}, Best Known Position: {6:>6.2f}, {7:>6.2f}, Best Known Measurement: {8:>6.2f}, Best Known ID: {9:>2}"
-                      .format(id, behavior, battery, x, y, z, best_x, best_y, best_measure, best_id))
+                      .format(id, behavior, battery_percent, x, y, z, best_x, best_y, best_measure, best_id))
                 
-                buoy_data = {'ID': id, 'Battery': battery, 'behv': behavior , 'x': x, 'y': y, 'Measurement': z, 
-                            'best_x': best_x, 'best_y': best_y, 'best_measure': best_measure, 'best_id': best_id}
+                buoy_data = {'ID': id, 'com_radius': com_radius, 'Battery': battery, 'Battery Percent': battery_percent, 
+                            'behv': behavior , 'x': x, 'y': y, 'Measurement': z, 'best_x': best_x, 
+                            'best_y': best_y, 'best_measure': best_measure, 'best_id': best_id,
+                            'N': N, 'Ns': Ns, 'Ne': Ne, 'Ni': Ni}
                 
             broadcast_data.append(buoy_data)
         print()

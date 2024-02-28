@@ -21,8 +21,8 @@ class Env():
     @staticmethod
     def scalar(x, y): 
         # z = np.sinc((x/5)**2 + (y/5)**2) + np.sinc((x + 2)/5 + (y + 2)/5)/2
-        z = np.cos(x/3) + np.sin(y/3)
-        # z = -((x)**2 + (y)**2)
+        # z = np.cos(x/2) + np.sin(y/2)
+        z = -((x)**2 + (y)**2)
         # z = x**2 + 20*np.sin(x) + y**2 - 20*np.sin(y)
         return z
     

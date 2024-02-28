@@ -20,7 +20,7 @@ class Target():
         self.A = None
         self.B = None
         self.external_force = None
-        self.target_data = {'ID': self.ID, 'x': round(self.position[0], 2), 
+        self.target_data = {'ID': self.ID, 'behv': "Target", 'x': round(self.position[0], 2), 
                             'y': round(self.position[1], 2), 'u': None, 'v': None}
 
     def move(self, env):
