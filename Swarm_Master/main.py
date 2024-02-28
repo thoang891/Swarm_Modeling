@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import logger
+import log_analyzer
 
 import settings as set
 from Swarm import Swarm
@@ -130,3 +131,4 @@ if __name__ == "__main__":
     log_folder = logger.create_log_folder()
     logger.log_settings(set.settings, folder_path=log_folder)
     main(set.settings['iterations'], log_folder)
+    log_analyzer.main()
