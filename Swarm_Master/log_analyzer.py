@@ -230,19 +230,29 @@ def analyze_seekers(folder_path, buoy_log, settings):
     plt.savefig(plot_file, bbox_inches='tight')
     plt.clf()
 
-    # Build histogram of Heading-Bearing Correlation normalized by iterations and number of seekers, if there is a target
-    if not seeker_df[seeker_df['ID'] == 'Target'].empty:
+    # Build bar graph of Heading-Bearing Correlation normalized by iterations and number of seekers, if there is a target
+    if settings_df[settings_df['Setting'] == 'target_setting']['Value'].values[0] == 'ON':
         hist, bins, _ = plt.hist(seeker_df['Heading-Bearing Correlation'], 
-                                bins=11, alpha=0.5, label='Heading-Bearing Correlation')
+                                bins=10, alpha=0.5, label='Heading-Bearing Correlation')
         hist = hist / (iterations * Ns)
         plt.clf()
         plt.bar(bins[:-1], hist, width=(bins[1]-bins[0]), alpha=0.5, label='Heading-Bearing Correlation')
         plt.xlabel('Heading-Bearing Correlation')
         plt.ylabel('Normalized Frequency')
         plt.title('Normalized Heading-Bearing Correlation')
-        plt.legend(loc='upper right')
+        plt.legend(loc='upper center')  # Place the legend in the upper center
+
+        # Add upper and lower bound of each bin to x-axis labels
+        bin_labels = [f'{bins[i]:.2f} - {bins[i+1]:.2f}' for i in range(len(bins)-1)]
+        plt.xticks(bins[:-1], bin_labels, rotation=45, ha='right')  # Rotate labels at 45-degree angle
+
+        # Add y-value at the top of each bar
+        for i, v in enumerate(hist):
+            plt.text(bins[i], v, f'{v:.2f}', ha='center', va='bottom')
+
         plot_file = os.path.join(folder_path, 'heading_bearing_correlation.png')
         plt.savefig(plot_file)
+        plt.tight_layout()  # Adjust subplot parameters to prevent overlapping
         plt.clf()
 
     print(seeker_df)

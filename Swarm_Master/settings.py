@@ -18,7 +18,7 @@ settings = {
     "target_speed": 4,
 
     # Seeker Population Settings
-    "seeker_population": 4,
+    "seeker_population": 10,
     "seeker_speed": 2,
     "seeker_com_radius": 7,
     "seeker_repulsion_radius": 0.5,
@@ -28,7 +28,7 @@ settings = {
     "seeker_memory_duration": 1,
 
     # Explorer Population Settings
-    "explorer_population": 15,
+    "explorer_population": 0,
     "explorer_speed": 2,
     "explorer_com_radius": 10,
     "explorer_repulsion_radius": 9,
@@ -38,7 +38,7 @@ settings = {
     "explorer_memory_duration": 5,
 
     # Isocontour Population Settings
-    "isocontour_population": 20,
+    "isocontour_population": 0,
     "iso_speed": 1.5,
     "iso_com_radius": 6,
     "iso_repulsion_radius": 4.5,
