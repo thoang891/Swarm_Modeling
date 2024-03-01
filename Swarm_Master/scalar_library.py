@@ -19,7 +19,7 @@ def scalar_4(x, y):
     return z
 
 def scalar_5(x, y):
-    z = 1.5 * np.exp(-(x**2 + y**2) / (2*5**2))
+    z = 1.5 * np.exp(-(x**2 + y**2) / (2*5**2)) + 0.01
     return z
 
 def scalar_6(x, y):
@@ -28,5 +28,6 @@ def scalar_6(x, y):
     z += 0.75 * np.exp(-((x-10)**2 + (y-10)**2) / (2*4.5**2))
     z += np.exp(-((x-10)**2 + (y+10)**2) / (2*4.5**2))
     z += 1.25 * np.exp(-((x+10)**2 + (y-10)**2) / (2*4.5**2))
+    z += 0.01
     return z
 

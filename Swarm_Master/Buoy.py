@@ -87,8 +87,8 @@ class Buoy():
         elif self.behv == "explorer":
             A = 0.05
             B = 0.05
-            D = 1
             C = 2
+            D = 1.8
             E = 0
 
         elif self.behv == "isocontour":
@@ -300,7 +300,7 @@ class Buoy():
         return self.repulsion_vector
 
     def random_walk(self):
-        random_vector_unnormalized = [random.uniform(-1, 1), random.uniform(-1, 1)]
+        random_vector_unnormalized = [random.uniform(-1, 1)/abs(self.position[0]), random.uniform(-1, 1)/abs(self.position[1])]
         random_vector_magnitude = np.linalg.norm(random_vector_unnormalized)
         self.random_vector = [random_vector_unnormalized[0]/random_vector_magnitude, 
                               random_vector_unnormalized[1]/random_vector_magnitude]

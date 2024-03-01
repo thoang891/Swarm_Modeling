@@ -347,13 +347,13 @@ def analyze_isocontours(folder_path, buoy_log, settings):
     isocontour_df['Abs(zi/z_goal)'] = (np.abs(isocontour_df['Measurement'] / iso_goal)).round(3)
 
     # Take natural log of the absolute fraction
-    isocontour_df['Log10(Abs(zi/z_goal))'] = np.log10(isocontour_df['Abs(zi/z_goal)']).round(3)
+    isocontour_df['Log10(Abs(zi/z_goal))'] = abs(np.log10(isocontour_df['Abs(zi/z_goal)'])).round(3)
 
     # Create a new dataframe for averaging the performance of the isocontour behavior at each timestep
     Ni = int(settings_df[settings_df['Setting'] == 'isocontour_population']['Value'].values[0])
     isocontour_performance_df = isocontour_df.groupby('Time')['Log10(Abs(zi/z_goal))'].sum().reset_index()
     isocontour_performance_df['Log10(Abs(zi/z_goal))'] = (isocontour_performance_df['Log10(Abs(zi/z_goal))'] / Ni).round(3)
-    isocontour_performance_df = isocontour_performance_df.rename(columns={'Log10(Abs(zi/z_goal))': 'Average Log10(Abs(zi/z_goal))'})
+    isocontour_performance_df = isocontour_performance_df.rename(columns={'Log10(Abs(zi/z_goal))': 'Average Abs(Log10(Abs(zi/z_goal)))'})
 
     # Sum linear coverage for each unique time
     sum_linear_coverage_df = isocontour_df.groupby('Time')['Linear Coverage'].sum().round(2).reset_index()
@@ -393,7 +393,7 @@ def analyze_isocontours(folder_path, buoy_log, settings):
     isocontour_performance_df.to_csv(performance_csv, index=False)
 
     # plot time/Total time vs Average Log(Abs(zi/z_goal))
-    plt.plot(isocontour_performance_df['Time/Total Time'], isocontour_performance_df['Average Log10(Abs(zi/z_goal))'])
+    plt.plot(isocontour_performance_df['Time/Total Time'], isocontour_performance_df['Average Abs(Log10(Abs(zi/z_goal)))'])
     plt.xlim(0, 1)
     plt.xlabel('Time/Total Time')
     plt.ylabel('Average Log10(Abs(zi/z_goal))')
