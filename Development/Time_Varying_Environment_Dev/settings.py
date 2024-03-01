@@ -12,10 +12,11 @@ settings = {
     "map_size": 15,
     "external_force_magnitude": 0,
     "fidelity": 100,
+    "amplitude": 1,
 
     # Target Settings
-    "target_setting": "OFF", # "ON" or "OFF"
-    "target_speed": 4,
+    "target_setting": "ON", # "ON" or "OFF"
+    "target_speed": 8,
 
     # Seeker Population Settings
     "seeker_population": 5,

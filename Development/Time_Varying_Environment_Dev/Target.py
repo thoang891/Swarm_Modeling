@@ -8,8 +8,9 @@ class Target():
 
     def __init__(self, timestep = 0.1, bounds = 10, speed=4):
         self.ID = "Target" 
-        self.position = [random.uniform(-bounds, bounds), 
-                        random.uniform(-bounds, bounds)]
+        # self.position = [random.uniform(-bounds, bounds), 
+        #                 random.uniform(-bounds, bounds)]
+        self.position = [0,0]
         self.bounds = bounds
         self.speed = speed
         self.measurement = None
