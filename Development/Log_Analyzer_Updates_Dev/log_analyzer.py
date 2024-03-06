@@ -251,60 +251,74 @@ def analyze_seekers(folder_path, buoy_log, settings):
             plt.text(bins[i], v, f'{v:.2f}', ha='center', va='bottom')
 
         plot_file = os.path.join(folder_path, 'heading_bearing_correlation.png')
-        plt.savefig(plot_file)
+        plt.savefig(plot_file, bbox_inches='tight')  # Add bbox_inches='tight' to prevent cutting off axis labels
         plt.tight_layout()  # Adjust subplot parameters to prevent overlapping
         plt.clf()
 
     print(seeker_df)
     
-def analyze_explorers(folder_path, buoy_log, settings):
+def analyze_coverage(folder_path, buoy_log, settings):
     buoy_log_df = pd.read_csv(buoy_log)
     settings_df = pd.read_csv(settings)
 
+    # Obtain the communication radius for seekers
+    rc_s = float(settings_df[settings_df['Setting'] == 'seeker_com_radius']['Value'].values[0])
+    com_area_s = np.pi * (rc_s**2)
+
     # Obtain the communication radius for explorers and calculate the communication area
-    rc = float(settings_df[settings_df['Setting'] == 'explorer_com_radius']['Value'].values[0])
-    com_area = np.pi * (rc**2)
+    rc_e = float(settings_df[settings_df['Setting'] == 'explorer_com_radius']['Value'].values[0])
+    com_area_e = np.pi * (rc_e**2)
+
+    # Obtain the communication radius for isocontours and calculate the communication area
+    rc_i = float(settings_df[settings_df['Setting'] == 'iso_com_radius']['Value'].values[0])
+    com_area_i = np.pi * (rc_i**2)
+
+    # Create a mapping of behavior to communication area
+    com_area_map = {'seeker': com_area_s, 
+                    'explorer': com_area_e, 
+                    'isocontour': com_area_i}
 
     # Obtain the bounded area
     map_size_value = float(settings_df[settings_df['Setting'] == 'map_size']['Value'].values[0])
     bounded_area = ((map_size_value) * 2)**2
 
-    # Create a new DataFrame to store the explorer data
-    explorer_df = pd.DataFrame(columns=['Time', 'ID', 'Ne'])
-    explorer_coverage_df = pd.DataFrame(columns=['Time', 'Time/Total Time', 'Non-Dimensional Area Coverage'])
+    # Create a new DataFrame to store the coverage data
+    coverage_df = pd.DataFrame(columns=['Time', 'ID', 'behv', 'N'])
+    coverage_composite_df = pd.DataFrame(columns=['Time', 'Time/Total Time', 'Non-Dimensional Area Coverage'])
 
-    explorer_data = buoy_log_df[buoy_log_df['behv'] == 'explorer'].reset_index()
-    explorer_df['Time'] = explorer_data['Time']
-    explorer_df['ID'] = explorer_data['ID']
-    explorer_df['Ne'] = explorer_data['Ne']
-
-    # Calculate area coverage as communication area divided by number of neighbor explorers plus self
-    explorer_df['Area Coverage'] = (com_area / (explorer_df['Ne'] + 1)).round(3)
+    coverage_df['Time'] = buoy_log_df['Time']
+    coverage_df['ID'] = buoy_log_df['ID']
+    coverage_df['behv'] = buoy_log_df['behv']
+    coverage_df['N'] = buoy_log_df['N']
+    
+    # Calculate area coverage as behavior specfic communication area divided by number of neighbors "N" plus self
+    coverage_df['comm_area'] = coverage_df['behv'].map(com_area_map)
+    coverage_df['Area Coverage'] = (coverage_df['comm_area'] / (coverage_df['N'] + 1)).round(3)
 
     # Sum Area Coverage for each unique time
-    explorer_coverage_df = explorer_df.groupby('Time')['Area Coverage'].sum().round(2).reset_index()
+    coverage_composite_df = coverage_df.groupby('Time')['Area Coverage'].sum().round(2).reset_index()
 
     # Calculate time/total time
     timestep = float(settings_df[settings_df['Setting'] == 'timestep']['Value'].values[0])
     iterations = float(settings_df[settings_df['Setting'] == 'iterations']['Value'].values[0])
     total_time = timestep * iterations
-    explorer_coverage_df['Time/Total Time'] = (explorer_coverage_df['Time'] / total_time).round(3)
+    coverage_composite_df['Time/Total Time'] = (coverage_composite_df['Time'] / total_time).round(3)
 
     # Rename column for consistency
-    explorer_coverage_df = explorer_coverage_df.rename(columns={'Area Coverage': 'Sum Area Coverage'})
+    coverage_composite_df = coverage_composite_df.rename(columns={'Area Coverage': 'Sum Area Coverage'})
 
     # Calculate Non-Dimensional Area Coverage
-    explorer_coverage_df['Non-Dimensional Area Coverage'] = (explorer_coverage_df['Sum Area Coverage'] / bounded_area).round(3)
+    coverage_composite_df['Non-Dimensional Area Coverage'] = (coverage_composite_df['Sum Area Coverage'] / bounded_area).round(3)
 
     # Write the DataFrame to a new CSV file
-    explorer_csv = os.path.join(folder_path, 'explorer_analysis.csv')
-    explorer_df.to_csv(explorer_csv, index=False)
+    coverage_csv = os.path.join(folder_path, 'coverage_analysis.csv')
+    coverage_df.to_csv(coverage_csv, index=False)
 
-    coverage_csv = os.path.join(folder_path, 'explorer_coverage_analysis.csv')
-    explorer_coverage_df.to_csv(coverage_csv, index=False)
+    coverage_composite_csv = os.path.join(folder_path, 'coverage_composite_analysis.csv')
+    coverage_composite_df.to_csv(coverage_composite_csv, index=False)
 
     # plot time/Total time vs Non-Dimensional Area Coverage
-    plt.plot(explorer_coverage_df['Time/Total Time'], explorer_coverage_df['Non-Dimensional Area Coverage'])
+    plt.plot(coverage_composite_df['Time/Total Time'], coverage_composite_df['Non-Dimensional Area Coverage'])
     plt.xlim(0, 1)
     plt.xlabel('Time/Total Time')
     plt.ylabel('Non-Dimensional Area Coverage')
@@ -314,12 +328,12 @@ def analyze_explorers(folder_path, buoy_log, settings):
     plt.axhline(y=1, color='r', linestyle='--')
     plt.text(0.5, 1.05, 'Ideal', horizontalalignment='center', verticalalignment='center')
     
-    plot_file = os.path.join(folder_path, 'explorer_coverage_plot.png')
+    plot_file = os.path.join(folder_path, 'coverage_plot.png')
     plt.savefig(plot_file)
     plt.clf()
 
-    print(explorer_df)
-    print(explorer_coverage_df)
+    print(coverage_df)
+    print(coverage_composite_df)
 
 def analyze_isocontours(folder_path, buoy_log, settings):
     buoy_log_df = pd.read_csv(buoy_log)
@@ -401,7 +415,7 @@ def analyze_isocontours(folder_path, buoy_log, settings):
 
     # Add dashed red line at y=0
     plt.axhline(y=0, color='r', linestyle='--')
-    plt.text(0.5, 0.01, 'Ideal', horizontalalignment='center', verticalalignment='center', color='r')
+    plt.text(0.5, 0.05, 'Ideal', horizontalalignment='center', verticalalignment='center', color='r')
 
     plot_file = os.path.join(folder_path, 'isocontour_accuracy_plot.png')
     plt.savefig(plot_file)
@@ -410,9 +424,14 @@ def analyze_isocontours(folder_path, buoy_log, settings):
     # plot time/Total time vs Sum Linear Coverage/Perimeter
     plt.plot(isocontour_performance_df['Time/Total Time'], isocontour_performance_df['Sum Linear Coverage/Perimeter'])
     plt.xlim(0, 1)
+    plt.ylim(0, 1.5)
     plt.xlabel('Time/Total Time')
     plt.ylabel('Sum Linear Coverage/Perimeter')
     plt.title('Time/Total Time vs Relative Fractional Spreading')
+
+    plt.axhline(y=1, color='r', linestyle='--')
+    plt.text(0.5, 1.05, 'Ideal', horizontalalignment='center', verticalalignment='center', color='r')
+
     plot_file = os.path.join(folder_path, 'isocontour_spreading_plot.png')
     plt.savefig(plot_file)
     plt.clf()
@@ -437,8 +456,8 @@ def analyze_log_folder(folder_path):
     print("Analyzing seeker data...")
     analyze_seekers(folder_path, buoy_log_path, settings_path)
     
-    print("Analyzing explorer data...")
-    analyze_explorers(folder_path, buoy_log_path, settings_path)
+    print("Analyzing coverage data...")
+    analyze_coverage(folder_path, buoy_log_path, settings_path)
 
     print("Analyzing isocontour data...")
     analyze_isocontours(folder_path, buoy_log_path, settings_path)
