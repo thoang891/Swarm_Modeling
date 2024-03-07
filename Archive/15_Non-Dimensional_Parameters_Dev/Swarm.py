@@ -2,15 +2,17 @@ import numpy as np
 from Buoy import Buoy
 from Environment import Env
 
+nominal_battery = 47520
+
 class Swarm():
 
     def __init__(self, seeker_pop=2, seeker_speed_number=1, seeker_com_number=1, seeker_repulsion_number=0.1, 
-                seeker_battery=47520, seeker_gps_accuracy=1, seeker_sensor_accuracy=1, seeker_memory_duration=1, 
+                seeker_battery_number=1, seeker_gps_accuracy=1, seeker_sensor_accuracy=1, seeker_memory_duration=1, 
                 explorer_pop=2, explorer_speed_number=1, explorer_com_number=1, explorer_repulsion_number=1, 
-                explorer_battery=47520, explorer_gps_accuracy=1, explorer_sensor_accuracy=1, 
+                explorer_battery_number=1, explorer_gps_accuracy=1, explorer_sensor_accuracy=1, 
                 explorer_memory_duration=1, iso_pop=2, iso_speed_number=1, iso_com_number=1, iso_repulsion_number=0.1,
                 iso_seeking_repulsion_number=0.1, iso_spreading_repulsion_number=1, 
-                iso_battery=47520, iso_gps_accuracy=1, iso_sensor_accuracy=1, iso_memory_duration=1, iso_goal=-80, 
+                iso_battery_number=1, iso_gps_accuracy=1, iso_sensor_accuracy=1, iso_memory_duration=1, iso_goal=-80, 
                 iso_thresh=3, timestep=0.1, map_size=10, external_force_magnitude=0.25, fidelity=100, 
                 target_setting="ON", target_speed_number = 1):
         self.seeker_population = seeker_pop
@@ -20,7 +22,7 @@ class Swarm():
         self.seeker_com_radius = None
         self.seeker_repulsion_number = seeker_repulsion_number
         self.seeker_repulsion_radius = None
-        self.seeker_battery = seeker_battery
+        self.seeker_battery = seeker_battery_number * nominal_battery
         self.seeker_gps_accuracy = seeker_gps_accuracy
         self.seeker_sensor_accuracy = seeker_sensor_accuracy
         self.seeker_memory_duration = seeker_memory_duration
@@ -31,7 +33,7 @@ class Swarm():
         self.explorer_com_radius = None
         self.explorer_repulsion_number = explorer_repulsion_number
         self.explorer_repulsion_radius = None
-        self.explorer_battery = explorer_battery
+        self.explorer_battery = explorer_battery_number * nominal_battery
         self.explorer_gps_accuracy = explorer_gps_accuracy
         self.explorer_sensor_accuracy = explorer_sensor_accuracy
         self.explorer_memory_duration = explorer_memory_duration
@@ -46,7 +48,7 @@ class Swarm():
         self.isocontour_repulsion_radius = None
         self.isocontour_seeking_repulsion_radius = None
         self.isocontour_spreading_repulsion_radius = None
-        self.isocontour_battery = iso_battery
+        self.isocontour_battery = iso_battery_number * nominal_battery
         self.isocontour_gps_accuracy = iso_gps_accuracy
         self.isocontour_sensor_accuracy = iso_sensor_accuracy
         self.isocontour_memory_duration = iso_memory_duration

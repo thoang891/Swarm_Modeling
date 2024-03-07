@@ -58,18 +58,20 @@ def analyze_swarm(folder_path, buoy_log, settings):
     # swarm_df['Accuracy'] = (1 - (swarm_df['D_error']**2 / bounded_area)).round(3)
 
     # Calculate maximum swarm battery in w*h
-    seeker_battery = float(settings_df[settings_df['Setting'] == 'seeker_battery']
-                           ['Value'].values[0])
+    battery_nom = 47520
+    seeker_battery = float(settings_df[settings_df['Setting'] == 'seeker_battery_number']
+                           ['Value'].values[0]) * battery_nom
+    
     seeker_population = float(settings_df[settings_df['Setting'] == 'seeker_population']
                               ['Value'].values[0])
 
-    explorer_battery = float(settings_df[settings_df['Setting'] == 'explorer_battery']
-                             ['Value'].values[0])
+    explorer_battery = float(settings_df[settings_df['Setting'] == 'explorer_battery_number']
+                             ['Value'].values[0]) * battery_nom
     explorer_population = float(settings_df[settings_df['Setting'] == 'explorer_population']
                                 ['Value'].values[0])
 
-    isocontour_battery = float(settings_df[settings_df['Setting'] == 'iso_battery']
-                               ['Value'].values[0])
+    isocontour_battery = float(settings_df[settings_df['Setting'] == 'iso_battery_number']
+                               ['Value'].values[0]) * battery_nom
     isocontour_population = float(settings_df[settings_df['Setting'] == 'isocontour_population']
                                   ['Value'].values[0])
 
@@ -227,6 +229,11 @@ def analyze_seekers(folder_path, buoy_log, settings):
     plt.ylabel('Non-Dimensional Target Proximity')
     plt.title('Time/Total Time vs Non-Dimensional Target Proximity')
     plt.legend(title='ID', bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+
+    # Add dashed red line at proximity threshold and label it as "Proximity Threshold"
+    plt.axhline(y=Proximity_Threshold, color='r', linestyle='--')
+    plt.text(0.5, Proximity_Threshold + 0.05, 'Proximity Threshold', 
+             horizontalalignment='center', verticalalignment='center', color='r')
     plot_file = os.path.join(folder_path, 'seeker_proximity_plot.png')
     plt.savefig(plot_file, bbox_inches='tight')
     plt.clf()
@@ -335,7 +342,7 @@ def analyze_coverage(folder_path, buoy_log, settings):
 
     # Add dashed red line at y=1 and label it as "Ideal"
     plt.axhline(y=1, color='r', linestyle='--')
-    plt.text(0.5, 1.05, 'Ideal', horizontalalignment='center', verticalalignment='center')
+    plt.text(0.5, 1.05, 'Ideal', horizontalalignment='center', verticalalignment='center', color='r')
     
     plot_file = os.path.join(folder_path, 'coverage_plot.png')
     plt.savefig(plot_file)

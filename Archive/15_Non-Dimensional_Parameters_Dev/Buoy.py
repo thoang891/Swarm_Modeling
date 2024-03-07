@@ -95,8 +95,8 @@ class Buoy():
 
         elif self.behv == "isocontour":
             A = 0
-            B = 0
-            C = 1.1
+            B = 0.1
+            C = 1
             D = 0.4
             E = 1
             

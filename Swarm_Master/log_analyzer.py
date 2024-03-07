@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import Swarm as sw
 
 def analyze_swarm(folder_path, buoy_log, settings):
     # Input is the path to the buoy_log.csv and settings.csv and log folder path
@@ -57,18 +58,20 @@ def analyze_swarm(folder_path, buoy_log, settings):
     # swarm_df['Accuracy'] = (1 - (swarm_df['D_error']**2 / bounded_area)).round(3)
 
     # Calculate maximum swarm battery in w*h
-    seeker_battery = float(settings_df[settings_df['Setting'] == 'seeker_battery']
-                           ['Value'].values[0])
+    battery_nom = 47520
+    seeker_battery = float(settings_df[settings_df['Setting'] == 'seeker_battery_number']
+                           ['Value'].values[0]) * battery_nom
+    
     seeker_population = float(settings_df[settings_df['Setting'] == 'seeker_population']
                               ['Value'].values[0])
 
-    explorer_battery = float(settings_df[settings_df['Setting'] == 'explorer_battery']
-                             ['Value'].values[0])
+    explorer_battery = float(settings_df[settings_df['Setting'] == 'explorer_battery_number']
+                             ['Value'].values[0]) * battery_nom
     explorer_population = float(settings_df[settings_df['Setting'] == 'explorer_population']
                                 ['Value'].values[0])
 
-    isocontour_battery = float(settings_df[settings_df['Setting'] == 'iso_battery']
-                               ['Value'].values[0])
+    isocontour_battery = float(settings_df[settings_df['Setting'] == 'iso_battery_number']
+                               ['Value'].values[0]) * battery_nom
     isocontour_population = float(settings_df[settings_df['Setting'] == 'isocontour_population']
                                   ['Value'].values[0])
 
@@ -122,9 +125,9 @@ def analyze_seekers(folder_path, buoy_log, settings):
     Proximity_Threshold = 0.05
     Ns = int(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0]) # Number of seekers
     Speed_Seeker = float(settings_df[settings_df['Setting'] == 
-                                     'seeker_speed']['Value'].values[0]) # Speed of seekers
+                                     'seeker_speed_number']['Value'].values[0]) # Speed number of seekers
     Speed_Target = float(settings_df[settings_df['Setting'] == 
-                                     'target_speed']['Value'].values[0]) # Speed of target
+                                     'target_speed_number']['Value'].values[0]) # Speed number of target
 
     # Remove all rows that are not "seeker" in behv column of buoy_log_df
     seeker_data = buoy_log_df[buoy_log_df['behv'] == 'seeker'].reset_index()
@@ -226,6 +229,11 @@ def analyze_seekers(folder_path, buoy_log, settings):
     plt.ylabel('Non-Dimensional Target Proximity')
     plt.title('Time/Total Time vs Non-Dimensional Target Proximity')
     plt.legend(title='ID', bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+
+    # Add dashed red line at proximity threshold and label it as "Proximity Threshold"
+    plt.axhline(y=Proximity_Threshold, color='r', linestyle='--')
+    plt.text(0.5, Proximity_Threshold + 0.05, 'Proximity Threshold', 
+             horizontalalignment='center', verticalalignment='center', color='r')
     plot_file = os.path.join(folder_path, 'seeker_proximity_plot.png')
     plt.savefig(plot_file, bbox_inches='tight')
     plt.clf()
@@ -258,19 +266,28 @@ def analyze_seekers(folder_path, buoy_log, settings):
     print(seeker_df)
     
 def analyze_coverage(folder_path, buoy_log, settings):
+
     buoy_log_df = pd.read_csv(buoy_log)
     settings_df = pd.read_csv(settings)
 
+    map_size_value = float(settings_df[settings_df['Setting'] == 'map_size']['Value'].values[0])
+    pop = int(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0]) + int(
+        settings_df[settings_df['Setting'] == 'explorer_population']['Value'].values[0]) + int(
+        settings_df[settings_df['Setting'] == 'isocontour_population']['Value'].values[0])
+
     # Obtain the communication radius for seekers
-    rc_s = float(settings_df[settings_df['Setting'] == 'seeker_com_radius']['Value'].values[0])
+    seeker_com_number = float(settings_df[settings_df['Setting'] == 'seeker_com_number']['Value'].values[0])
+    rc_s = set_radius(seeker_com_number, map_size_value, pop)
     com_area_s = np.pi * (rc_s**2)
 
     # Obtain the communication radius for explorers and calculate the communication area
-    rc_e = float(settings_df[settings_df['Setting'] == 'explorer_com_radius']['Value'].values[0])
+    explorer_com_number = float(settings_df[settings_df['Setting'] == 'explorer_com_number']['Value'].values[0])
+    rc_e = set_radius(explorer_com_number, map_size_value, pop)
     com_area_e = np.pi * (rc_e**2)
 
     # Obtain the communication radius for isocontours and calculate the communication area
-    rc_i = float(settings_df[settings_df['Setting'] == 'iso_com_radius']['Value'].values[0])
+    iso_com_number = float(settings_df[settings_df['Setting'] == 'iso_com_number']['Value'].values[0])
+    rc_i = set_radius(iso_com_number, map_size_value, pop)
     com_area_i = np.pi * (rc_i**2)
 
     # Create a mapping of behavior to communication area
@@ -279,7 +296,6 @@ def analyze_coverage(folder_path, buoy_log, settings):
                     'isocontour': com_area_i}
 
     # Obtain the bounded area
-    map_size_value = float(settings_df[settings_df['Setting'] == 'map_size']['Value'].values[0])
     bounded_area = ((map_size_value) * 2)**2
 
     # Create a new DataFrame to store the coverage data
@@ -326,7 +342,7 @@ def analyze_coverage(folder_path, buoy_log, settings):
 
     # Add dashed red line at y=1 and label it as "Ideal"
     plt.axhline(y=1, color='r', linestyle='--')
-    plt.text(0.5, 1.05, 'Ideal', horizontalalignment='center', verticalalignment='center')
+    plt.text(0.5, 1.05, 'Ideal', horizontalalignment='center', verticalalignment='center', color='r')
     
     plot_file = os.path.join(folder_path, 'coverage_plot.png')
     plt.savefig(plot_file)
@@ -341,7 +357,12 @@ def analyze_isocontours(folder_path, buoy_log, settings):
     
     # Obtain the isocontour and communucations radius goal from settings
     iso_goal = float(settings_df[settings_df['Setting'] == 'isocontour_goal']['Value'].values[0])
-    rc = float(settings_df[settings_df['Setting'] == 'iso_com_radius']['Value'].values[0])
+    iso_com_number = float(settings_df[settings_df['Setting'] == 'iso_com_number']['Value'].values[0])
+    map_size_value = float(settings_df[settings_df['Setting'] == 'map_size']['Value'].values[0])
+    pop = int(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0]) + int(
+        settings_df[settings_df['Setting'] == 'explorer_population']['Value'].values[0]) + int(
+        settings_df[settings_df['Setting'] == 'isocontour_population']['Value'].values[0])
+    rc = set_radius(iso_com_number, map_size_value, pop)
 
     # Obtain the maximum and minimum measurement from the buoy_log_df
     max_measurement = buoy_log_df['Measurement'].max()
@@ -440,6 +461,10 @@ def analyze_isocontours(folder_path, buoy_log, settings):
 
     print(isocontour_df)
     print(isocontour_performance_df)
+
+def set_radius(number, map_size, N):
+    radius = number*np.sqrt(((map_size*2)**2)/(N*np.pi))
+    return radius
 
 # Function to analyze log data in a specific folder
 def analyze_log_folder(folder_path):

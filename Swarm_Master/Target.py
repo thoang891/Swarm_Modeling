@@ -6,12 +6,13 @@ import random
 
 class Target():
 
-    def __init__(self, timestep = 0.1, bounds = 10, speed=4):
+    def __init__(self, timestep = 0.1, bounds = 10, speed_number=1):
         self.ID = "Target" 
         self.position = [random.uniform(-bounds, bounds), 
                         random.uniform(-bounds, bounds)]
         self.bounds = bounds
-        self.speed = speed
+        self.speed_number = speed_number
+        self.speed = None
         self.measurement = None
         self.velocity = None
         self.dt = timestep
@@ -43,6 +44,11 @@ class Target():
                         self.A*self.speed*self.random_vector[1] + self.B*self.speed*self.repulsion_vector[1]]
         
         return self.velocity
+    
+    def set_speed(self):
+        self.speed = self.speed_number*np.sqrt((self.bounds*2)**2)
+        
+        return self.speed
 
     def behv(self):
         
