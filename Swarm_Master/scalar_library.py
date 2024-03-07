@@ -1,6 +1,8 @@
 # This is a standard library for generating scalar functions and target functions for environment
 
 import numpy as np
+import settings as set
+from scipy.optimize import minimize
 
 def scalar_1(x, y):
     z = -(x**2 + y**2)
@@ -30,4 +32,3 @@ def scalar_6(x, y):
     z += 1.25 * np.exp(-((x+10)**2 + (y-10)**2) / (2*4.5**2))
     z += 0.01
     return z
-
