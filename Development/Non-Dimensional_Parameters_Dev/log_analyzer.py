@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import Swarm as sw
 
 def analyze_swarm(folder_path, buoy_log, settings):
     # Input is the path to the buoy_log.csv and settings.csv and log folder path
@@ -258,19 +259,28 @@ def analyze_seekers(folder_path, buoy_log, settings):
     print(seeker_df)
     
 def analyze_coverage(folder_path, buoy_log, settings):
+
     buoy_log_df = pd.read_csv(buoy_log)
     settings_df = pd.read_csv(settings)
 
+    map_size_value = float(settings_df[settings_df['Setting'] == 'map_size']['Value'].values[0])
+    pop = int(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0]) + int(
+        settings_df[settings_df['Setting'] == 'explorer_population']['Value'].values[0]) + int(
+        settings_df[settings_df['Setting'] == 'isocontour_population']['Value'].values[0])
+
     # Obtain the communication radius for seekers
-    rc_s = float(settings_df[settings_df['Setting'] == 'seeker_com_radius']['Value'].values[0])
+    seeker_com_number = float(settings_df[settings_df['Setting'] == 'seeker_com_number']['Value'].values[0])
+    rc_s = set_radius(seeker_com_number, map_size_value, pop)
     com_area_s = np.pi * (rc_s**2)
 
     # Obtain the communication radius for explorers and calculate the communication area
-    rc_e = float(settings_df[settings_df['Setting'] == 'explorer_com_radius']['Value'].values[0])
+    explorer_com_number = float(settings_df[settings_df['Setting'] == 'explorer_com_number']['Value'].values[0])
+    rc_e = set_radius(explorer_com_number, map_size_value, pop)
     com_area_e = np.pi * (rc_e**2)
 
     # Obtain the communication radius for isocontours and calculate the communication area
-    rc_i = float(settings_df[settings_df['Setting'] == 'iso_com_radius']['Value'].values[0])
+    iso_com_number = float(settings_df[settings_df['Setting'] == 'iso_com_number']['Value'].values[0])
+    rc_i = set_radius(iso_com_number, map_size_value, pop)
     com_area_i = np.pi * (rc_i**2)
 
     # Create a mapping of behavior to communication area
@@ -279,7 +289,6 @@ def analyze_coverage(folder_path, buoy_log, settings):
                     'isocontour': com_area_i}
 
     # Obtain the bounded area
-    map_size_value = float(settings_df[settings_df['Setting'] == 'map_size']['Value'].values[0])
     bounded_area = ((map_size_value) * 2)**2
 
     # Create a new DataFrame to store the coverage data
@@ -341,7 +350,12 @@ def analyze_isocontours(folder_path, buoy_log, settings):
     
     # Obtain the isocontour and communucations radius goal from settings
     iso_goal = float(settings_df[settings_df['Setting'] == 'isocontour_goal']['Value'].values[0])
-    rc = float(settings_df[settings_df['Setting'] == 'iso_com_radius']['Value'].values[0])
+    iso_com_number = float(settings_df[settings_df['Setting'] == 'iso_com_number']['Value'].values[0])
+    map_size_value = float(settings_df[settings_df['Setting'] == 'map_size']['Value'].values[0])
+    pop = int(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0]) + int(
+        settings_df[settings_df['Setting'] == 'explorer_population']['Value'].values[0]) + int(
+        settings_df[settings_df['Setting'] == 'isocontour_population']['Value'].values[0])
+    rc = set_radius(iso_com_number, map_size_value, pop)
 
     # Obtain the maximum and minimum measurement from the buoy_log_df
     max_measurement = buoy_log_df['Measurement'].max()
@@ -440,6 +454,10 @@ def analyze_isocontours(folder_path, buoy_log, settings):
 
     print(isocontour_df)
     print(isocontour_performance_df)
+
+def set_radius(number, map_size, N):
+    radius = number*np.sqrt(((map_size*2)**2)/(N*np.pi))
+    return radius
 
 # Function to analyze log data in a specific folder
 def analyze_log_folder(folder_path):
