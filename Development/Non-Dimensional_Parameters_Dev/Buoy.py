@@ -6,7 +6,7 @@ import random
 class Buoy():
 
     def __init__(self, id, behv="seeker", speed=2, com_radius=7, 
-                repulsion_radius=0.5, iso_thresh=5, 
+                repulsion_radius=0.5, iso_thresh=5, iso_seek_rad=0.4, iso_spread_rad=4.5, 
                 iso_goal=50, battery=47520, env=None):
         self.id = id
         self.env = env
@@ -24,6 +24,8 @@ class Buoy():
         self.repulsion_radius = repulsion_radius # [m]
         self.isocontour_threshold = iso_thresh 
         self.isocontour_goal = iso_goal # Goal measurement for isocontour behavior
+        self.isocontour_seeking_repulsion_radius = iso_seek_rad
+        self.isocontour_spreading_repulsion_radius = iso_spread_rad
         self.behv = behv
         self.A = None # Local goal weight
         self.B = None # Global goal weight
@@ -314,8 +316,8 @@ class Buoy():
         self.isocontour_vector = [0, 0] # Reset isocontour vector
 
         weight_lower_bound = 0.0000001 # Clip the neighbor weight
-        seeking_repulsion_rad = 0.4 # Repulsion radius when searching for the contour goal
-        spreading_repulsion_rad = 4.5 # Repulsion radius when within contour goal threshold to promote spreading
+        seeking_repulsion_rad = self.isocontour_seeking_repulsion_radius # Repulsion radius when searching for the contour goal
+        spreading_repulsion_rad = self.isocontour_spreading_repulsion_radius # Repulsion radius when within contour goal threshold to promote spreading
         
         lower_bound = goal_contour - self.isocontour_threshold
         upper_bound = goal_contour + self.isocontour_threshold

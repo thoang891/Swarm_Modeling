@@ -4,11 +4,12 @@ from Environment import Env
 
 class Swarm():
 
-    def __init__(self, seeker_pop=2, seeker_speed_number=1, seeker_com_number=1, seeker_repulsion_radius=0.5, 
+    def __init__(self, seeker_pop=2, seeker_speed_number=1, seeker_com_number=1, seeker_repulsion_number=0.1, 
                 seeker_battery=47520, seeker_gps_accuracy=1, seeker_sensor_accuracy=1, seeker_memory_duration=1, 
-                explorer_pop=2, explorer_speed_number=1, explorer_com_number=1, explorer_repulsion_radius=5, 
+                explorer_pop=2, explorer_speed_number=1, explorer_com_number=1, explorer_repulsion_number=1, 
                 explorer_battery=47520, explorer_gps_accuracy=1, explorer_sensor_accuracy=1, 
-                explorer_memory_duration=1, iso_pop=2, iso_speed_number=1, iso_com_number=1, iso_repulsion_radius=0.5, 
+                explorer_memory_duration=1, iso_pop=2, iso_speed_number=1, iso_com_number=1, iso_repulsion_number=0.1,
+                iso_seeking_repulsion_number=0.1, iso_spreading_repulsion_number=1, 
                 iso_battery=47520, iso_gps_accuracy=1, iso_sensor_accuracy=1, iso_memory_duration=1, iso_goal=-80, 
                 iso_thresh=3, timestep=0.1, map_size=10, external_force_magnitude=0.25, fidelity=100, 
                 target_setting="ON", target_speed_number = 1):
@@ -17,7 +18,8 @@ class Swarm():
         self.seeker_speed = None
         self.seeker_com_number = seeker_com_number
         self.seeker_com_radius = None
-        self.seeker_repulsion_radius = seeker_repulsion_radius
+        self.seeker_repulsion_number = seeker_repulsion_number
+        self.seeker_repulsion_radius = None
         self.seeker_battery = seeker_battery
         self.seeker_gps_accuracy = seeker_gps_accuracy
         self.seeker_sensor_accuracy = seeker_sensor_accuracy
@@ -27,7 +29,8 @@ class Swarm():
         self.explorer_speed = None
         self.explorer_com_number = explorer_com_number
         self.explorer_com_radius = None
-        self.explorer_repulsion_radius = explorer_repulsion_radius
+        self.explorer_repulsion_number = explorer_repulsion_number
+        self.explorer_repulsion_radius = None
         self.explorer_battery = explorer_battery
         self.explorer_gps_accuracy = explorer_gps_accuracy
         self.explorer_sensor_accuracy = explorer_sensor_accuracy
@@ -37,7 +40,12 @@ class Swarm():
         self.isocontour_speed = None
         self.isocontour_com_number = iso_com_number
         self.isocontour_com_radius = None
-        self.isocontour_repulsion_radius = iso_repulsion_radius
+        self.isocontour_repulsion_number = iso_repulsion_number
+        self.isocontour_seeking_repulsion_number = iso_seeking_repulsion_number
+        self.isocontour_spreading_repulsion_number = iso_spreading_repulsion_number
+        self.isocontour_repulsion_radius = None
+        self.isocontour_seeking_repulsion_radius = None
+        self.isocontour_spreading_repulsion_radius = None
         self.isocontour_battery = iso_battery
         self.isocontour_gps_accuracy = iso_gps_accuracy
         self.isocontour_sensor_accuracy = iso_sensor_accuracy
@@ -56,6 +64,7 @@ class Swarm():
         if self.seeker_population !=0:
             self.seeker_speed = self.set_speed(self.seeker_speed_number)
             self.seeker_com_radius = self.set_radius(self.seeker_com_number)
+            self.seeker_repulsion_radius = self.set_radius(self.seeker_repulsion_number)
             for i in range(self.seeker_population):
                 self.swarm.append(Buoy(id=i+1, com_radius=self.seeker_com_radius, 
                                     repulsion_radius=self.seeker_repulsion_radius, 
@@ -65,6 +74,7 @@ class Swarm():
         if self.explorer_population !=0:
             self.explorer_speed = self.set_speed(self.explorer_speed_number)
             self.explorer_com_radius = self.set_radius(self.explorer_com_number)
+            self.explorer_repulsion_radius = self.set_radius(self.explorer_repulsion_number)
             for i in range(self.explorer_population):
                 self.swarm.append(Buoy(id=i+1+self.seeker_population, com_radius=self.explorer_com_radius, 
                                     repulsion_radius=self.explorer_repulsion_radius,
@@ -74,10 +84,15 @@ class Swarm():
         if self.isocontour_population !=0:   
             self.isocontour_speed = self.set_speed(self.isocontour_speed_number)
             self.isocontour_com_radius = self.set_radius(self.isocontour_com_number)
+            self.isocontour_repulsion_radius = self.set_radius(self.isocontour_repulsion_number)
+            self.isocontour_seeking_repulsion_radius = self.set_radius(self.isocontour_seeking_repulsion_number)
+            self.isocontour_spreading_repulsion_radius = self.set_radius(self.isocontour_spreading_repulsion_number)
             for i in range(self.isocontour_population):
                 self.swarm.append(Buoy(id=i+1+self.seeker_population+self.explorer_population, 
                                     com_radius=self.isocontour_com_radius, 
                                     repulsion_radius=self.isocontour_repulsion_radius,
+                                    iso_seek_rad=self.isocontour_seeking_repulsion_radius,
+                                    iso_spread_rad=self.isocontour_spreading_repulsion_radius,
                                     speed=self.isocontour_speed, battery=self.isocontour_battery,
                                     iso_thresh=self.isocontour_threshold, iso_goal=self.isocontour_goal,
                                     behv="isocontour", env=self.env))
