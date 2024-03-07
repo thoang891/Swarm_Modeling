@@ -7,7 +7,7 @@ from Swarm import Swarm
 
 # Initialize the swarm, environment, and target
 swarm = Swarm(seeker_pop=set.settings['seeker_population'],
-                seeker_speed=set.settings['seeker_speed'],
+                seeker_speed_number=set.settings['seeker_speed_number'],
                 seeker_com_radius=set.settings['seeker_com_radius'],
                 seeker_repulsion_radius=set.settings['seeker_repulsion_radius'],
                 seeker_battery=set.settings['seeker_battery'],
@@ -15,7 +15,7 @@ swarm = Swarm(seeker_pop=set.settings['seeker_population'],
                 seeker_sensor_accuracy=set.settings['seeker_sensor_accuracy'],
                 seeker_memory_duration=set.settings['seeker_memory_duration'],
                 explorer_pop=set.settings['explorer_population'],
-                explorer_speed=set.settings['explorer_speed'],
+                explorer_speed_number=set.settings['explorer_speed_number'],
                 explorer_com_radius=set.settings['explorer_com_radius'],
                 explorer_repulsion_radius=set.settings['explorer_repulsion_radius'],
                 explorer_battery=set.settings['explorer_battery'],
@@ -23,7 +23,7 @@ swarm = Swarm(seeker_pop=set.settings['seeker_population'],
                 explorer_sensor_accuracy=set.settings['explorer_sensor_accuracy'],
                 explorer_memory_duration=set.settings['explorer_memory_duration'],
                 iso_pop=set.settings['isocontour_population'],
-                iso_speed=set.settings['iso_speed'],
+                iso_speed_number=set.settings['iso_speed_number'],
                 iso_com_radius=set.settings['iso_com_radius'],
                 iso_repulsion_radius=set.settings['iso_repulsion_radius'],
                 iso_battery=set.settings['iso_battery'],
@@ -37,7 +37,7 @@ swarm = Swarm(seeker_pop=set.settings['seeker_population'],
                 external_force_magnitude=set.settings['external_force_magnitude'],
                 fidelity=set.settings['fidelity'],
                 target_setting=set.settings['target_setting'],
-                target_speed=set.settings['target_speed'])
+                target_speed_number=set.settings['target_speed_number'])
 
 env = swarm.env
 if set.settings['animation']:

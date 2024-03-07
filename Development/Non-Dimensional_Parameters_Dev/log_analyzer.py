@@ -122,9 +122,9 @@ def analyze_seekers(folder_path, buoy_log, settings):
     Proximity_Threshold = 0.05
     Ns = int(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0]) # Number of seekers
     Speed_Seeker = float(settings_df[settings_df['Setting'] == 
-                                     'seeker_speed']['Value'].values[0]) # Speed of seekers
+                                     'seeker_speed_number']['Value'].values[0]) # Speed number of seekers
     Speed_Target = float(settings_df[settings_df['Setting'] == 
-                                     'target_speed']['Value'].values[0]) # Speed of target
+                                     'target_speed_number']['Value'].values[0]) # Speed number of target
 
     # Remove all rows that are not "seeker" in behv column of buoy_log_df
     seeker_data = buoy_log_df[buoy_log_df['behv'] == 'seeker'].reset_index()
