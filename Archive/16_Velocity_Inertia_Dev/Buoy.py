@@ -117,8 +117,6 @@ class Buoy():
         F = self.env.external_force(x=self.position[0], y=self.position[1])
         print("External force: ", F)
 
-        # inertial_weight = 0.3
-
         # Update position by adding velocity * time step
         self.position[0] += (self.inertia * self.prev_velocity[0] + 
                             (1-self.inertia) * self.velocity[0] + F[0]) * self.env.dt
