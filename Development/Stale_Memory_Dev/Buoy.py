@@ -7,7 +7,7 @@ class Buoy():
 
     def __init__(self, id, behv="seeker", speed=2, com_radius=7, 
                 repulsion_radius=0.5, iso_thresh=5, iso_seek_rad=0.4, iso_spread_rad=4.5, 
-                iso_goal=50, battery=47520, env=None, inertia=0.5):
+                iso_goal=50, battery=47520, env=None, inertia=0.5, memory_duration = 1):
         self.id = id
         self.env = env
         self.position = [random.uniform(-self.env.bounds, self.env.bounds), 
@@ -44,6 +44,8 @@ class Buoy():
         self.best_known_position = self.position
         self.best_known_measure = self.measurement
         self.best_known_id = self.id
+        self.best_known_time = 0
+        self.memory_duration = memory_duration
     
     def update_battery(self):
         # Calculate battery discharge based on magnitude of velocity developed by motor function.
@@ -83,9 +85,9 @@ class Buoy():
 
         if self.behv == "seeker":
             A = 1
-            B = 3
-            C = 5
-            D = 0.5
+            B = 2
+            C = 3
+            D = 0.4
             E = 0
 
         elif self.behv == "explorer":
@@ -445,7 +447,7 @@ class Buoy():
             self.broadcast_data_processed = None
             return self.broadcast_data_processed
     
-    def memory(self):
+    def memory(self, current_time):
         data_frame = self.broadcast_data_processed.copy()
 
         # If data frame is not empty, find the buoy with the maximum measurement
@@ -458,26 +460,36 @@ class Buoy():
                 self.best_known_position = [max_measurement['x'], max_measurement['y']]
                 self.best_known_measure = max_measurement['Measurement']
                 self.best_known_id = max_measurement['ID']
+                self.best_known_time = current_time # Time stamp when this information was received
             
             # If neighbor has a better best known measurement, update best known position and measurement
             if self.best_known_measure < max_best_known_measurement['best_measure']:
                 self.best_known_position = [max_best_known_measurement['best_x'], max_best_known_measurement['best_y']]
                 self.best_known_measure = max_best_known_measurement['best_measure']
                 self.best_known_id = max_best_known_measurement['best_id']
+                self.best_known_time = current_time # Time stamp when this information was received
                 
         # If own measurement is better than best known measurement, update best known position and measurement
         if self.measurement > self.best_known_measure:
             self.best_known_position = self.position
             self.best_known_measure = self.measurement
             self.best_known_id = self.id
+            self.best_known_time = current_time # Time stamp when this information was received
 
-        return self.best_known_position, self.best_known_measure, self.best_known_id
+        return self.best_known_position, self.best_known_measure, self.best_known_id, self.best_known_time
     
-    def forget(self):
+    def forget(self, current_time):
         # Reset best known parameters
-        self.best_known_position = self.position
-        self.best_known_measure = self.measurement
-        self.best_known_id = self.id
+        if current_time - self.best_known_time >= self.memory_duration or current_time == 0:
+            self.best_known_position = self.position
+            self.best_known_measure = self.measurement
+            self.best_known_id = self.id
+            self.best_known_time = current_time # Reset time to when memory was refreshed
+            print("Buoy {0} has forgotten its best known position and measurement at time {1}".format(self.id, current_time))
+
+        # self.best_known_position = self.position
+        # self.best_known_measure = self.measurement
+        # self.best_known_id = self.id
 
     def count_neighbors(self):
         data_frame = self.broadcast_data_processed.copy()
@@ -489,10 +501,11 @@ class Buoy():
               .format(self.id, self.N, self.Ns, self.Ne, self.Ni))
         return self.N, self.Ns, self.Ne, self.Ni
     
-    def update(self):
+    def update(self, current_time):
         self.count_neighbors()
         self.behavior()
-        self.memory()
+        self.memory(current_time)
+        self.forget(current_time)
         self.motor()
         self.move()
         self.prev_velocity = self.velocity

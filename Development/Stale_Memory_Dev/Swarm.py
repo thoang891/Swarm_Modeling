@@ -72,7 +72,8 @@ class Swarm():
                 self.swarm.append(Buoy(id=i+1, com_radius=self.seeker_com_radius, 
                                     repulsion_radius=self.seeker_repulsion_radius, 
                                     speed=self.seeker_speed, battery=self.seeker_battery,
-                                    behv="seeker", env=self.env, inertia=self.inertia))
+                                    behv="seeker", env=self.env, inertia=self.inertia,
+                                    memory_duration=self.seeker_memory_duration))
         # Generate explorer buoys
         if self.explorer_population !=0:
             self.explorer_speed = self.set_speed(self.explorer_speed_number)
@@ -82,7 +83,8 @@ class Swarm():
                 self.swarm.append(Buoy(id=i+1+self.seeker_population, com_radius=self.explorer_com_radius, 
                                     repulsion_radius=self.explorer_repulsion_radius,
                                     speed=self.explorer_speed, battery=self.explorer_battery,
-                                    behv="explorer", env=self.env, inertia=self.inertia))
+                                    behv="explorer", env=self.env, inertia=self.inertia,
+                                    memory_duration=self.explorer_memory_duration))
         # Generate isocontour buoys
         if self.isocontour_population !=0:   
             self.isocontour_speed = self.set_speed(self.isocontour_speed_number)
@@ -98,7 +100,8 @@ class Swarm():
                                     iso_spread_rad=self.isocontour_spreading_repulsion_radius,
                                     speed=self.isocontour_speed, battery=self.isocontour_battery,
                                     iso_thresh=self.isocontour_threshold, iso_goal=self.isocontour_goal,
-                                    behv="isocontour", env=self.env, inertia=self.inertia))
+                                    behv="isocontour", env=self.env, inertia=self.inertia, 
+                                    memory_duration=self.isocontour_memory_duration))
 
         for buoy in self.swarm: # set initial measurement for buoys
             self.measure()
@@ -150,7 +153,9 @@ class Swarm():
             best_x = round(buoy.best_known_position[0], gps_accuracy)
             best_y = round(buoy.best_known_position[1], gps_accuracy)
             best_measure = round(buoy.best_known_measure, sensor_accuracy)
+            # best_measure = buoy.best_known_measure
             best_id = buoy.best_known_id
+            best_time = buoy.best_known_time
             
             if battery <= 0:
                 battery = 0
@@ -170,6 +175,7 @@ class Swarm():
                 print("ID: {0:>2}, Behavior: {1:8}, Battery: {2:>6.2f}%, Position: {3:>6.2f}, {4:>6.2f}, Measurement: {5:>6.2f}, Velocity: {6:>6.2f}, {7:>6.2f}, Speed: {8:>6.2f}, Best Known Position: {9:>6.2f}, {10:>6.2f}, Best Known Measurement: {11:>6.2f}, Best Known ID: {12:>2}"
                     .format(id, behavior, battery_percent, x, y, z, u, v, speed, best_x, best_y, best_measure, best_id))
                 print("Max Speed for Buoy {0:>2}: {1:>6.2f}".format(id, max_speed))
+                print("Buoy {0} established best known parameters at {1} seconds".format(id, best_time))
                 buoy_data = {'ID': id, 'com_radius': com_radius, 'Battery': battery, 'Battery Percent': battery_percent, 
                             'behv': behavior , 'x': x, 'y': y, 'Measurement': z,
                             'u': u, 'v': v, 'speed': speed, 'best_x': best_x, 'best_y': best_y, 
@@ -193,29 +199,35 @@ class Swarm():
 
     def update(self, current_time):
         # Reset best known parameters after memory_duration period
-        if current_time % self.seeker_memory_duration == 0:
-            for buoy in self.swarm:
-                if buoy.behv == "seeker":
-                    buoy.forget()
-                    print("Buoy {0:>2} is forgetting at time: {1:>6.2f}".format(buoy.id, current_time))
+        # if current_time % self.seeker_memory_duration == 0:
+        #     for buoy in self.swarm:
+        #         if buoy.behv == "seeker":
+        #             buoy.forget()
+        #             print("Buoy {0:>2} is forgetting at time: {1:>6.2f}".format(buoy.id, current_time))
 
-        if current_time % self.explorer_memory_duration == 0:
-            for buoy in self.swarm:
-                if buoy.behv == "explorer":
-                    buoy.forget()
-                    print("Buoy {0:>2} is forgetting at time: {1:>6.2f}".format(buoy.id, current_time))
+        # if current_time % self.explorer_memory_duration == 0:
+        #     for buoy in self.swarm:
+        #         if buoy.behv == "explorer":
+        #             buoy.forget()
+        #             print("Buoy {0:>2} is forgetting at time: {1:>6.2f}".format(buoy.id, current_time))
         
-        if current_time % self.isocontour_memory_duration == 0:
-            for buoy in self.swarm:
-                if buoy.behv == "isocontour":
-                    buoy.forget()
-                    print("Buoy {0:>2} is forgetting at time: {1:>6.2f}".format(buoy.id, current_time))
+        # if current_time % self.isocontour_memory_duration == 0:
+        #     for buoy in self.swarm:
+        #         if buoy.behv == "isocontour":
+        #             buoy.forget()
+        #             print("Buoy {0:>2} is forgetting at time: {1:>6.2f}".format(buoy.id, current_time))
 
         self.env.update()
         self.measure()
+        
+        # Initialize best known parameters for each buoy
+        if current_time == 0: 
+            for buoy in self.swarm:
+                buoy.forget(current_time)
+
         self.broadcast()
 
         for buoy in self.swarm:
             if buoy.battery > 0:
                 buoy.read_mail(self.broadcast_data)
-            buoy.update()
+            buoy.update(current_time)
