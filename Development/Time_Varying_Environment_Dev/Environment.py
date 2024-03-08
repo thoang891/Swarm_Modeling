@@ -1,35 +1,41 @@
 import numpy as np
-import math
 import settings as set
+import scalar_library
 
 from Target import Target
+
+# Library for scalar functions
+
+scalar_function = {
+    1: scalar_library.scalar_1,
+    2: scalar_library.scalar_2,
+    3: scalar_library.scalar_3,
+    4: scalar_library.scalar_4,
+    5: scalar_library.scalar_5,
+    6: scalar_library.scalar_6,
+}
 
 class Env():
 
     def __init__(self, bounds=10, fidelity=200, dt=0.1, external_force_magnitude=0.25, 
-                Target_Setting="ON", target_speed=3):
+                Target_Setting="ON", target_speed_number=3, inertia=0.5):
         self.bounds = bounds
         self.x_space = np.outer(np.linspace(-bounds, bounds, fidelity), np.ones(fidelity))
         self.y_space = self.x_space.copy().T
         self.dt = dt
-        self.time = 0
         self.external_force_magnitude = external_force_magnitude
         self.z_space = self.scalar(self.x_space, self.y_space)
         self.target_setting = Target_Setting
-        self.amplitude = set.settings['amplitude']
         if self.target_setting == "ON":
-            self.target = Target(timestep=dt, bounds=bounds, speed=target_speed)
+            self.target = Target(timestep=dt, bounds=bounds, 
+                                 speed_number=target_speed_number,
+                                 inertia=inertia)
+            self.target.set_speed()
             self.target.behv()
 
     @staticmethod
     def scalar(x, y): 
-        A = set.settings['amplitude']
-        # z = np.sinc((x/5)**2 + (y/5)**2) + np.sinc((x + 2)/5 + (y + 2)/5)/2
-        # z = np.cos(x/2) + np.sin(y/2)
-        # z = -((x)**2 + (y)**2)
-        # z = x**2 + 20*np.sin(x) + y**2 - 20*np.sin(y)
-        z = A * np.exp(-(x**2 + y**2) / (2*4**2))
-        # z += np.exp(-((x+10)**2 + (y+10)**2) / (2*3**2))
+        z = scalar_function[set.settings['scalar']](x, y)
         return z
     
     def external_force(self, x, y):
@@ -50,21 +56,14 @@ class Env():
         return self.z_space
     
     def update_scalar(self):
-        A = set.settings['amplitude']
-        t = self.time
         tar_pos_x = self.target.position[0]
         tar_pos_y = self.target.position[1]
-        if t == 0:
-            self.scalar = lambda x, y: A * np.exp(-((x-tar_pos_x)**2 + (y-tar_pos_y)**2) / (2*4**2))
-        else: 
-            func = self.scalar
-            self.scalar = lambda x, y: (func(x, y)/((0.01*t)+1))+ (A * np.exp(-((x-tar_pos_x)**2 + (y-tar_pos_y)**2) / (2*5**2)))
 
-        return self.scalar
+        self.scalar = lambda x, y: scalar_function[set.settings['scalar']](x-tar_pos_x, y-tar_pos_y)
 
-    def update(self, current_time):
+
+    def update(self):
         if self.target_setting == "ON":
             self.target.update(self)
-            self.time = current_time
             self.update_scalar()
             self.update_z_space()

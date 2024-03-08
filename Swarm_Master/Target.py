@@ -10,7 +10,6 @@ class Target():
         self.ID = "Target" 
         self.position = [random.uniform(-bounds, bounds), 
                         random.uniform(-bounds, bounds)]
-        # self.position = [0, 0]
         self.bounds = bounds
         self.speed_number = speed_number
         self.inertia = inertia

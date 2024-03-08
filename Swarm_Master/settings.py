@@ -12,7 +12,7 @@ settings = {
     "map_size": 15,
     "external_force_magnitude": 0,
     "fidelity": 200,
-    "scalar": 6,
+    "scalar": 5,
     "inertia": 0.15,
 
     # Target Settings
@@ -40,7 +40,7 @@ settings = {
     "explorer_memory_duration": 2,
 
     # Isocontour Population Settings
-    "isocontour_population": 0,
+    "isocontour_population": 10,
     "iso_speed_number": 0.1,
     "iso_com_number": 1.5,
     "iso_seeking_repulsion_number": 0.1,
@@ -49,6 +49,6 @@ settings = {
     "iso_gps_accuracy": 1,
     "iso_sensor_accuracy": 3,
     "iso_memory_duration": 2,
-    "isocontour_goal": 0.3,
+    "isocontour_goal": 0.4,
     "isocontour_threshold": 0.01,
 }
