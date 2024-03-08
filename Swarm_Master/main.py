@@ -37,6 +37,7 @@ swarm = Swarm(seeker_pop=set.settings['seeker_population'],
                 timestep=set.settings['timestep'],
                 map_size=set.settings['map_size'],
                 external_force_magnitude=set.settings['external_force_magnitude'],
+                inertia=set.settings['inertia'],
                 fidelity=set.settings['fidelity'],
                 target_setting=set.settings['target_setting'],
                 target_speed_number=set.settings['target_speed_number'])

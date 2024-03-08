@@ -6,15 +6,17 @@ import random
 
 class Target():
 
-    def __init__(self, timestep = 0.1, bounds = 10, speed_number=1):
+    def __init__(self, timestep = 0.1, bounds = 10, speed_number=1, inertia=0.5):
         self.ID = "Target" 
         self.position = [random.uniform(-bounds, bounds), 
                         random.uniform(-bounds, bounds)]
         self.bounds = bounds
         self.speed_number = speed_number
+        self.inertia = inertia
         self.speed = None
         self.measurement = None
         self.velocity = None
+        self.prev_velocity = [0,0]
         self.dt = timestep
         self.random_vector = None
         self.repulsion_vector = None
@@ -29,8 +31,10 @@ class Target():
         external_force = env.external_force(self.position[0], self.position[1])
 
         # Update position by adding velocity * time step
-        self.position[0] += (self.velocity[0] + external_force[0])*self.dt
-        self.position[1] += (self.velocity[1] + external_force[1])*self.dt
+        self.position[0] += (self.inertia * self.prev_velocity[0] + 
+                            (1-self.inertia) * self.velocity[0] + external_force[0])*self.dt
+        self.position[1] += (self.inertia * self.prev_velocity[1] + 
+                            (1-self.inertia) * self.velocity[1] + external_force[1])*self.dt
 
         print("Target position: {0}".format(self.position))
 

@@ -13,7 +13,7 @@ class Swarm():
                 explorer_memory_duration=1, iso_pop=2, iso_speed_number=1, iso_com_number=1, iso_repulsion_number=0.1,
                 iso_seeking_repulsion_number=0.1, iso_spreading_repulsion_number=1, 
                 iso_battery_number=1, iso_gps_accuracy=1, iso_sensor_accuracy=1, iso_memory_duration=1, iso_goal=-80, 
-                iso_thresh=3, timestep=0.1, map_size=10, external_force_magnitude=0.25, fidelity=100, 
+                iso_thresh=3, timestep=0.1, map_size=10, external_force_magnitude=0.25, inertia=0.5, fidelity=100, 
                 target_setting="ON", target_speed_number = 1):
         self.seeker_population = seeker_pop
         self.seeker_speed_number = seeker_speed_number
@@ -54,11 +54,12 @@ class Swarm():
         self.isocontour_memory_duration = iso_memory_duration
         self.isocontour_goal = iso_goal
         self.isocontour_threshold = iso_thresh
+        self.inertia = inertia
         self.swarm = []
         self.broadcast_data = []
         self.env = Env(bounds=map_size, dt=timestep, fidelity=fidelity,
                        external_force_magnitude=external_force_magnitude, 
-                       Target_Setting=target_setting, target_speed_number=target_speed_number)
+                       Target_Setting=target_setting, target_speed_number=target_speed_number, inertia=inertia)
 
     def construct(self):
 
@@ -71,7 +72,7 @@ class Swarm():
                 self.swarm.append(Buoy(id=i+1, com_radius=self.seeker_com_radius, 
                                     repulsion_radius=self.seeker_repulsion_radius, 
                                     speed=self.seeker_speed, battery=self.seeker_battery,
-                                    behv="seeker", env=self.env))
+                                    behv="seeker", env=self.env, inertia=self.inertia))
         # Generate explorer buoys
         if self.explorer_population !=0:
             self.explorer_speed = self.set_speed(self.explorer_speed_number)
@@ -81,7 +82,7 @@ class Swarm():
                 self.swarm.append(Buoy(id=i+1+self.seeker_population, com_radius=self.explorer_com_radius, 
                                     repulsion_radius=self.explorer_repulsion_radius,
                                     speed=self.explorer_speed, battery=self.explorer_battery,
-                                    behv="explorer", env=self.env))
+                                    behv="explorer", env=self.env, inertia=self.inertia))
         # Generate isocontour buoys
         if self.isocontour_population !=0:   
             self.isocontour_speed = self.set_speed(self.isocontour_speed_number)
@@ -97,7 +98,7 @@ class Swarm():
                                     iso_spread_rad=self.isocontour_spreading_repulsion_radius,
                                     speed=self.isocontour_speed, battery=self.isocontour_battery,
                                     iso_thresh=self.isocontour_threshold, iso_goal=self.isocontour_goal,
-                                    behv="isocontour", env=self.env))
+                                    behv="isocontour", env=self.env, inertia=self.inertia))
 
         for buoy in self.swarm: # set initial measurement for buoys
             self.measure()
@@ -159,13 +160,16 @@ class Swarm():
                             'N': N, 'Ns': Ns, 'Ne': Ne, 'Ni': Ni}
 
             elif buoy.velocity is not None:
-                u = round(buoy.velocity[0], gps_accuracy)
-                v = round(buoy.velocity[1], gps_accuracy)
+                u = round((buoy.inertia * buoy.prev_velocity[0]) + 
+                          (1-buoy.inertia) * buoy.velocity[0], gps_accuracy)
+                v = round((buoy.inertia * buoy.prev_velocity[1]) + 
+                          (1-buoy.inertia) * buoy.velocity[1], gps_accuracy)
                 speed = round(np.sqrt(u**2 + v**2), gps_accuracy)
+                max_speed = round(buoy.speed, gps_accuracy)
 
                 print("ID: {0:>2}, Behavior: {1:8}, Battery: {2:>6.2f}%, Position: {3:>6.2f}, {4:>6.2f}, Measurement: {5:>6.2f}, Velocity: {6:>6.2f}, {7:>6.2f}, Speed: {8:>6.2f}, Best Known Position: {9:>6.2f}, {10:>6.2f}, Best Known Measurement: {11:>6.2f}, Best Known ID: {12:>2}"
                     .format(id, behavior, battery_percent, x, y, z, u, v, speed, best_x, best_y, best_measure, best_id))
-                
+                print("Max Speed for Buoy {0:>2}: {1:>6.2f}".format(id, max_speed))
                 buoy_data = {'ID': id, 'com_radius': com_radius, 'Battery': battery, 'Battery Percent': battery_percent, 
                             'behv': behavior , 'x': x, 'y': y, 'Measurement': z,
                             'u': u, 'v': v, 'speed': speed, 'best_x': best_x, 'best_y': best_y, 

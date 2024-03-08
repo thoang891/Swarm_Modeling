@@ -18,7 +18,7 @@ scalar_function = {
 class Env():
 
     def __init__(self, bounds=10, fidelity=200, dt=0.1, external_force_magnitude=0.25, 
-                Target_Setting="ON", target_speed_number=3):
+                Target_Setting="ON", target_speed_number=3, inertia=0.5):
         self.bounds = bounds
         self.x_space = np.outer(np.linspace(-bounds, bounds, fidelity), np.ones(fidelity))
         self.y_space = self.x_space.copy().T
@@ -27,7 +27,9 @@ class Env():
         self.z_space = self.scalar(self.x_space, self.y_space)
         self.target_setting = Target_Setting
         if self.target_setting == "ON":
-            self.target = Target(timestep=dt, bounds=bounds, speed_number=target_speed_number)
+            self.target = Target(timestep=dt, bounds=bounds, 
+                                 speed_number=target_speed_number,
+                                 inertia=inertia)
             self.target.set_speed()
             self.target.behv()
 

@@ -7,12 +7,14 @@ class Buoy():
 
     def __init__(self, id, behv="seeker", speed=2, com_radius=7, 
                 repulsion_radius=0.5, iso_thresh=5, iso_seek_rad=0.4, iso_spread_rad=4.5, 
-                iso_goal=50, battery=47520, env=None):
+                iso_goal=50, battery=47520, env=None, inertia=0.5):
         self.id = id
         self.env = env
         self.position = [random.uniform(-self.env.bounds, self.env.bounds), 
                          random.uniform(-self.env.bounds, self.env.bounds)] # [m, m]
+        self.inertia = inertia
         self.velocity = None # [m/s, m/s]
+        self.prev_velocity = [0, 0] # [m/s, m/s]
         self.measurement = None # scalar value
         self.full_battery = battery # Default battery life is movement at 1 m/s for 1 hour. [watt*second]
         self.battery = battery 
@@ -89,15 +91,15 @@ class Buoy():
         elif self.behv == "explorer":
             A = 0.05
             B = 0.05
-            C = 2
-            D = 1.8
+            C = 1
+            D = 1
             E = 0
 
         elif self.behv == "isocontour":
-            A = 0
+            A = 0.05
             B = 0.1
             C = 1
-            D = 0.4
+            D = 0.5
             E = 1
             
         normalize_behavior(A, B, C, D, E)
@@ -115,9 +117,13 @@ class Buoy():
         F = self.env.external_force(x=self.position[0], y=self.position[1])
         print("External force: ", F)
 
+        # inertial_weight = 0.3
+
         # Update position by adding velocity * time step
-        self.position[0] += self.velocity[0]*self.env.dt + F[0]*self.env.dt
-        self.position[1] += self.velocity[1]*self.env.dt + F[1]*self.env.dt
+        self.position[0] += (self.inertia * self.prev_velocity[0] + 
+                            (1-self.inertia) * self.velocity[0] + F[0]) * self.env.dt
+        self.position[1] += (self.inertia * self.prev_velocity[1] + 
+                            (1-self.inertia) * self.velocity[1] + F[1]) * self.env.dt
 
     def motor(self):
         # Reset velocity vector
@@ -491,3 +497,4 @@ class Buoy():
         self.memory()
         self.motor()
         self.move()
+        self.prev_velocity = self.velocity
