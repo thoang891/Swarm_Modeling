@@ -68,7 +68,7 @@ class Target():
 
         A = 1.5 # Random walk
         B = 2 # Repulsion
-        C = 0.5 # Circle
+        C = 1 # Circle
         normalize_behavior(A, B, C)
 
         return self.A, self.B, self.C

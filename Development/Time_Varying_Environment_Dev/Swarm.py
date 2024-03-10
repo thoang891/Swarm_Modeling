@@ -211,7 +211,7 @@ class Swarm():
                     buoy.forget()
                     print("Buoy {0:>2} is forgetting at time: {1:>6.2f}".format(buoy.id, current_time))
 
-        self.env.update()
+        self.env.update(current_time)
         self.measure()
         self.broadcast()
 

@@ -20,8 +20,10 @@ def scalar_4(x, y):
     z = x**2 + 20*np.sin(x) + y**2 - 20*np.sin(y)
     return z
 
-def scalar_5(x, y):
-    z = 1.5 * np.exp(-(x**2 + y**2) / (2*5**2)) + 0.01
+def scalar_5(x, y, center_x=0, center_y=0):
+    amp = 0.1
+    sig = 6
+    z = amp * np.exp(-((x-center_x)**2 + (y-center_y)**2) / (2 * sig **2))
     return z
 
 def scalar_6(x, y):

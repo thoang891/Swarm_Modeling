@@ -84,7 +84,7 @@ class Buoy():
         if self.behv == "seeker":
             A = 1
             B = 3
-            C = 5
+            C = 3
             D = 0.5
             E = 0
 
