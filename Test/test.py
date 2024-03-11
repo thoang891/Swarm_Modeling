@@ -1,3 +1,8 @@
-import settings as set
+value = 1
+print(value)
+copy_value = 1
+print(copy_value)
 
-print(set.settings['animation'])
+value = 2
+print(value)
+print(copy_value)
