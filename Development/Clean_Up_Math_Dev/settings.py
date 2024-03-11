@@ -6,7 +6,7 @@ settings = {
     "animation": True, # True or False
     "animation_delay": 0.01,
     "timestep": 0.1,
-    "iterations": 100,
+    "iterations": 1000,
 
     # Environment Settings
     "map_size": 20,
@@ -21,12 +21,6 @@ settings = {
     # Target Settings
     "target_setting": "ON", # "ON" or "OFF"
     "target_speed_number": 0.18,
-
-    # Swarm Population Settings
-    "set_by_fraction": True, # True or False
-    "mission": "search", # "search" or "isocontour"
-    "population": 25,
-    "heterogeneiety_coefficient": 0.5,
 
     # Seeker Population Settings
     "seeker_population": 4,
@@ -58,6 +52,6 @@ settings = {
     "iso_gps_accuracy": 1,
     "iso_sensor_accuracy": 3,
     "iso_memory_duration": 2,
-    "isocontour_goal": 0.5,
+    "isocontour_goal": 2,
     "isocontour_threshold": 0.01,
 }

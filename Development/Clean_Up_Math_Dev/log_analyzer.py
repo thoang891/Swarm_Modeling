@@ -57,35 +57,23 @@ def analyze_swarm(folder_path, buoy_log, settings):
     # Calculate Accuracy in L^2 dimension
     # swarm_df['Accuracy'] = (1 - (swarm_df['D_error']**2 / bounded_area)).round(3)
 
-    # Determine population
-    if settings_df[settings_df['Setting'] == 'set_by_fraction']['Value'].values[0] == True:
-        population = int(settings_df[settings_df['Setting'] == 'population']['Value'].values[0])
-        explorer_population = population * float(settings_df[settings_df['Setting'] == 'heterogeneity_coefficient']['Value'].values[0])
-        if settings_df[settings_df['Setting'] == 'mission']['Value'].values[0] == 'search':
-            seeker_population = population - explorer_population
-            isocontour_population = 0
-        elif settings_df[settings_df['Setting'] == 'mission']['Value'].values[0] == 'isocontour':
-            isocontour_population = population - explorer_population
-            seeker_population = 0
-
-    else:
-        seeker_population = float(settings_df[settings_df['Setting'] == 'seeker_population']
-                                ['Value'].values[0])
-        explorer_population = float(settings_df[settings_df['Setting'] == 'explorer_population']
-                                    ['Value'].values[0])
-        isocontour_population = float(settings_df[settings_df['Setting'] == 'isocontour_population']
-                                    ['Value'].values[0])
-
     # Calculate maximum swarm battery in w*h
     battery_nom = 47520
     seeker_battery = float(settings_df[settings_df['Setting'] == 'seeker_battery_number']
                            ['Value'].values[0]) * battery_nom
     
+    seeker_population = float(settings_df[settings_df['Setting'] == 'seeker_population']
+                              ['Value'].values[0])
+
     explorer_battery = float(settings_df[settings_df['Setting'] == 'explorer_battery_number']
                              ['Value'].values[0]) * battery_nom
+    explorer_population = float(settings_df[settings_df['Setting'] == 'explorer_population']
+                                ['Value'].values[0])
 
     isocontour_battery = float(settings_df[settings_df['Setting'] == 'iso_battery_number']
                                ['Value'].values[0]) * battery_nom
+    isocontour_population = float(settings_df[settings_df['Setting'] == 'isocontour_population']
+                                  ['Value'].values[0])
 
     total_battery = ((seeker_battery * seeker_population) + 
                      (explorer_battery * explorer_population) + 
@@ -135,15 +123,7 @@ def analyze_seekers(folder_path, buoy_log, settings):
     seeker_df = pd.DataFrame(columns=['Time', 'ID', 'x', 'y', 'u', 'v'])
 
     Proximity_Threshold = 0.05
-    # Determine seeker population
-    if settings_df[settings_df['Setting'] == 'set_by_fraction']['Value'].values[0] == True:
-        population = int(settings_df[settings_df['Setting'] == 'population']['Value'].values[0])
-        explorer_population = population * float(settings_df[settings_df['Setting'] == 'heterogeneity_coefficient']['Value'].values[0])
-        if settings_df[settings_df['Setting'] == 'mission']['Value'].values[0] == 'search':
-            Ns = population - explorer_population
-    else:
-        Ns = int(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0]) # Number of seekers
-
+    Ns = int(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0]) # Number of seekers
     Speed_Seeker = float(settings_df[settings_df['Setting'] == 
                                      'seeker_speed_number']['Value'].values[0]) # Speed number of seekers
     Speed_Target = float(settings_df[settings_df['Setting'] == 
@@ -291,12 +271,9 @@ def analyze_coverage(folder_path, buoy_log, settings):
     settings_df = pd.read_csv(settings)
 
     map_size_value = float(settings_df[settings_df['Setting'] == 'map_size']['Value'].values[0])
-    if settings_df[settings_df['Setting'] == 'set_by_fraction']['Value'].values[0] == True:
-        pop = int(settings_df[settings_df['Setting'] == 'population']['Value'].values[0])
-    else:
-        pop = int(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0]) + int(
-            settings_df[settings_df['Setting'] == 'explorer_population']['Value'].values[0]) + int(
-            settings_df[settings_df['Setting'] == 'isocontour_population']['Value'].values[0])
+    pop = int(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0]) + int(
+        settings_df[settings_df['Setting'] == 'explorer_population']['Value'].values[0]) + int(
+        settings_df[settings_df['Setting'] == 'isocontour_population']['Value'].values[0])
 
     # Obtain the communication radius for seekers
     seeker_com_number = float(settings_df[settings_df['Setting'] == 'seeker_com_number']['Value'].values[0])
@@ -382,12 +359,9 @@ def analyze_isocontours(folder_path, buoy_log, settings):
     iso_goal = float(settings_df[settings_df['Setting'] == 'isocontour_goal']['Value'].values[0])
     iso_com_number = float(settings_df[settings_df['Setting'] == 'iso_com_number']['Value'].values[0])
     map_size_value = float(settings_df[settings_df['Setting'] == 'map_size']['Value'].values[0])
-    if settings_df[settings_df['Setting'] == 'set_by_fraction']['Value'].values[0] == True:
-        pop = int(settings_df[settings_df['Setting'] == 'population']['Value'].values[0])
-    else:
-        pop = int(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0]) + int(
-            settings_df[settings_df['Setting'] == 'explorer_population']['Value'].values[0]) + int(
-            settings_df[settings_df['Setting'] == 'isocontour_population']['Value'].values[0])
+    pop = int(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0]) + int(
+        settings_df[settings_df['Setting'] == 'explorer_population']['Value'].values[0]) + int(
+        settings_df[settings_df['Setting'] == 'isocontour_population']['Value'].values[0])
     rc = set_radius(iso_com_number, map_size_value, pop)
 
     # Obtain the maximum and minimum measurement from the buoy_log_df
@@ -413,16 +387,7 @@ def analyze_isocontours(folder_path, buoy_log, settings):
     isocontour_df['Abs(zi-z_goal)/range'] = (np.abs(isocontour_df['Measurement'] - iso_goal) / measurement_range).round(3)
 
     # Create a new dataframe for averaging the performance of the isocontour behavior at each timestep
-    # Ni = int(settings_df[settings_df['Setting'] == 'isocontour_population']['Value'].values[0])
-
-    if settings_df[settings_df['Setting'] == 'set_by_fraction']['Value'].values[0] == True:
-        population = int(settings_df[settings_df['Setting'] == 'population']['Value'].values[0])
-        explorer_population = population * float(settings_df[settings_df['Setting'] == 'heterogeneity_coefficient']['Value'].values[0])
-        if settings_df[settings_df['Setting'] == 'mission']['Value'].values[0] == 'isocontour':
-            Ni = population - explorer_population
-    else:
-        Ni = int(settings_df[settings_df['Setting'] == 'isocontour_population']['Value'].values[0]) # Number of isocontour buoys
-
+    Ni = int(settings_df[settings_df['Setting'] == 'isocontour_population']['Value'].values[0])
     isocontour_performance_df = isocontour_df.groupby('Time')['Abs(zi-z_goal)/range'].sum().reset_index()
     isocontour_performance_df['Abs(zi-z_goal)/range'] = (isocontour_performance_df['Abs(zi-z_goal)/range'] / Ni).round(3)
     isocontour_performance_df = isocontour_performance_df.rename(columns={'Abs(zi-z_goal)/range': 'Average Abs(zi-z_goal)/range'})

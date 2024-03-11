@@ -5,24 +5,8 @@ import log_analyzer
 import settings as set
 from Swarm import Swarm
 
-if set.settings['set_by_fraction'] == True:
-    explorer_population = int(set.settings['population'] * set.settings['heterogeneiety_coefficient'])
-
-    if set.settings['mission'] == "search":
-        seeker_population = int(set.settings['population'] - explorer_population)
-        isocontour_population = 0
-
-    elif set.settings['mission'] == "isocontour":
-        isocontour_population = int(set.settings['population'] - explorer_population)
-        seeker_population = 0
-
-else:
-    explorer_population = set.settings['explorer_population']
-    isocontour_population = set.settings['isocontour_population']
-    seeker_population = set.settings['seeker_population']
-
 # Initialize the swarm, environment, and target
-swarm = Swarm(seeker_pop=seeker_population,
+swarm = Swarm(seeker_pop=set.settings['seeker_population'],
                 seeker_speed_number=set.settings['seeker_speed_number'],
                 seeker_com_number=set.settings['seeker_com_number'],
                 seeker_repulsion_number=set.settings['seeker_repulsion_number'],
@@ -30,7 +14,7 @@ swarm = Swarm(seeker_pop=seeker_population,
                 seeker_gps_accuracy=set.settings['seeker_gps_accuracy'],
                 seeker_sensor_accuracy=set.settings['seeker_sensor_accuracy'],
                 seeker_memory_duration=set.settings['seeker_memory_duration'],
-                explorer_pop=explorer_population,
+                explorer_pop=set.settings['explorer_population'],
                 explorer_speed_number=set.settings['explorer_speed_number'],
                 explorer_com_number=set.settings['explorer_com_number'],
                 explorer_repulsion_number=set.settings['explorer_repulsion_number'],
@@ -38,7 +22,7 @@ swarm = Swarm(seeker_pop=seeker_population,
                 explorer_gps_accuracy=set.settings['explorer_gps_accuracy'],
                 explorer_sensor_accuracy=set.settings['explorer_sensor_accuracy'],
                 explorer_memory_duration=set.settings['explorer_memory_duration'],
-                iso_pop=isocontour_population,
+                iso_pop=set.settings['isocontour_population'],
                 iso_speed_number=set.settings['iso_speed_number'],
                 iso_com_number=set.settings['iso_com_number'],
                 iso_repulsion_number=set.settings['iso_seeking_repulsion_number'],
