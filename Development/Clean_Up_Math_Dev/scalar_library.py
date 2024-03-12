@@ -20,7 +20,7 @@ def scalar_4(x, y, center_x=0, center_y=0):
     return z
 
 def scalar_5(x, y, center_x=0, center_y=0):
-    amp = 0.1
+    amp = 1
     sig = 5
     z = amp * np.exp(-((x-center_x)**2 + (y-center_y)**2) / (2 * sig **2))
     return z

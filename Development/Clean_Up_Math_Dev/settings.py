@@ -20,10 +20,10 @@ settings = {
 
     # Target Settings
     "target_setting": "ON", # "ON" or "OFF"
-    "target_speed_number": 0.18,
+    "target_speed_number": 0.2,
 
     # Seeker Population Settings
-    "seeker_population": 4,
+    "seeker_population": 5,
     "seeker_speed_number": 0.1,
     "seeker_com_number": 1.5,
     "seeker_repulsion_number": 0.1,
@@ -43,7 +43,7 @@ settings = {
     "explorer_memory_duration": 0.5,
 
     # Isocontour Population Settings
-    "isocontour_population": 0,
+    "isocontour_population": 5,
     "iso_speed_number": 0.1,
     "iso_com_number": 1.5,
     "iso_seeking_repulsion_number": 0.1,
@@ -52,6 +52,30 @@ settings = {
     "iso_gps_accuracy": 1,
     "iso_sensor_accuracy": 3,
     "iso_memory_duration": 2,
-    "isocontour_goal": 2,
+    "isocontour_goal": 0.4,
     "isocontour_threshold": 0.01,
+}
+
+behavior = {
+    "seeker": {
+        "A": 1,
+        "B": 3,
+        "C": 3,
+        "D": 0.5,
+        "E": 0,
+    },
+    "explorer": {
+        "A": 0.05,
+        "B": 0.05,
+        "C": 1,
+        "D": 1,
+        "E": 0,
+    },
+    "isocontour": {
+        "A": 0.05,
+        "B": 0.1,
+        "C": 1,
+        "D": 0.5,
+        "E": 1,
+    }
 }
