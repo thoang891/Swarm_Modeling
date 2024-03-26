@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import settings as set
 
 # Buoys are currently spawned in a uniform distribution within the environment
 
@@ -82,25 +83,25 @@ class Buoy():
             return self.A, self.B, self.C, self.D, self.E
 
         if self.behv == "seeker":
-            A = 1
-            B = 3
-            C = 3
-            D = 0.5
-            E = 0
+            A =  set.behavior['seeker']['A']
+            B =  set.behavior['seeker']['B']
+            C =  set.behavior['seeker']['C']
+            D =  set.behavior['seeker']['D']
+            E =  set.behavior['seeker']['E']
 
         elif self.behv == "explorer":
-            A = 0.05
-            B = 0.05
-            C = 1
-            D = 1
-            E = 0
+            A =  set.behavior['explorer']['A']
+            B =  set.behavior['explorer']['B']
+            C =  set.behavior['explorer']['C']
+            D =  set.behavior['explorer']['D']
+            E =  set.behavior['explorer']['E']
 
         elif self.behv == "isocontour":
-            A = 0.05
-            B = 0.1
-            C = 1
-            D = 0.5
-            E = 1
+            A =  set.behavior['isocontour']['A']
+            B =  set.behavior['isocontour']['B']
+            C =  set.behavior['isocontour']['C']
+            D =  set.behavior['isocontour']['D']
+            E =  set.behavior['isocontour']['E']
             
         normalize_behavior(A, B, C, D, E)
 
@@ -169,9 +170,8 @@ class Buoy():
             if self.measurement < max_measurement['Measurement']:
                 goal_vector_unnormalized = [max_measurement['x'] - self.position[0], 
                                             max_measurement['y'] - self.position[1]]
-                goal_vector_magnitude = np.linalg.norm(goal_vector_unnormalized)
-                self.local_goal_vector = [goal_vector_unnormalized[0]/goal_vector_magnitude, 
-                                    goal_vector_unnormalized[1]/goal_vector_magnitude]
+
+                self.local_goal_vector = self.normalize(goal_vector_unnormalized)
 
                 print()
                 print("max_measurement: {0}".format(max_measurement))
@@ -189,10 +189,7 @@ class Buoy():
                     sum_neighbor_vector[0] += neighbor_vector_unnormalized[0]
                     sum_neighbor_vector[1] += neighbor_vector_unnormalized[1]
 
-                # Normalize the sum of the neighbor vectors
-                sum_neighbor_vector_magnitude = np.linalg.norm(sum_neighbor_vector)
-                self.local_goal_vector = [sum_neighbor_vector[0]/sum_neighbor_vector_magnitude, 
-                                    sum_neighbor_vector[1]/sum_neighbor_vector_magnitude]
+                self.local_goal_vector = self.normalize(sum_neighbor_vector)
 
                 print()
                 print("Buoy {0} is moving towards the average direction of its neighbors".format(self.id))
@@ -215,9 +212,8 @@ class Buoy():
         if distance > 0.001:
             goal_vector_unnormalized = [self.best_known_position[0] - self.position[0], 
                                         self.best_known_position[1] - self.position[1]]
-            goal_vector_magnitude = np.linalg.norm(goal_vector_unnormalized)
-            self.global_goal_vector = [goal_vector_unnormalized[0]/goal_vector_magnitude, 
-                                    goal_vector_unnormalized[1]/goal_vector_magnitude]
+
+            self.global_goal_vector = self.normalize(goal_vector_unnormalized)
         else:
             self.global_goal_vector = [0, 0]
             print()
@@ -250,14 +246,7 @@ class Buoy():
         else:
             bounding_vector[1] = 0
 
-        # Normalize the bounding repulsion vector if it exists
-        if bounding_vector[0] != 0 or bounding_vector[1] != 0:
-            print("Buoy {0} is out of bounds".format(self.id))
-            bounding_vector_magnitude = np.linalg.norm(bounding_vector)
-            bound_repulsion_vector = [bounding_vector[0]/bounding_vector_magnitude, 
-                                      bounding_vector[1]/bounding_vector_magnitude]
-        else:
-            bound_repulsion_vector = [0, 0]
+        bound_repulsion_vector = self.normalize(bounding_vector)
     
         # Calculate the repulsion vector due to the nearby neighbors
         for data in data_frame:
@@ -272,44 +261,28 @@ class Buoy():
             if distance < self.repulsion_radius:
                 neighbor_repulsion_vector_unnormalized = [self.position[0] - x2, self.position[1] - y2]
                 print("Repelling away from buoy {}".format(data['ID']))
-                # Normalize the neighbor repulsion vector if it exists
-                magnitude = np.linalg.norm(neighbor_repulsion_vector_unnormalized)
-                neighbor_repulsion_vector = [neighbor_repulsion_vector_unnormalized[0]/magnitude, 
-                                             neighbor_repulsion_vector_unnormalized[1]/magnitude]
-            else:
-                neighbor_repulsion_vector = [0, 0]
+
+                neighbor_repulsion_vector = self.normalize(neighbor_repulsion_vector_unnormalized)
+
             
             neighborhood_repulsion_vector_unnormalized[0] += neighbor_repulsion_vector[0]
             neighborhood_repulsion_vector_unnormalized[1] += neighbor_repulsion_vector[1]
 
-        # Normalize the neighborhood repulsion vector if it exists
-        if neighborhood_repulsion_vector_unnormalized[0] != 0 or neighborhood_repulsion_vector_unnormalized[1] != 0:
-            neighborhood_repulsion_vector_magnitude = np.linalg.norm(neighborhood_repulsion_vector_unnormalized)
-            neighborhood_repulsion_vector = [neighborhood_repulsion_vector_unnormalized[0]/neighborhood_repulsion_vector_magnitude, 
-                                             neighborhood_repulsion_vector_unnormalized[1]/neighborhood_repulsion_vector_magnitude]
-        else:
-            neighborhood_repulsion_vector = [0, 0]
+        neighborhood_repulsion_vector = self.normalize(neighborhood_repulsion_vector_unnormalized)
 
         # Sum the bounding and neighborhood repulsion vectors
         repulsion_vector = [neighborhood_repulsion_vector[0] + bound_repulsion_vector[0], 
                             neighborhood_repulsion_vector[1] + bound_repulsion_vector[1]]
-        
-        # Normalize the repulsion vector if it exists
-        if repulsion_vector[0] != 0 or repulsion_vector[1] != 0:
-            repulsion_vector_magnitude = np.linalg.norm(repulsion_vector)
-            self.repulsion_vector = [repulsion_vector[0]/repulsion_vector_magnitude, 
-                                     repulsion_vector[1]/repulsion_vector_magnitude]
-        else: 
-            self.repulsion_vector = [0, 0]
+
+        self.repulsion_vector = self.normalize(repulsion_vector)
         
         print("Repulsion vector: {0}".format(self.repulsion_vector))
         return self.repulsion_vector
 
     def random_walk(self):
         random_vector_unnormalized = [random.uniform(-1, 1)/abs(self.position[0]), random.uniform(-1, 1)/abs(self.position[1])]
-        random_vector_magnitude = np.linalg.norm(random_vector_unnormalized)
-        self.random_vector = [random_vector_unnormalized[0]/random_vector_magnitude, 
-                              random_vector_unnormalized[1]/random_vector_magnitude]
+
+        self.random_vector = self.normalize(random_vector_unnormalized)
         print("Random vector: {0}".format(self.random_vector))
         return self.random_vector
 
@@ -345,11 +318,7 @@ class Buoy():
                     sum_neighbor_vector[0] += neighbor_vector_unnormalized[0]
                     sum_neighbor_vector[1] += neighbor_vector_unnormalized[1]
             
-            # Normalize the sum of the neighbor vectors 
-            if sum_neighbor_vector[0] != 0 or sum_neighbor_vector[1] != 0:
-                sum_neighbor_vector_magnitude = np.linalg.norm(sum_neighbor_vector)
-                self.isocontour_vector = [sum_neighbor_vector[0]/sum_neighbor_vector_magnitude, 
-                                        sum_neighbor_vector[1]/sum_neighbor_vector_magnitude]
+            self.isocontour_vector = self.normalize(sum_neighbor_vector)
 
             print("Moving opposite to neighborhood vector: {0}".format(self.isocontour_vector))
 
@@ -374,11 +343,7 @@ class Buoy():
                     sum_neighbor_vector[1] += neighbor_vector_unnormalized[1]/weight
                     print("Adding neighbor vector: {0} from buoy {1} because it is measuring {2}".format(neighbor_vector_unnormalized, data['ID'], data['Measurement']))
 
-            # Normalize the sum of the neighbor vectors
-            if sum_neighbor_vector[0] != 0 or sum_neighbor_vector[1] != 0:
-                sum_neighbor_vector_magnitude = np.linalg.norm(sum_neighbor_vector)
-                self.isocontour_vector = [sum_neighbor_vector[0]/sum_neighbor_vector_magnitude, 
-                                        sum_neighbor_vector[1]/sum_neighbor_vector_magnitude]
+            self.isocontour_vector = self.normalize(sum_neighbor_vector)
                     
         # Check if the self measurement is less than goal contour
         elif lower_bound > self.measurement:
@@ -399,13 +364,8 @@ class Buoy():
                     sum_neighbor_vector[0] += neighbor_vector_unnormalized[0]/weight
                     sum_neighbor_vector[1] += neighbor_vector_unnormalized[1]/weight
                     print("Adding neighbor vector: {0} from buoy {1} because it is measuring {2}".format(neighbor_vector_unnormalized, data['ID'], data['Measurement']))
-                    
-            # Normalize the sum of the neighbor vectors
-            if sum_neighbor_vector[0] != 0 or sum_neighbor_vector[1] != 0:
-                sum_neighbor_vector_magnitude = np.linalg.norm(sum_neighbor_vector)
-                self.isocontour_vector = [sum_neighbor_vector[0]/sum_neighbor_vector_magnitude, 
-                                        sum_neighbor_vector[1]/sum_neighbor_vector_magnitude]
 
+            self.isocontour_vector = self.normalize(sum_neighbor_vector)
         print("Isocontour vector: {0}".format(self.isocontour_vector))
 
         return self.isocontour_vector, self.repulsion_radius
@@ -489,9 +449,18 @@ class Buoy():
               .format(self.id, self.N, self.Ns, self.Ne, self.Ni))
         return self.N, self.Ns, self.Ne, self.Ni
     
+    def normalize(self, vector):
+        magnitude = np.linalg.norm(vector)
+        if magnitude != 0:
+            return [vector[0]/magnitude, vector[1]/magnitude]
+        else:
+            return [0, 0]
+
     def update(self):
+        if self.A == None or self.B == None or self.C == None or self.D == None or self.E == None:
+            self.behavior()
+
         self.count_neighbors()
-        self.behavior()
         self.memory()
         self.motor()
         self.move()

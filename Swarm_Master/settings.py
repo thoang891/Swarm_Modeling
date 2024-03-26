@@ -12,18 +12,18 @@ settings = {
     "map_size": 20,
     "external_force_magnitude": 0,
     "fidelity": 200,
-    "scalar": 5,
+    "scalar": 2,
     "inertia": 0.15,
-    "decay": 0.4,
-    "scalar_duration": 10,
-    "relative_strength": 8,
+    "decay": 0.5,
+    "scalar_duration": 0.1,
+    "relative_strength": 2,
 
     # Target Settings
-    "target_setting": "ON", # "ON" or "OFF"
-    "target_speed_number": 0.18,
+    "target_setting": "OFF", # "ON" or "OFF"
+    "target_speed_number": 0.2,
 
     # Seeker Population Settings
-    "seeker_population": 4,
+    "seeker_population": 5,
     "seeker_speed_number": 0.1,
     "seeker_com_number": 1.5,
     "seeker_repulsion_number": 0.1,
@@ -34,7 +34,7 @@ settings = {
 
     # Explorer Population Settings
     "explorer_population": 20,
-    "explorer_speed_number": 0.1,
+    "explorer_speed_number": 0.05,
     "explorer_com_number": 2,
     "explorer_repulsion_number": 1.9,
     "explorer_battery_number": 1,
@@ -52,6 +52,30 @@ settings = {
     "iso_gps_accuracy": 1,
     "iso_sensor_accuracy": 3,
     "iso_memory_duration": 2,
-    "isocontour_goal": 2,
+    "isocontour_goal": 0.4,
     "isocontour_threshold": 0.01,
+}
+
+behavior = {
+    "seeker": {
+        "A": 1,
+        "B": 3,
+        "C": 3,
+        "D": 0.5,
+        "E": 0,
+    },
+    "explorer": {
+        "A": 0.05,
+        "B": 0.05,
+        "C": 1,
+        "D": 1,
+        "E": 0,
+    },
+    "isocontour": {
+        "A": 0.05,
+        "B": 0.1,
+        "C": 1,
+        "D": 0.5,
+        "E": 1,
+    }
 }

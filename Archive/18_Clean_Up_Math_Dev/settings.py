@@ -12,14 +12,14 @@ settings = {
     "map_size": 20,
     "external_force_magnitude": 0,
     "fidelity": 200,
-    "scalar": 5,
+    "scalar": 2,
     "inertia": 0.15,
-    "decay": 0.4,
-    "scalar_duration": 10,
-    "relative_strength": 8,
+    "decay": 0.5,
+    "scalar_duration": 0.1,
+    "relative_strength": 2,
 
     # Target Settings
-    "target_setting": "ON", # "ON" or "OFF"
+    "target_setting": "OFF", # "ON" or "OFF"
     "target_speed_number": 0.2,
 
     # Seeker Population Settings
@@ -34,7 +34,7 @@ settings = {
 
     # Explorer Population Settings
     "explorer_population": 20,
-    "explorer_speed_number": 0.1,
+    "explorer_speed_number": 0.05,
     "explorer_com_number": 2,
     "explorer_repulsion_number": 1.9,
     "explorer_battery_number": 1,
@@ -43,7 +43,7 @@ settings = {
     "explorer_memory_duration": 0.5,
 
     # Isocontour Population Settings
-    "isocontour_population": 5,
+    "isocontour_population": 0,
     "iso_speed_number": 0.1,
     "iso_com_number": 1.5,
     "iso_seeking_repulsion_number": 0.1,

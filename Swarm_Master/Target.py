@@ -92,24 +92,14 @@ class Target():
             bounding_vector[1] = 1
         else:
             bounding_vector[1] = 0
-        
-        # Normalize the repulsion vector if it exists
-        if bounding_vector[0] != 0 or bounding_vector[1] != 0:
-            magnitude = np.linalg.norm(bounding_vector)
-      
-            self.repulsion_vector = [bounding_vector[0]/magnitude, 
-                                     bounding_vector[1]/magnitude]
-        else: 
-            self.repulsion_vector = [0, 0]
+
+        self.repulsion_vector = self.normalize(bounding_vector)
         
         return self.repulsion_vector
 
     def random_walk(self):
         random_vector_unnormalized = [random.uniform(-1, 1), random.uniform(-1, 1)]
-        random_vector_magnitude = np.linalg.norm(random_vector_unnormalized)
-        self.random_vector = [random_vector_unnormalized[0]/random_vector_magnitude, 
-                              random_vector_unnormalized[1]/random_vector_magnitude]
-        # print("Random vector: {0}".format(self.random_vector))
+        self.random_vector = self.normalize(random_vector_unnormalized)
         return self.random_vector
     
     def circle(self):
@@ -126,6 +116,13 @@ class Target():
         self.measurement = env.scalar(self.position[0], self.position[1])
         return self.measurement
 
+    def normalize(self, vector):
+        magnitude = np.linalg.norm(vector)
+        if magnitude != 0:
+            return [vector[0]/magnitude, vector[1]/magnitude]
+        else:
+            return [0, 0]
+        
     def update(self, env):
         self.motor()
         self.move(env)

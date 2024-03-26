@@ -9,10 +9,6 @@ from Target import Target
 scalar_function = {
     1: scalar_library.scalar_1,
     2: scalar_library.scalar_2,
-    3: scalar_library.scalar_3,
-    4: scalar_library.scalar_4,
-    5: scalar_library.scalar_5,
-    6: scalar_library.scalar_6,
 }
 
 class Env():
@@ -64,11 +60,8 @@ class Env():
     def update_scalar(self, current_time):
         tar_pos_x = self.target.position[0]
         tar_pos_y = self.target.position[1]
-        timestamp = current_time
-        elapsed_time = current_time-timestamp
-        decay_factor = (self.decay ** (elapsed_time + self.dt)) * self.dt
-        new_scalar = lambda x, y: scalar_function[set.settings['scalar']](x, y, center_x=tar_pos_x, center_y=tar_pos_y)
-        new_scalar_decayed = lambda x, y: new_scalar(x, y) * decay_factor
+        new_scalar = lambda x, y, current_time: scalar_function[set.settings['scalar']](x, y, center_x=tar_pos_x, center_y=tar_pos_y, current_time=current_time)
+        new_scalar_decayed = lambda x, y, current_time: new_scalar(x, y, current_time)
         self.env_hist.append(new_scalar_decayed)
 
         current_scalar = lambda x, y: scalar_function[set.settings['scalar']](x-tar_pos_x, y-tar_pos_y)
@@ -77,7 +70,7 @@ class Env():
             self.env_hist.pop(0)
 
         # Define the scalar function as the sum of the updated history and the current scalar
-        self.scalar = lambda x, y: sum(scalar_func(x, y) for scalar_func in self.env_hist) + self.target_strength*current_scalar(x, y)
+        self.scalar = lambda x, y: sum(scalar_func(x, y, current_time) for scalar_func in self.env_hist) + self.target_strength*current_scalar(x, y)
 
         return self.scalar
     
