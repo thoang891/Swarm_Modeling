@@ -9,7 +9,7 @@ settings = {
     "iterations": 1000,
 
     # Environment Settings
-    "map_size": 30,
+    "map_size": 40,
     "external_force_magnitude": 0,
     "fidelity": 200,
     "scalar": 2,
