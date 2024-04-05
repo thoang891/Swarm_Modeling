@@ -5,7 +5,7 @@ from datetime import datetime
 
 def experiment_setup():
     # Parameters for experiments
-    population = 2
+    population = 5
 
     # Create a empty list to define experiments
     experiments = []
@@ -39,9 +39,6 @@ def run_experiments(experiments=experiment_setup()):
         with open(settings_file, 'r') as file:
             settings_content = file.read()
 
-        #print the settings
-        print(settings_content)
-
         for key, value in experiment.items():
             start_index = settings_content.find("{}".format(key))
             end_index = settings_content.find(',', start_index)
@@ -51,8 +48,6 @@ def run_experiments(experiments=experiment_setup()):
         # write the modified settings content to the settings file
         with open(settings_file, 'w') as file:
             file.write(settings_content)
-
-        print(settings_content)
 
         # Run main.py
         os.system('python main.py')

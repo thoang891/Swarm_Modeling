@@ -6,7 +6,7 @@ settings = {
     "animation": False, # True or False
     "animation_delay": 0.01,
     "timestep": 0.1,
-    "iterations": 1000,
+    "iterations": 100,
 
     # Environment Settings
     "map_size": 30,
