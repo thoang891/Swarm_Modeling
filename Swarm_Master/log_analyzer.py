@@ -122,7 +122,7 @@ def analyze_seekers(folder_path, buoy_log, settings):
 
     seeker_df = pd.DataFrame(columns=['Time', 'ID', 'x', 'y', 'u', 'v'])
 
-    Proximity_Threshold = 0.05
+    Proximity_Threshold = 0.1
     Ns = int(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0]) # Number of seekers
     Speed_Seeker = float(settings_df[settings_df['Setting'] == 
                                      'seeker_speed_number']['Value'].values[0]) # Speed number of seekers
@@ -466,11 +466,51 @@ def set_radius(number, map_size, N):
     radius = number*np.sqrt(((map_size*2)**2)/(N*np.pi))
     return radius
 
+def analyze_experiment(folder_path, swarm_analysis_path, seeker_analysis_path, settings_path):
+    swarm_df = pd.read_csv(swarm_analysis_path)
+    seeker_df = pd.read_csv(seeker_analysis_path)
+    settings_df = pd.read_csv(settings_path)
+    
+    # Get number of seekers and explorers from settings
+    seeker_population = float(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0])
+    explorer_population = float(settings_df[settings_df['Setting'] == 'explorer_population']['Value'].values[0])
+    
+    # Calculate Heterogeneity Parameter calculated as number of explorers divided by total population
+    heterogeneity = explorer_population / (seeker_population + explorer_population)
+    
+    # Calculate Time Averaged Accuracy
+    time_averaged_accuracy = swarm_df['Accuracy'].mean()
+    
+    # Calculate Total Energy Consumption indicated by Remaining Non-Dimensional Battery
+    final_battery = swarm_df['Non-Dimensional Battery'].iloc[-1]
+    
+    # Calculate Best Heading/Bearing Correlation
+    # Get total count of Heading/Bearing Correlation equal to or greater than 0.8
+    heading_bearing_df = seeker_df[seeker_df['Heading-Bearing Correlation'] >= 0.8]
+    best_heading_bearing = heading_bearing_df['Time'].count()
+    print("Best Heading/Bearing Correlation:", best_heading_bearing)
+    normalized_best_heading_bearing = best_heading_bearing/len(seeker_df)
+    
+    # Write values to a new csv file called experimental data
+    experiment_data = {'Time Averaged Accuracy': [time_averaged_accuracy],
+                        'Total Energy Consumption': [final_battery],
+                        'Best Heading/Bearing Correlation': [normalized_best_heading_bearing],
+                        'Heterogeneity Parameter': [heterogeneity],
+                        'Seekers': [seeker_population],
+                        'Explorers': [explorer_population]
+                        }
+    
+    experiment_df = pd.DataFrame(experiment_data)
+    experiment_csv = os.path.join(folder_path, 'experiment_data.csv')
+    experiment_df.to_csv(experiment_csv, index=False)
+    
 # Function to analyze log data in a specific folder
 def analyze_log_folder(folder_path):
     print("Analyzing logs in folder:", folder_path)
     buoy_log_path = os.path.join(folder_path, "buoy_log.csv")
     settings_path = os.path.join(folder_path, "settings.csv")
+    swarm_analysis_path = os.path.join(folder_path, "swarm_analysis.csv")
+    seeker_analysis_path = os.path.join(folder_path, "seeker_analysis.csv")
     
     # Check if buoy_log.csv exists in the folder
     if not os.path.exists(buoy_log_path):
@@ -488,6 +528,9 @@ def analyze_log_folder(folder_path):
 
     print("Analyzing isocontour data...")
     analyze_isocontours(folder_path, buoy_log_path, settings_path)
+    
+    print("Analyzing experiment data...")
+    analyze_experiment(folder_path, swarm_analysis_path, seeker_analysis_path, settings_path)
 
     print("Analysis complete for folder:", folder_path)
 

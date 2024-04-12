@@ -6,10 +6,10 @@ settings = {
     "animation": False, # True or False
     "animation_delay": 0.01,
     "timestep": 0.1,
-    "iterations": 100,
+    "iterations": 2000,
 
     # Environment Settings
-    "map_size": 30,
+    "map_size": 25,
     "external_force_magnitude": 0,
     "fidelity": 200,
     "scalar": 2,
@@ -20,10 +20,10 @@ settings = {
 
     # Target Settings
     "target_setting": "ON", # "ON" or "OFF"
-    "target_speed_number": 0.2,
+    "target_speed_number": 0.25,
 
     # Seeker Population Settings
-    "seeker_population": 0,
+    "seeker_population": 5,
     "seeker_speed_number": 0.1,
     "seeker_com_number": 2,
     "seeker_repulsion_number": 0.1,
@@ -33,7 +33,7 @@ settings = {
     "seeker_memory_duration": 1,
 
     # Explorer Population Settings
-    "explorer_population": 0,
+    "explorer_population": 45,
     "explorer_speed_number": 0.1,
     "explorer_com_number": 2,
     "explorer_repulsion_number": 1.9,
