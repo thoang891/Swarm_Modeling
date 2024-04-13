@@ -5,7 +5,7 @@ from datetime import datetime
 
 def experiment_setup():
     # Parameters for experiments
-    population = 5
+    population = 50
 
     # Create a empty list to define experiments
     experiments = []

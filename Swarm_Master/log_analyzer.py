@@ -203,6 +203,18 @@ def analyze_seekers(folder_path, buoy_log, settings):
         # time_on_target_file = os.path.join(folder_path, 'Time_on_Target.txt')
         with open(seeker_time_file, 'a') as file:
             file.write("No rows found where Non-Dimensional Target Proximity is less than Proximity Threshold.\n")
+            
+    # Write convergence data to convergence_data.csv
+    convergence_data = {'Proximity Threshold': [Proximity_Threshold],
+                        'Time to Target': [first_time],
+                        'Time on Target': [time_on_target_percentage],
+                        'Average Time on Target': [average_time_on_target],
+                        'Adjusted Time on Target': [adjusted_time_on_target]
+                        }
+    
+    convergence_df = pd.DataFrame(convergence_data)
+    convergence_csv = os.path.join(folder_path, 'convergence_data.csv')
+    convergence_df.to_csv(convergence_csv, index=False)
 
     # Heading-Bearing Correlation
     # Normalize the error x and error y vectors
@@ -493,7 +505,7 @@ def analyze_experiment(folder_path, swarm_analysis_path, seeker_analysis_path, s
     
     # Write values to a new csv file called experimental data
     experiment_data = {'Time Averaged Accuracy': [time_averaged_accuracy],
-                        'Total Energy Consumption': [final_battery],
+                        'Total Energy Remaining': [final_battery],
                         'Best Heading/Bearing Correlation': [normalized_best_heading_bearing],
                         'Heterogeneity Parameter': [heterogeneity],
                         'Seekers': [seeker_population],
