@@ -124,6 +124,8 @@ def analyze_seekers(folder_path, buoy_log, settings):
 
     Proximity_Threshold = 0.1
     Ns = int(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0]) # Number of seekers
+    Ne = int(settings_df[settings_df['Setting'] == 'explorer_population']['Value'].values[0]) # Number of explorers
+    
     Speed_Seeker = float(settings_df[settings_df['Setting'] == 
                                      'seeker_speed_number']['Value'].values[0]) # Speed number of seekers
     Speed_Target = float(settings_df[settings_df['Setting'] == 
@@ -209,7 +211,9 @@ def analyze_seekers(folder_path, buoy_log, settings):
                         'Time to Target': [first_time],
                         'Time on Target': [time_on_target_percentage],
                         'Average Time on Target': [average_time_on_target],
-                        'Adjusted Time on Target': [adjusted_time_on_target]
+                        'Adjusted Time on Target': [adjusted_time_on_target],
+                        'Seekers': [Ns],
+                        'Explorers': [Ne]
                         }
     
     convergence_df = pd.DataFrame(convergence_data)

@@ -2,6 +2,7 @@ import os
 import shutil
 import importlib
 from datetime import datetime
+import experiment_analyzer
 
 def experiment_setup():
     # Parameters for experiments
@@ -92,3 +93,4 @@ if __name__ == '__main__':
     os.system('./clean_logs.sh')
     run_experiments()
     move_logs()
+    experiment_analyzer.main()
