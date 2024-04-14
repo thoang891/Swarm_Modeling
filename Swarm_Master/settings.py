@@ -36,7 +36,7 @@ settings = {
     "explorer_population": 0,
     "explorer_speed_number": 0.1,
     "explorer_com_number": 2,
-    "explorer_repulsion_number": 1.9,
+    "explorer_repulsion_number": 1,
     "explorer_battery_number": 1,
     "explorer_gps_accuracy": 1,
     "explorer_sensor_accuracy": 3,

@@ -6,7 +6,7 @@ import experiment_analyzer
 
 def experiment_setup():
     # Parameters for experiments
-    population = 50
+    population = 25
 
     # Create a empty list to define experiments
     experiments = []
