@@ -1,15 +1,16 @@
 import numpy as np
 import random
-
-# Target currently is generating a random walk and a repulsion vector
-# Target is generated at a random position within the bounds of the environment
+import settings as set
 
 class Target():
 
     def __init__(self, timestep = 0.1, bounds = 10, speed_number=1, inertia=0.5):
         self.ID = "Target" 
-        self.position = [random.uniform(-bounds, bounds), 
-                        random.uniform(-bounds, bounds)]
+        if set.settings["target_position_random"]: 
+            self.position = [random.uniform(-bounds, bounds), 
+                            random.uniform(-bounds, bounds)]
+        else:
+            self.position = [0,0]
         self.bounds = bounds
         self.speed_number = speed_number
         self.inertia = inertia
@@ -107,9 +108,14 @@ class Target():
 
         # Normalize the circle vector
         magnitude = np.linalg.norm(circle_vector)
-        self.circle_vector = [circle_vector[0]/magnitude, 
-                              circle_vector[1]/magnitude]
 
+        if magnitude != 0:
+            self.circle_vector = [circle_vector[0]/magnitude, 
+                                  circle_vector[1]/magnitude]
+            
+        else:
+            self.circle_vector = [0, 0]
+        
         return self.circle_vector
     
     def measure(self, env):

@@ -125,7 +125,10 @@ def analyze_seekers(folder_path, buoy_log, settings):
     Proximity_Threshold = 0.1
     Ns = int(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0]) # Number of seekers
     Ne = int(settings_df[settings_df['Setting'] == 'explorer_population']['Value'].values[0]) # Number of explorers
-    
+    Ni = int(settings_df[settings_df['Setting'] == 'isocontour_population']['Value'].values[0]) # Number of isocontours
+
+    heterogeneity = Ne / (Ns + Ne + Ni)
+
     Speed_Seeker = float(settings_df[settings_df['Setting'] == 
                                      'seeker_speed_number']['Value'].values[0]) # Speed number of seekers
     Speed_Target = float(settings_df[settings_df['Setting'] == 
@@ -217,8 +220,10 @@ def analyze_seekers(folder_path, buoy_log, settings):
                         'Time on Target': [time_on_target_percentage],
                         'Average Time on Target': [average_time_on_target],
                         'Adjusted Time on Target': [adjusted_time_on_target],
+                        'heterogeneity': [heterogeneity],
                         'Seekers': [Ns],
-                        'Explorers': [Ne]
+                        'Explorers': [Ne],
+                        'Isocontours': [Ni]
                         }
     
     convergence_df = pd.DataFrame(convergence_data)
@@ -347,6 +352,28 @@ def analyze_coverage(folder_path, buoy_log, settings):
     # Calculate Non-Dimensional Area Coverage
     coverage_composite_df['Non-Dimensional Area Coverage'] = (coverage_composite_df['Sum Area Coverage'] / bounded_area).round(3)
 
+    # Get Time Averaged Non-Dimensional Area Coverage
+    time_averaged_coverage = None
+    time_averaged_coverage = coverage_composite_df['Non-Dimensional Area Coverage'].mean()
+
+    # Population Data
+    seeker_population = int(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0])
+    explorer_population = int(settings_df[settings_df['Setting'] == 'explorer_population']['Value'].values[0])
+    isocontour_population = int(settings_df[settings_df['Setting'] == 'isocontour_population']['Value'].values[0])
+    heterogeneity = explorer_population / (seeker_population + explorer_population + isocontour_population)
+
+    # Write Time Averaged Non-Dimensional Area Coverage to a coverage_data.csv file
+    coverage_data = {'Time Averaged Non-Dimensional Area Coverage': [time_averaged_coverage],
+                     'heterogeneity': [heterogeneity],
+                     'seekers': [seeker_population],
+                     'explorers': [explorer_population],
+                     'isocontours': [isocontour_population]
+                     }
+    
+    coverage_data_df = pd.DataFrame(coverage_data)
+    coverage_data_csv = os.path.join(folder_path, 'coverage_data.csv')
+    coverage_data_df.to_csv(coverage_data_csv, index=False)
+
     # Write the DataFrame to a new CSV file
     coverage_csv = os.path.join(folder_path, 'coverage_analysis.csv')
     coverage_df.to_csv(coverage_csv, index=False)
@@ -442,6 +469,34 @@ def analyze_isocontours(folder_path, buoy_log, settings):
     # Calculate Sum Linear Coverage/Perimeter for each time
     isocontour_performance_df['Sum Linear Coverage/Perimeter'] = (isocontour_performance_df['Sum Linear Coverage'] /
                                                                 isocontour_performance_df['Perimeter']).round(3)
+    
+    # Get time averaged values for both Average Abs(zi-z_goal)/range and Sum Linear Coverage/Perimeter
+    time_averaged_accuracy = None
+    time_averaged_spreading = None
+    time_averaged_accuracy = isocontour_performance_df['Average Abs(zi-z_goal)/range'].mean()
+    time_averaged_spreading = isocontour_performance_df['Sum Linear Coverage/Perimeter'].mean()
+
+    # Population Data
+    # Get number of seekers, explorers, and isocontour from settings
+    seeker_population = int(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0])
+    explorer_population = int(settings_df[settings_df['Setting'] == 'explorer_population']['Value'].values[0])
+    isocontour_population = int(settings_df[settings_df['Setting'] == 'isocontour_population']['Value'].values[0])
+    
+    # Calculate Heterogeneity Parameter calculated as number of explorers divided by total population
+    heterogeneity = explorer_population / (seeker_population + explorer_population + isocontour_population)
+
+    # Write these composite values to a isocontour_experiment_data.csv
+    isocontour_experiment_data = {'Time Averaged Accuracy': [time_averaged_accuracy],
+                                  'Time Averaged Spreading': [time_averaged_spreading],
+                                  'Heterogeneity': [heterogeneity],
+                                  'seekers': [seeker_population],
+                                  'explorers': [explorer_population],
+                                  'isocontours': [isocontour_population],
+                                 }
+    
+    isocontour_experiment_df = pd.DataFrame(isocontour_experiment_data)
+    isocontour_experiment_csv = os.path.join(folder_path, 'isocontour_experiment_data.csv')
+    isocontour_experiment_df.to_csv(isocontour_experiment_csv, index=False)
 
     # Write the DataFrames to a new CSV file
     isocontour_csv = os.path.join(folder_path, 'isocontour_analysis.csv')
@@ -493,12 +548,13 @@ def analyze_experiment(folder_path, swarm_analysis_path, seeker_analysis_path, s
     settings_df = pd.read_csv(settings_path)
     
     # Get number of seekers and explorers from settings
-    seeker_population = float(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0])
-    explorer_population = float(settings_df[settings_df['Setting'] == 'explorer_population']['Value'].values[0])
+    seeker_population = int(settings_df[settings_df['Setting'] == 'seeker_population']['Value'].values[0])
+    explorer_population = int(settings_df[settings_df['Setting'] == 'explorer_population']['Value'].values[0])
+    isocontour_population = int(settings_df[settings_df['Setting'] == 'isocontour_population']['Value'].values[0])
     
     # Calculate Heterogeneity Parameter calculated as number of explorers divided by total population
-    heterogeneity = explorer_population / (seeker_population + explorer_population)
-    
+    heterogeneity = explorer_population / (seeker_population + explorer_population + isocontour_population)
+  
     # Calculate Time Averaged Accuracy
     time_averaged_accuracy = swarm_df['Accuracy'].mean()
     
@@ -516,9 +572,10 @@ def analyze_experiment(folder_path, swarm_analysis_path, seeker_analysis_path, s
     experiment_data = {'Time Averaged Accuracy': [time_averaged_accuracy],
                         'Total Energy Remaining': [final_battery],
                         'Best Heading/Bearing Correlation': [normalized_best_heading_bearing],
-                        'Heterogeneity Parameter': [heterogeneity],
+                        'Heterogeneity': [heterogeneity],
                         'Seekers': [seeker_population],
-                        'Explorers': [explorer_population]
+                        'Explorers': [explorer_population],
+                        'Isocontours': [isocontour_population],
                         }
     
     experiment_df = pd.DataFrame(experiment_data)

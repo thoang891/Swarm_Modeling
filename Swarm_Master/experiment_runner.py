@@ -6,7 +6,7 @@ import experiment_analyzer
 
 def experiment_setup():
     # Parameters for experiments
-    population = 5
+    population = 3
 
     # Create a empty list to define experiments
     experiments = []
@@ -14,13 +14,15 @@ def experiment_setup():
     # populate experiments dictionary with experiment name as key and experiment parameters as value
     for i in range(population):
 
-        # Define the number of seekers and explorers
-        Ns = population - i
+        # Define the number of seekers and explorers and isocontours
+        Ni = population - i
         Ne = i
+        Ns = 0
 
         experiment = {
             'seeker_population': Ns,
             'explorer_population': Ne,
+            'isocontour_population': Ni,
         }
 
         # Append the experiment to the list of experiments
