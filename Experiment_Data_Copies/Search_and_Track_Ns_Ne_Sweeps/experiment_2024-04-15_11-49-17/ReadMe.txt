@@ -1,0 +1,1 @@
+N=5 with Ns and Ne

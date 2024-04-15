@@ -1,0 +1,26 @@
+Summary of Experiments:
+Experiment 1: {'seeker_population': 25, 'explorer_population': 0}
+Experiment 2: {'seeker_population': 24, 'explorer_population': 1}
+Experiment 3: {'seeker_population': 23, 'explorer_population': 2}
+Experiment 4: {'seeker_population': 22, 'explorer_population': 3}
+Experiment 5: {'seeker_population': 21, 'explorer_population': 4}
+Experiment 6: {'seeker_population': 20, 'explorer_population': 5}
+Experiment 7: {'seeker_population': 19, 'explorer_population': 6}
+Experiment 8: {'seeker_population': 18, 'explorer_population': 7}
+Experiment 9: {'seeker_population': 17, 'explorer_population': 8}
+Experiment 10: {'seeker_population': 16, 'explorer_population': 9}
+Experiment 11: {'seeker_population': 15, 'explorer_population': 10}
+Experiment 12: {'seeker_population': 14, 'explorer_population': 11}
+Experiment 13: {'seeker_population': 13, 'explorer_population': 12}
+Experiment 14: {'seeker_population': 12, 'explorer_population': 13}
+Experiment 15: {'seeker_population': 11, 'explorer_population': 14}
+Experiment 16: {'seeker_population': 10, 'explorer_population': 15}
+Experiment 17: {'seeker_population': 9, 'explorer_population': 16}
+Experiment 18: {'seeker_population': 8, 'explorer_population': 17}
+Experiment 19: {'seeker_population': 7, 'explorer_population': 18}
+Experiment 20: {'seeker_population': 6, 'explorer_population': 19}
+Experiment 21: {'seeker_population': 5, 'explorer_population': 20}
+Experiment 22: {'seeker_population': 4, 'explorer_population': 21}
+Experiment 23: {'seeker_population': 3, 'explorer_population': 22}
+Experiment 24: {'seeker_population': 2, 'explorer_population': 23}
+Experiment 25: {'seeker_population': 1, 'explorer_population': 24}
