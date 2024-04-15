@@ -4,12 +4,15 @@ import scalar_library
 
 from Target import Target
 
+import inspect
+
+import os
 # Library for scalar functions
 
 scalar_function = {
     1: scalar_library.scalar_1,
-    2: scalar_library.scalar_2,
-    3: scalar_library.scalar_3,
+    # 2: scalar_library.scalar_2,
+    # 3: scalar_library.scalar_3,
 }
 
 class Env():
@@ -37,8 +40,8 @@ class Env():
             self.target.behv()
 
     @staticmethod
-    def scalar(x, y): 
-        z = scalar_function[set.settings['scalar']](x, y)
+    def scalar(x, y, timestamp=0): 
+        z = scalar_function[set.settings['scalar']](x, y, timestamp=timestamp)
         return z
             
     def external_force(self, x, y):
@@ -61,17 +64,24 @@ class Env():
     def update_scalar(self, current_time):
         tar_pos_x = self.target.position[0]
         tar_pos_y = self.target.position[1]
-        new_scalar = lambda x, y, current_time: scalar_function[set.settings['scalar']](x, y, center_x=tar_pos_x, center_y=tar_pos_y, current_time=current_time)
-        new_scalar_decayed = lambda x, y, current_time: new_scalar(x, y, current_time)
+        timestamp = current_time
+
+        new_scalar = lambda x, y, current_time: scalar_function[set.settings['scalar']](x, y, 
+                                                                                        timestamp=timestamp, 
+                                                                                        center_x=tar_pos_x, 
+                                                                                        center_y=tar_pos_y, 
+                                                                                        current_time=current_time)
+        new_scalar_decayed = lambda x, y, current_time: new_scalar(x, y, current_time=current_time)
+
         self.env_hist.append(new_scalar_decayed)
 
-        current_scalar = lambda x, y: scalar_function[set.settings['scalar']](x-tar_pos_x, y-tar_pos_y)
+        current_scalar = lambda x, y: scalar_function[set.settings['scalar']](x-tar_pos_x, y-tar_pos_y, timestamp=0)
 
         if len(self.env_hist) > self.scalar_duration/self.dt:
             self.env_hist.pop(0)
 
         # Define the scalar function as the sum of the updated history and the current scalar
-        self.scalar = lambda x, y: sum(scalar_func(x, y, current_time) for scalar_func in self.env_hist) + self.target_strength*current_scalar(x, y)
+        self.scalar = lambda x, y: sum(scalar_func(x, y, current_time) for scalar_func in self.env_hist) + self.relative_strength*current_scalar(x, y)
 
         return self.scalar
     
@@ -84,7 +94,7 @@ class Env():
         strength = 0
 
         for i in range(int(iters)):
-            strength += decay ** (1 + i*timestep) * timestep
+            strength += decay ** (i*timestep)
 
         self.target_strength = strength * self.relative_strength
 
@@ -95,6 +105,6 @@ class Env():
             if self.target_strength is None:
                 self.calculate_target_strength()
 
-            self.target.update(self)
             self.update_scalar(current_time)
             self.update_z_space()
+            self.target.update(self)

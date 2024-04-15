@@ -101,6 +101,8 @@ class Swarm():
                                     speed=self.isocontour_speed, battery=self.isocontour_battery,
                                     iso_thresh=self.isocontour_threshold, iso_goal=self.isocontour_goal,
                                     behv="isocontour", env=self.env, inertia=self.inertia))
+                
+        self.env.update(current_time=0)
 
         for buoy in self.swarm: # set initial measurement for buoys
             self.measure()
