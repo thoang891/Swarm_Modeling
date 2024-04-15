@@ -3,7 +3,7 @@
 
 settings = {
     # Animation and Iteration Settings
-    "animation": True, # True or False
+    "animation": False, # True or False
     "animation_delay": 0.01,
     "timestep": 0.1,
     "iterations": 1500,
@@ -15,14 +15,14 @@ settings = {
     "scalar": 1,
     "inertia": 0.15,
     "decay": 0.7,
-    "amp": 0.1,
+    "amp": 0.2,
     "sigma": 5,
-    "scalar_duration": 6,
+    "scalar_duration": 10,
     "relative_strength": 0.6,
 
     # Target Settings
     "target_setting": "ON", # "ON" or "OFF"
-    "target_speed_number": 0,
+    "target_speed_number": 0.2,
 
     # Seeker Population Settings
     "seeker_population": 0,
@@ -35,7 +35,7 @@ settings = {
     "seeker_memory_duration": 1,
 
     # Explorer Population Settings
-    "explorer_population": 10,
+    "explorer_population": 0,
     "explorer_speed_number": 0.1,
     "explorer_com_number": 2,
     "explorer_repulsion_number": 1,
@@ -45,7 +45,7 @@ settings = {
     "explorer_memory_duration": 0.5,
 
     # Isocontour Population Settings
-    "isocontour_population": 15,
+    "isocontour_population": 0,
     "iso_speed_number": 0.1,
     "iso_com_number": 2,
     "iso_seeking_repulsion_number": 0.1,

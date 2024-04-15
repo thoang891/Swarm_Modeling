@@ -167,6 +167,11 @@ def analyze_seekers(folder_path, buoy_log, settings):
 
     seeker_df['Non-Dimensional Target Proximity'] = (seeker_df['Distance to Target'] / 
                                                      np.sqrt(bounded_area)).round(3)
+    
+    first_time = None
+    time_on_target_percentage = None
+    average_time_on_target = None
+    adjusted_time_on_target = None
 
     # Report the first first time Non-Dimenionsal Target Proximity is less than Proximity_Threshold if it exists
     filtered_df = seeker_df[seeker_df['Non-Dimensional Target Proximity'] < Proximity_Threshold]
