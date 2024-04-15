@@ -5,12 +5,12 @@ import settings as set
 import os
 
 def scalar_1(x, y, timestamp, center_x=0, center_y=0, current_time=0):
-    amp = 0.1
-    sig = 5
+    amp = set.settings['amp']
+    sigma = set.settings['sigma']
     timestamp = timestamp
     decay = set.settings['decay']
-    dt = set.settings['timestep']
-    z = (decay ** (current_time-timestamp)) * amp * np.exp(-((x-center_x)**2 + (y-center_y)**2) / (2 * (sig * (0.0001 + current_time - timestamp)) **2))
+    # dt = set.settings['timestep']
+    z = (decay ** (1 + current_time - timestamp)) * amp * np.exp(-((x-center_x)**2 + (y-center_y)**2) / (2 * (sigma * (0.0001 + current_time - timestamp)) **2))
     return z
 
 # def scalar_2(x, y, center_x=0, center_y=0, current_time=0):

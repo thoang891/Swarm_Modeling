@@ -28,8 +28,8 @@ class Env():
         self.z_space = self.scalar(self.x_space, self.y_space)
         self.env_hist = []
         self.target_setting = Target_Setting
-        self.target_strength = None
-        self.relative_strength = relative_strength
+        # self.target_strength = None
+        # self.relative_strength = relative_strength
         self.decay = decay
         self.scalar_duration = scalar_duration
         if self.target_setting == "ON":
@@ -81,29 +81,29 @@ class Env():
             self.env_hist.pop(0)
 
         # Define the scalar function as the sum of the updated history and the current scalar
-        self.scalar = lambda x, y: sum(scalar_func(x, y, current_time) for scalar_func in self.env_hist) + self.relative_strength*current_scalar(x, y)
+        self.scalar = lambda x, y: sum(scalar_func(x, y, current_time) for scalar_func in self.env_hist) + current_scalar(x, y)
 
         return self.scalar
     
-    def calculate_target_strength(self):
-        decay = self.decay
-        duration = self.scalar_duration
-        timestep = self.dt
+    # def calculate_target_strength(self):
+    #     decay = self.decay
+    #     duration = self.scalar_duration
+    #     timestep = self.dt
 
-        iters = duration/timestep
-        strength = 0
+    #     iters = duration/timestep
+    #     strength = 0
 
-        for i in range(int(iters)):
-            strength += decay ** (i*timestep)
+    #     for i in range(int(iters)):
+    #         strength += decay ** (i*timestep)
 
-        self.target_strength = strength * self.relative_strength
+    #     self.target_strength = strength * self.relative_strength
 
-        return self.target_strength
+    #     return self.target_strength
 
     def update(self, current_time):
         if self.target_setting == "ON":
-            if self.target_strength is None:
-                self.calculate_target_strength()
+            # if self.target_strength is None:
+            #     self.calculate_target_strength()
 
             self.update_scalar(current_time)
             self.update_z_space()

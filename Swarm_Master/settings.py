@@ -14,16 +14,18 @@ settings = {
     "fidelity": 200,
     "scalar": 1,
     "inertia": 0.15,
-    "decay": 0.8,
+    "decay": 0.7,
+    "amp": 0.1,
+    "sigma": 5,
     "scalar_duration": 6,
     "relative_strength": 0.6,
 
     # Target Settings
     "target_setting": "ON", # "ON" or "OFF"
-    "target_speed_number": 0.2,
+    "target_speed_number": 0,
 
     # Seeker Population Settings
-    "seeker_population": 5,
+    "seeker_population": 0,
     "seeker_speed_number": 0.1,
     "seeker_com_number": 2,
     "seeker_repulsion_number": 0.1,
@@ -33,7 +35,7 @@ settings = {
     "seeker_memory_duration": 1,
 
     # Explorer Population Settings
-    "explorer_population": 25,
+    "explorer_population": 10,
     "explorer_speed_number": 0.1,
     "explorer_com_number": 2,
     "explorer_repulsion_number": 1,
@@ -43,16 +45,16 @@ settings = {
     "explorer_memory_duration": 0.5,
 
     # Isocontour Population Settings
-    "isocontour_population": 0,
+    "isocontour_population": 15,
     "iso_speed_number": 0.1,
-    "iso_com_number": 1.5,
+    "iso_com_number": 2,
     "iso_seeking_repulsion_number": 0.1,
     "iso_spreading_repulsion_number": 1.3,
     "iso_battery_number": 1,
     "iso_gps_accuracy": 1,
     "iso_sensor_accuracy": 3,
     "iso_memory_duration": 2,
-    "isocontour_goal": 0.2,
+    "isocontour_goal": 0.5,
     "isocontour_threshold": 0.01,
 }
 
