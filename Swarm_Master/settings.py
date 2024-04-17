@@ -8,7 +8,7 @@ settings = {
     "animation": False, # True or False
     "animation_delay": 0.01,
     "timestep": 0.1,
-    "iterations": 15,
+    "iterations": 1500,
 
     # Environment Settings
     "map_size": 25,
@@ -24,8 +24,8 @@ settings = {
 
     # Target Settings
     "target_setting": "ON", # "ON" or "OFF"
-    "target_speed_number": 0,
-    "target_position_random": False, # True or False
+    "target_speed_number": 0.2,
+    "target_position_random": True, # True or False
 
     # Seeker Population Settings
     "seeker_population": 0,

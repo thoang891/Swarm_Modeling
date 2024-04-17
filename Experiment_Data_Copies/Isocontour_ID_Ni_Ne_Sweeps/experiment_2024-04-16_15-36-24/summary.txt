@@ -1,0 +1,6 @@
+Summary of Experiments:
+Experiment 1: {'seeker_population': 0, 'explorer_population': 0, 'isocontour_population': 5}
+Experiment 2: {'seeker_population': 0, 'explorer_population': 1, 'isocontour_population': 4}
+Experiment 3: {'seeker_population': 0, 'explorer_population': 2, 'isocontour_population': 3}
+Experiment 4: {'seeker_population': 0, 'explorer_population': 3, 'isocontour_population': 2}
+Experiment 5: {'seeker_population': 0, 'explorer_population': 4, 'isocontour_population': 1}

@@ -1,0 +1,1 @@
+N=50 with Ni and Ne sweep for static isocontour ID
