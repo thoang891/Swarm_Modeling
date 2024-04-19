@@ -5,7 +5,7 @@ import random
 
 settings = {
     # Animation and Iteration Settings
-    "animation": False, # True or False
+    "animation": True, # True or False
     "animation_delay": 0.01,
     "timestep": 0.1,
     "iterations": 1500,
@@ -28,7 +28,7 @@ settings = {
     "target_position_random": True, # True or False
 
     # Seeker Population Settings
-    "seeker_population": 0,
+    "seeker_population": 5,
     "seeker_speed_number": 0.1,
     "seeker_com_number": 2,
     "seeker_repulsion_number": 0.1,
@@ -38,7 +38,7 @@ settings = {
     "seeker_memory_duration": 1,
 
     # Explorer Population Settings
-    "explorer_population": 0,
+    "explorer_population": 25,
     "explorer_speed_number": 0.1,
     "explorer_com_number": 2,
     "explorer_repulsion_number": 1,

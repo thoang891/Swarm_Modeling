@@ -47,10 +47,10 @@ class Target():
         self.random_walk()
         self.repulse()
         self.circle()
-
-        self.velocity = [self.A*self.speed*self.random_vector[0] + self.B*self.speed*self.repulsion_vector[0] + self.C*self.speed*self.circle_vector[0], 
-                        self.A*self.speed*self.random_vector[1] + self.B*self.speed*self.repulsion_vector[1] + self.C*self.speed*self.circle_vector[1]]
-        
+        self.velocity = [
+            self.speed * (self.A * self.random_vector[0] + self.B * self.repulsion_vector[0] + self.C * self.circle_vector[0]),
+            self.speed * (self.A * self.random_vector[1] + self.B * self.repulsion_vector[1] + self.C * self.circle_vector[1])
+        ]
         return self.velocity
     
     def set_speed(self):

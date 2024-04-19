@@ -2,8 +2,6 @@ import numpy as np
 import random
 import settings as set
 
-# Buoys are currently spawned in a uniform distribution within the environment
-
 class Buoy():
 
     def __init__(self, id, behv="seeker", speed=2, com_radius=7, 
@@ -144,12 +142,12 @@ class Buoy():
             else:
                 self.isocontour_vector = [0, 0]
 
-            u = (self.A*self.speed*self.local_goal_vector[0] + self.B*self.speed*self.global_goal_vector[0] +
-                self.C*self.speed*self.repulsion_vector[0] + self.D*self.speed*self.random_vector[0] +
-                self.E*self.speed*self.isocontour_vector[0])
-            v = (self.A*self.speed*self.local_goal_vector[1] + self.B*self.speed*self.global_goal_vector[1] +
-                self.C*self.speed*self.repulsion_vector[1] + self.D*self.speed*self.random_vector[1] +
-                self.E*self.speed*self.isocontour_vector[1])
+            u = self.speed*(self.A*self.local_goal_vector[0] + self.B*self.global_goal_vector[0] +
+                            self.C*self.repulsion_vector[0] + self.D*self.random_vector[0] +
+                            self.E*self.isocontour_vector[0])
+            v = self.speed*(self.A*self.local_goal_vector[1] + self.B*self.global_goal_vector[1] +
+                            self.C*self.repulsion_vector[1] + self.D*self.random_vector[1] +
+                            self.E*self.isocontour_vector[1])
             
             self.velocity = [u, v]
             self.update_battery()

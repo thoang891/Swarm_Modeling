@@ -54,9 +54,6 @@ def analyze_swarm(folder_path, buoy_log, settings):
     # Calculate Accuracy in L dimension
     swarm_df['Accuracy'] = (1 - (swarm_df['D_error'] / np.sqrt(bounded_area))).round(3)
 
-    # Calculate Accuracy in L^2 dimension
-    # swarm_df['Accuracy'] = (1 - (swarm_df['D_error']**2 / bounded_area)).round(3)
-
     # Calculate maximum swarm battery in w*h
     battery_nom = 47520
     seeker_battery = float(settings_df[settings_df['Setting'] == 'seeker_battery_number']

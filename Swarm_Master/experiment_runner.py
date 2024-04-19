@@ -11,14 +11,10 @@ def experiment_setup():
     # Create a empty list to define experiments
     experiments = []
 
-    # populate experiments dictionary with experiment name as key and experiment parameters as value
+    # populate experiments dictionary with variable name as key and experiment parameters as value
+    # Key values must exactly match keys in settings.py
     for i in range(population):
 
-        # Define the number of seekers and explorers and isocontours
-        # Ni = population - i
-        # Ne = i
-        # Ns = 0
-        
         Ni = i
         
         for j in range(population - i):
@@ -87,7 +83,6 @@ def create_folder():
     return folder_name
 
 def move_logs():
-   
     # Get the paths to logs folder and experiments folder
     logs_folder = "logs"
     experiments_folder = create_folder()
