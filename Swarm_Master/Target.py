@@ -65,7 +65,7 @@ class Target():
             self.A = A/sum_behv
             self.B = B/sum_behv
             self.C = C/sum_behv
-            return self.A, self.B
+            return self.A, self.B, self.C
 
         A = 1.5 # Random walk
         B = 2 # Repulsion

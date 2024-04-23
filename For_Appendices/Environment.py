@@ -1,11 +1,8 @@
 import numpy as np
 import settings as set
 import scalar_library
-
 from Target import Target
-
 import inspect
-
 import os
 
 # Library for scalar functions

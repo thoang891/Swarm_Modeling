@@ -1,8 +1,6 @@
 # This file contains the settings for the simulation. 
 # The settings are used to configure the simulation environment and the swarm population.
 
-import random
-
 settings = {
     # Animation and Iteration Settings
     "animation": True, # True or False
@@ -13,7 +11,7 @@ settings = {
     # Environment Settings
     "map_size": 25,
     "external_force_magnitude": 0,
-    "fidelity": 200,
+    "fidelity": 500,
     "scalar": 1,
     "inertia": 0.15,
     "decay": 0.7,
@@ -24,11 +22,11 @@ settings = {
 
     # Target Settings
     "target_setting": "ON", # "ON" or "OFF"
-    "target_speed_number": 0.2,
-    "target_position_random": True, # True or False
+    "target_speed_number": 0,
+    "target_position_random": False, # True or False
 
     # Seeker Population Settings
-    "seeker_population": 5,
+    "seeker_population": 0,
     "seeker_speed_number": 0.1,
     "seeker_com_number": 2,
     "seeker_repulsion_number": 0.1,
@@ -38,7 +36,7 @@ settings = {
     "seeker_memory_duration": 1,
 
     # Explorer Population Settings
-    "explorer_population": 25,
+    "explorer_population": 10,
     "explorer_speed_number": 0.1,
     "explorer_com_number": 2,
     "explorer_repulsion_number": 1,
@@ -48,7 +46,7 @@ settings = {
     "explorer_memory_duration": 0.5,
 
     # Isocontour Population Settings
-    "isocontour_population": 0,
+    "isocontour_population": 15,
     "iso_speed_number": 0.1,
     "iso_com_number": 2,
     "iso_seeking_repulsion_number": 0.1,

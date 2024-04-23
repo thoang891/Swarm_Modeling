@@ -7,8 +7,7 @@ class Target():
     def __init__(self, timestep = 0.1, bounds = 10, speed_number=1, inertia=0.5):
         self.ID = "Target" 
         if set.settings["target_position_random"]: 
-            self.position = [random.uniform(-bounds, bounds), 
-                            random.uniform(-bounds, bounds)]
+            self.position = [random.uniform(-bounds, bounds), random.uniform(-bounds, bounds)]
         else:
             self.position = [0,0]
         self.bounds = bounds
@@ -59,7 +58,7 @@ class Target():
             self.A = A/sum_behv
             self.B = B/sum_behv
             self.C = C/sum_behv
-            return self.A, self.B
+            return self.A, self.B, self.C
 
         A = 1.5 # Random walk
         B = 2 # Repulsion
