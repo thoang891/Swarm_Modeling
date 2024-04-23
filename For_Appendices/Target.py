@@ -54,14 +54,14 @@ class Target():
     def behv(self):
         
         def normalize_behavior(A, B, C):
-            sum_behv = sum([A, B])
+            sum_behv = sum([A, B, C])
             self.A = A/sum_behv
             self.B = B/sum_behv
             self.C = C/sum_behv
             return self.A, self.B, self.C
 
-        A = 1.5 # Random walk
-        B = 2 # Repulsion
+        A = 0.5 # Random walk
+        B = 1 # Repulsion
         C = 1 # Circle
         normalize_behavior(A, B, C)
 
