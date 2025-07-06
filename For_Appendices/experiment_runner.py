@@ -1,3 +1,13 @@
+"""
+Author: Thinh Hoang
+
+Description: This file contains the experiment runner script that runs a series of experiments by modifying the settings file and running the main script. The script defines a list of experiments by varying the parameters of the simulation. The script then iterates over each experiment, modifies the settings file, runs the main script, and saves the logs to a folder with a timestamp label. The script also creates a summary text file that contains a summary of the experiments run.
+
+Contact:
+- Email: hoangt@mit.edu
+- GitHub: thoang891
+"""
+
 import os
 import shutil
 import importlib

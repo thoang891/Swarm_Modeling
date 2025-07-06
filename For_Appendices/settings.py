@@ -1,6 +1,12 @@
-# This file contains the settings for the simulation. 
-# The settings are used to configure the simulation environment 
-# and the swarm population.
+"""
+Author: Thinh Hoang
+
+Description: This file contains the settings for the simulation. The settings file contains the parameters for the simulation, such as the animation settings, the environment settings, the target settings, and the agent settings. The settings file is imported by the main script and the environment class to define the parameters of the simulation.
+
+Contact:
+- Email: hoangt@mit.edu
+- GitHub: thoang891
+"""
 
 import random
 

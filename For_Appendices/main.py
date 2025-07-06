@@ -1,3 +1,13 @@
+"""
+Author: Thinh Hoang
+
+Description: This file contains the main script that initializes the swarm, environment, and target objects, and runs the simulation. The script contains the main function that runs the simulation for a specified number of iterations. The script also contains functions to plot the surface and scatter plots for the animation of the simulation.
+
+Contact:
+- Email: hoangt@mit.edu
+- GitHub: thoang891
+"""
+
 import matplotlib.pyplot as plt
 import logger
 import log_analyzer

@@ -1,4 +1,12 @@
-# This is a standard library for generating scalar functions and target functions for environment
+"""
+Author: Thinh Hoang
+
+Description: This file contains the scalar library that defines scalar functions for the environment.
+
+Contact:
+- Email: hoangt@mit.edu
+- GitHub: thoang891
+"""
 
 import numpy as np
 import settings as set

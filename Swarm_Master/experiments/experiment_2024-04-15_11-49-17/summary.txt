@@ -1,6 +1,0 @@
-Summary of Experiments:
-Experiment 1: {'seeker_population': 5, 'explorer_population': 0}
-Experiment 2: {'seeker_population': 4, 'explorer_population': 1}
-Experiment 3: {'seeker_population': 3, 'explorer_population': 2}
-Experiment 4: {'seeker_population': 2, 'explorer_population': 3}
-Experiment 5: {'seeker_population': 1, 'explorer_population': 4}

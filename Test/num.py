@@ -1,6 +1,26 @@
-velocity_magnitude = 1
-power = 12.545*(velocity_magnitude**3) + 0.662*(velocity_magnitude**2) - 0.007*velocity_magnitude
+population_max = 50
+index = 0
+experiments = []
 
-print(power * 3600)
+for population in range(1, population_max+1):
+    for i in range(population):
 
-print(power)
+        Ni = i
+
+        for j in range(population - i):
+            Ne = j
+            Ns = population - i - j
+            index += 1
+
+            experiment = {
+                "index": index,
+                "Ni": Ni,
+                "Ne": Ne,
+                "Ns": Ns,
+                "sum": Ni + Ne + Ns
+            }
+
+            experiments.append(experiment)
+
+for num in experiments:
+    print(num)

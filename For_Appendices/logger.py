@@ -1,3 +1,13 @@
+"""
+Author: Thinh Hoang
+
+Description: This file contains the logger script that logs the settings and data from the simulation to CSV files. The script contains functions to log the settings to a CSV file, log the buoy data to a CSV file, and create a log folder with a timestamp label.
+
+Contact:
+- Email: hoangt@mit.edu
+- GitHub: thoang891
+"""
+
 import os
 import csv
 from datetime import datetime

@@ -1,3 +1,13 @@
+"""
+Author: Thinh Hoang
+
+Description: This file contains the experiment analyzer script that compiles the data from the experiment logs into a single CSV file. The script iterates over each experiment folder and compiles the data from the experiment logs into a single CSV file. The script also resets the CSV files in the experiment folder before compiling the data.
+
+Contact:
+- Email: hoangt@mit.edu
+- GitHub: thoang891
+"""
+
 import os
 import csv
 import pandas as pd

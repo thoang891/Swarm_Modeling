@@ -1,3 +1,13 @@
+"""
+Author: Thinh Hoang
+
+Description: This file contains the Swarm class that defines the swarm of buoys in the simulation. The Swarm class constructs the swarm of buoys by generating seeker, explorer, and isocontour buoys based on the parameters provided. The Swarm class also updates the swarm by updating the environment, measuring the scalar field, broadcasting data, and updating the buoys in the swarm.
+
+Contact:
+- Email: hoangt@mit.edu
+- GitHub: thoang891
+"""
+
 import numpy as np
 from Buoy import Buoy
 from Environment import Env

@@ -1,3 +1,14 @@
+"""
+Author: Thinh Hoang
+
+Description: Defines Buoy class that represents a buoy in the simulation.
+
+Contact:
+- Email: hoangt@mit.edu
+- GitHub: thoang891
+"""
+
+
 import numpy as np
 import random
 import settings as set

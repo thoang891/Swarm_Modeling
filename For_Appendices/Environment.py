@@ -1,3 +1,13 @@
+"""
+Author: Thinh Hoang
+
+Description: This file contains the environment class that defines the environment in which the agent operates. The environment is defined by a scalar field, which is a function of the x and y coordinates. The scalar field is defined by a scalar function, which is a function of the x and y coordinates. The environment also contains a target, which is a moving object that the agent is trying to track. The target has a position and a velocity. The environment also contains an external force, which is a vector field that simulates a force field due to wind or current. The environment is updated at each time step by updating the scalar field, the target, and the external force.
+
+Contact:
+- Email: hoangt@mit.edu
+- GitHub: thoang891
+"""
+
 import numpy as np
 import settings as set
 import scalar_library

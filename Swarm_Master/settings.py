@@ -6,7 +6,7 @@ settings = {
     "animation": True, # True or False
     "animation_delay": 0.01,
     "timestep": 0.1,
-    "iterations": 1500,
+    "iterations": 1000,
 
     # Environment Settings
     "map_size": 25,
@@ -36,7 +36,7 @@ settings = {
     "seeker_memory_duration": 1,
 
     # Explorer Population Settings
-    "explorer_population": 20,
+    "explorer_population": 15,
     "explorer_speed_number": 0.1,
     "explorer_com_number": 2,
     "explorer_repulsion_number": 1,

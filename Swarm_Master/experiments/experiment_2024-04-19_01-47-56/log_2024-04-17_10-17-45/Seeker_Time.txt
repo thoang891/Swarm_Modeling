@@ -1,4 +1,0 @@
-First time Non-Dimensional Target Proximity is less than Proximity Threshold: 0.005
-Total time Non-Dimensional Target Proximity is less than Proximity Threshold(as percentage of total simulation time): 222.60000000000494
-Average time on target: 23.85000000000053
-Adjusted time on target: 47.70000000000106
